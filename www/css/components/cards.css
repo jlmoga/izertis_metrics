@@ -134,4 +134,5 @@ input[type="file"] {
 
 .dashboard-info .info-item i {
     color: var(--accent-color);
-    fo
+    font-size: 0.9rem;
+}
