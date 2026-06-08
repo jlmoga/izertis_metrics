@@ -33,8 +33,9 @@ header .btn-icon:hover {
     opacity: 1;
 }
 
-/* Variant contextual: dins filtres o modal (color de text secundari) */
+/* Variant contextual: dins filtres, gràfics o modal (color de text secundari) */
 .filters-header .btn-icon,
+.charts-header .btn-icon,
 .modal-header .btn-icon {
     color: var(--text-secondary);
     font-size: 1.2rem;
@@ -42,6 +43,7 @@ header .btn-icon:hover {
 }
 
 .filters-header .btn-icon:hover,
+.charts-header .btn-icon:hover,
 .modal-header .btn-icon:hover {
     background: var(--row-hover);
     color: var(--accent-color);

@@ -177,8 +177,12 @@
                             <span class="stat-value" id="total-files">0</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-title" data-i18n="statRows">Total Imputacions</span>
+                            <span class="stat-title" data-i18n="statRows">Nombre d'imputacions al llistat</span>
                             <span class="stat-value" id="total-rows">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
+                            <span class="stat-value" id="total-hours">0.00</span>
                         </div>
                         <div class="stat-card total-earnings">
                             <span class="stat-title" data-i18n="statAmount">Import Facturable Estimat</span>
@@ -208,11 +212,19 @@
                     </table>
                 </div>
 
-                <div class="charts-wrapper">
-                    <div class="chart-box"><canvas id="hoursChart"></canvas></div>
-                    <div class="chart-box"><canvas id="trendHoursChart"></canvas></div>
-                    <div class="chart-box"><canvas id="trendImportChart"></canvas></div>
-                </div>
+                <section class="charts-section" id="charts-section">
+                    <div class="charts-header">
+                        <h2><i class="ph ph-chart-bar"></i> <span data-i18n="printStats">Estadístiques i Gràfics</span></h2>
+                        <button id="btn-toggle-charts" class="btn-icon" data-i18n-title="tooltipToggleFilters" title="Minimitzar/Maximitzar filtres"><i class="ph ph-caret-up toggle-icon"></i></button>
+                    </div>
+                    <div class="charts-body">
+                        <div class="charts-wrapper">
+                            <div class="chart-box"><canvas id="hoursChart"></canvas></div>
+                            <div class="chart-box"><canvas id="trendHoursChart"></canvas></div>
+                            <div class="chart-box"><canvas id="trendImportChart"></canvas></div>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Àrea de Filtres (Part Inferior) -->
                 <section class="filters-section hidden" id="filters-section">
@@ -286,14 +298,22 @@
                     </div>
 
                     <div class="abs-dashboard-grid">
-                        <div class="abs-charts-row">
-                            <div class="chart-box">
-                                <canvas id="absStatusChart"></canvas>
+                        <section class="charts-section" id="abs-charts-section">
+                            <div class="charts-header">
+                                <h2><i class="ph ph-chart-bar"></i> <span data-i18n="printStats">Estadístiques i Gràfics</span></h2>
+                                <button id="btn-toggle-abs-charts" class="btn-icon" data-i18n-title="tooltipToggleFilters" title="Minimitzar/Maximitzar filtres"><i class="ph ph-caret-up toggle-icon"></i></button>
                             </div>
-                            <div class="chart-box">
-                                <canvas id="absTypeChart"></canvas>
+                            <div class="charts-body">
+                                <div class="abs-charts-row">
+                                    <div class="chart-box">
+                                        <canvas id="absStatusChart"></canvas>
+                                    </div>
+                                    <div class="chart-box">
+                                        <canvas id="absTypeChart"></canvas>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </section>
 
                         <div class="abs-main-col">
                             <div class="table-container">

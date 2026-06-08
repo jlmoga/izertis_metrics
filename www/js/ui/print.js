@@ -68,6 +68,7 @@ table { width: 100%; border-collapse: collapse; font-size: ${tableSize}; }
 th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
 th { background: #f8f9fa; font-weight: 700; color: #333; text-transform: uppercase; }
 tr:nth-child(even) { background: #fafafa; }
+.number-col { text-align: right; }
 .sort-icon, .filter-group { display: none; }
 .highlight-col { font-weight: 600; background: #f0f4f8 !important; }
 @media print { body { padding: 0; } .chart-box, tr, .stat-card { page-break-inside: avoid; } }

@@ -19,6 +19,7 @@ const filterProjects = document.getElementById('filter-projects');
 const filterUsers = document.getElementById('filter-users');
 const filtersSection = document.getElementById('filters-section');
 const totalRowsEl = document.getElementById('total-rows');
+const totalHoursEl = document.getElementById('total-hours');
 const totalAmountEl = document.getElementById('total-amount');
 
 // --- DOM refs absències ---
@@ -114,6 +115,7 @@ export function applyFilters() {
     rebuildSelect(filterUsers, [...new Set(getOptionsFor('user').map(r => r.user).filter(Boolean))].sort(), selectedUsers);
 
     totalRowsEl.textContent = state.filteredData.length;
+    totalHoursEl.textContent = state.filteredData.reduce((acc, r) => acc + (r.hours || 0), 0).toFixed(2);
     totalAmountEl.textContent = formatCurrency(state.filteredData.reduce((acc, r) => acc + (r._importedCalculated || 0), 0));
     filtersSection.classList.remove('hidden');
 
@@ -210,6 +212,8 @@ export function setupFilterToggles() {
             });
         }
     };
-    setupToggle('btn-toggle-filters', 'filters-section', 'filters_imputacions_minimized');
-    setupToggle('btn-toggle-abs-filters', 'filters-absencies', 'filters_absencies_minimized');
+    setupToggle('btn-toggle-filters',     'filters-section',     'filters_imputacions_minimized');
+    setupToggle('btn-toggle-abs-filters', 'filters-absencies',   'filters_absencies_minimized');
+    setupToggle('btn-toggle-charts',      'charts-section',      'charts_imputacions_minimized');
+    setupToggle('btn-toggle-abs-charts',  'abs-charts-section',  'charts_absencies_minimized');
 }

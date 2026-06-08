@@ -69,7 +69,6 @@
 
 /* --- Wrapper de gràfics (3 columnes) --------------------------------------- */
 .charts-wrapper {
-    flex-shrink: 0;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;

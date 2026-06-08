@@ -66,6 +66,58 @@
     transform: rotate(180deg);
 }
 
+/* =============================================================================
+   COMPONENT: Charts section (col·lapsable, reutilitzat a imp. i abs.)
+   ============================================================================= */
+
+.charts-section {
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.9rem 1.25rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.charts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: margin 0.25s ease, padding 0.25s ease;
+}
+
+.charts-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.charts-section.minimized .charts-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.charts-section.minimized .charts-body {
+    display: none;
+}
+
+.charts-section.minimized {
+    padding-bottom: 0.75rem;
+}
+
+.charts-section.minimized .toggle-icon {
+    transform: rotate(180deg);
+}
+
 /* --- Graella d'inputs ------------------------------------------------------- */
 .filters-container {
     display: flex;
