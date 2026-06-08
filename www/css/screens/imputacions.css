@@ -67,6 +67,117 @@
     margin-bottom: 0.75rem;
 }
 
+/* Títol de subsecció dins abs-main-col */
+.abs-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin: 0 0 0.75rem;
+}
+
+/* --- Barra d'agrupació ----------------------------------------------------- */
+.grouping-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.grouping-label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-right: 0.25rem;
+}
+
+.group-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.group-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.group-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    font-weight: 600;
+}
+
+.group-btn[data-order]::after {
+    content: attr(data-order);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 1.1rem;
+    height: 1.1rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* --- Checkbox "inicia col·lapsat" ------------------------------------------ */
+.group-collapsed-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.75rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--border-color);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.group-collapsed-label input[type="checkbox"] {
+    accent-color: var(--accent-color);
+    width: 0.9rem;
+    height: 0.9rem;
+    cursor: pointer;
+}
+
+/* --- Barra de canvi de vista (Detall / Resum) ------------------------------- */
+.view-toggle-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+/* --- Secció de vista resum -------------------------------------------------- */
+#summary-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
 /* --- Wrapper de gràfics (3 columnes) --------------------------------------- */
 .charts-wrapper {
     display: grid;

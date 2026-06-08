@@ -6,7 +6,7 @@ import { state } from '../state.js';
 import { t } from '../config/i18n.js';
 import { parseDateToTime, formatCurrency } from '../utils.js';
 import { sortData, sortAbsData } from './sort.js';
-import { renderTable, renderAbsTable } from './table.js';
+import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable, renderSummaryView } from './table.js';
 import { updateChart, updateAbsCharts } from './charts.js';
 import { renderOvertimeTable } from './overtime.js';
 import { updateHomeDashboard } from './home.js';
@@ -30,6 +30,24 @@ const filterAbsStatus = document.getElementById('filter-abs-status');
 const absTotalRequestsEl = document.getElementById('abs-total-requests');
 const absTotalDaysEl = document.getElementById('abs-total-days');
 const absPendingEl = document.getElementById('abs-pending');
+
+// Guard per evitar sincronitzacions recursives entre els dos filtres
+let syncingFilters = false;
+
+// Copia dates i tècnics d'un conjunt de filtres a l'altre
+function syncDatesAndUsers(fromImp) {
+    if (fromImp) {
+        if (filterAbsDateStart) filterAbsDateStart.value = filterDateStart.value;
+        if (filterAbsDateEnd)   filterAbsDateEnd.value   = filterDateEnd.value;
+        const sel = Array.from(filterUsers.selectedOptions).map(o => o.value);
+        Array.from(filterAbsUsers.options).forEach(opt => { opt.selected = sel.includes(opt.value); });
+    } else {
+        if (filterDateStart) filterDateStart.value = filterAbsDateStart.value;
+        if (filterDateEnd)   filterDateEnd.value   = filterAbsDateEnd.value;
+        const sel = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+        Array.from(filterUsers.options).forEach(opt => { opt.selected = sel.includes(opt.value); });
+    }
+}
 
 // Helper per reconstruir un <select> mantenint la selecció actual
 function rebuildSelect(el, values, selectedValues) {
@@ -119,10 +137,23 @@ export function applyFilters() {
     totalAmountEl.textContent = formatCurrency(state.filteredData.reduce((acc, r) => acc + (r._importedCalculated || 0), 0));
     filtersSection.classList.remove('hidden');
 
-    sortData();
-    renderTable(state.filteredData);
+    if (state.viewMode === 'summary') {
+        renderSummaryView(state.filteredData);
+    } else if (state.currentGroup.length > 0) {
+        renderGroupedTable(state.filteredData, state.currentGroup, state.groupStartCollapsed);
+    } else {
+        sortData();
+        renderTable(state.filteredData);
+    }
     updateChart(state.filteredData);
     renderOvertimeTable();
+
+    if (!syncingFilters && state.absData.length > 0) {
+        syncingFilters = true;
+        syncDatesAndUsers(true);
+        applyAbsFilters();
+        syncingFilters = false;
+    }
 }
 
 export function applyAbsFilters() {
@@ -159,10 +190,21 @@ export function applyAbsFilters() {
         ['pendent', 'pendiente', 'en espera'].some(s => r.status.toLowerCase().includes(s))
     ).length;
 
-    renderAbsTable(state.filteredAbsData);
+    if (state.currentAbsGroup.length > 0) {
+        renderGroupedAbsTable(state.filteredAbsData, state.currentAbsGroup, state.absGroupStartCollapsed);
+    } else {
+        renderAbsTable(state.filteredAbsData);
+    }
     updateAbsCharts(state.filteredAbsData);
     renderOvertimeTable();
     updateHomeDashboard();
+
+    if (!syncingFilters && state.currentData.length > 0) {
+        syncingFilters = true;
+        syncDatesAndUsers(false);
+        applyFilters();
+        syncingFilters = false;
+    }
 }
 
 export function setupFilterHandlers() {
@@ -216,4 +258,125 @@ export function setupFilterToggles() {
     setupToggle('btn-toggle-abs-filters', 'filters-absencies',   'filters_absencies_minimized');
     setupToggle('btn-toggle-charts',      'charts-section',      'charts_imputacions_minimized');
     setupToggle('btn-toggle-abs-charts',  'abs-charts-section',  'charts_absencies_minimized');
+}
+
+export function setupGroupingHandlers() {
+    const bar = document.getElementById('grouping-bar');
+    if (!bar) return;
+
+    const detailBtn      = bar.querySelector('[data-group=""]');
+    const groupBtns      = [...bar.querySelectorAll('.group-btn[data-group]:not([data-group=""])')];
+    const collapsedLabel = document.getElementById('group-collapsed-label');
+    const collapsedChk   = document.getElementById('group-start-collapsed');
+
+    const refresh = () => {
+        const hasGroup = state.currentGroup.length > 0;
+        if (detailBtn) detailBtn.classList.toggle('active', !hasGroup);
+        groupBtns.forEach(b => {
+            const idx = state.currentGroup.indexOf(b.dataset.group);
+            b.classList.toggle('active', idx >= 0);
+            if (idx >= 0) b.dataset.order = idx + 1;
+            else delete b.dataset.order;
+        });
+        if (collapsedLabel) collapsedLabel.classList.toggle('hidden', !hasGroup);
+    };
+
+    if (detailBtn) {
+        detailBtn.addEventListener('click', () => {
+            state.currentGroup = [];
+            refresh();
+            applyFilters();
+        });
+    }
+
+    groupBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const g = btn.dataset.group;
+            const idx = state.currentGroup.indexOf(g);
+            if (idx >= 0) state.currentGroup.splice(idx, 1);
+            else state.currentGroup.push(g);
+            refresh();
+            applyFilters();
+        });
+    });
+
+    if (collapsedChk) {
+        collapsedChk.addEventListener('change', () => {
+            state.groupStartCollapsed = collapsedChk.checked;
+            if (state.currentGroup.length > 0) applyFilters();
+        });
+    }
+}
+
+export function setupAbsGroupingHandlers() {
+    const bar = document.getElementById('abs-grouping-bar');
+    if (!bar) return;
+
+    const detailBtn      = bar.querySelector('[data-abs-group=""]');
+    const groupBtns      = [...bar.querySelectorAll('.group-btn[data-abs-group]:not([data-abs-group=""])')];
+    const collapsedLabel = document.getElementById('abs-group-collapsed-label');
+    const collapsedChk   = document.getElementById('abs-group-start-collapsed');
+
+    const refresh = () => {
+        const hasGroup = state.currentAbsGroup.length > 0;
+        if (detailBtn) detailBtn.classList.toggle('active', !hasGroup);
+        groupBtns.forEach(b => {
+            const idx = state.currentAbsGroup.indexOf(b.dataset.absGroup);
+            b.classList.toggle('active', idx >= 0);
+            if (idx >= 0) b.dataset.order = idx + 1;
+            else delete b.dataset.order;
+        });
+        if (collapsedLabel) collapsedLabel.classList.toggle('hidden', !hasGroup);
+    };
+
+    if (detailBtn) {
+        detailBtn.addEventListener('click', () => {
+            state.currentAbsGroup = [];
+            refresh();
+            applyAbsFilters();
+        });
+    }
+
+    groupBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const g = btn.dataset.absGroup;
+            const idx = state.currentAbsGroup.indexOf(g);
+            if (idx >= 0) state.currentAbsGroup.splice(idx, 1);
+            else state.currentAbsGroup.push(g);
+            refresh();
+            applyAbsFilters();
+        });
+    });
+
+    if (collapsedChk) {
+        collapsedChk.addEventListener('change', () => {
+            state.absGroupStartCollapsed = collapsedChk.checked;
+            if (state.currentAbsGroup.length > 0) applyAbsFilters();
+        });
+    }
+}
+
+export function setupViewToggle() {
+    const viewBtns = document.querySelectorAll('.view-btn');
+    const groupingBar = document.getElementById('grouping-bar');
+    const impTableContainer = document.getElementById('imp-table-container');
+    const summarySection = document.getElementById('summary-section');
+
+    const applyViewMode = () => {
+        const isSummary = state.viewMode === 'summary';
+        viewBtns.forEach(b => b.classList.toggle('active', b.dataset.view === state.viewMode));
+        if (groupingBar) groupingBar.classList.toggle('hidden', isSummary);
+        if (impTableContainer) impTableContainer.classList.toggle('hidden', isSummary);
+        if (summarySection) summarySection.classList.toggle('hidden', !isSummary);
+    };
+
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.viewMode = btn.dataset.view;
+            applyViewMode();
+            if (state.currentData.length > 0) applyFilters();
+        });
+    });
+
+    applyViewMode();
 }

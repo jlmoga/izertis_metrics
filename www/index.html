@@ -191,7 +191,25 @@
                     </div>
                 </div>
 
-                <div class="table-container">
+                <div class="view-toggle-bar" id="view-toggle-bar">
+                    <button class="group-btn view-btn active" data-view="detail" data-i18n="viewDetail">Vista detall</button>
+                    <button class="group-btn view-btn" data-view="summary" data-i18n="viewSummary">Vista resum</button>
+                </div>
+
+                <div class="grouping-bar" id="grouping-bar">
+                    <span class="grouping-label" data-i18n="groupByLabel">Agrupa per:</span>
+                    <button class="group-btn active" data-group="" data-i18n="groupNone">Detall</button>
+                    <button class="group-btn" data-group="client" data-i18n="groupByClient">Per client</button>
+                    <button class="group-btn" data-group="project" data-i18n="groupByProject">Per projecte</button>
+                    <button class="group-btn" data-group="user" data-i18n="groupByUser">Per tècnic</button>
+                    <button class="group-btn" data-group="date" data-i18n="groupByDate">Per data</button>
+                    <label class="group-collapsed-label hidden" id="group-collapsed-label">
+                        <input type="checkbox" id="group-start-collapsed">
+                        <span data-i18n="groupStartCollapsed">Tot col·lapsat</span>
+                    </label>
+                </div>
+
+                <div class="table-container" id="imp-table-container">
                     <table id="dataTable">
                         <thead>
                             <tr>
@@ -210,6 +228,15 @@
                             <!-- Les dades es mostraran aquí dinàmicament -->
                         </tbody>
                     </table>
+                </div>
+
+                <div id="summary-section" class="hidden">
+                    <div class="table-container">
+                        <table id="summaryTable">
+                            <thead></thead>
+                            <tbody id="summaryBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <section class="charts-section" id="charts-section">
@@ -316,6 +343,19 @@
                         </section>
 
                         <div class="abs-main-col">
+                            <h2 class="abs-section-title"><i class="ph ph-clipboard-text"></i> <span data-i18n="absDetailTitle">Detall d'absències</span></h2>
+                            <div class="grouping-bar" id="abs-grouping-bar">
+                                <span class="grouping-label" data-i18n="groupByLabel">Agrupa per:</span>
+                                <button class="group-btn active" data-abs-group="" data-i18n="groupNone">Detall</button>
+                                <button class="group-btn" data-abs-group="user" data-i18n="groupAbsByUser">Per sol·licitant</button>
+                                <button class="group-btn" data-abs-group="type" data-i18n="groupAbsByType">Per tipus</button>
+                                <button class="group-btn" data-abs-group="status" data-i18n="groupAbsByStatus">Per estat</button>
+                                <button class="group-btn" data-abs-group="dateStart" data-i18n="groupByDate">Per data</button>
+                                <label class="group-collapsed-label hidden" id="abs-group-collapsed-label">
+                                    <input type="checkbox" id="abs-group-start-collapsed">
+                                    <span data-i18n="groupStartCollapsed">Tot col·lapsat</span>
+                                </label>
+                            </div>
                             <div class="table-container">
                                 <table id="absencesTable">
                                     <thead>

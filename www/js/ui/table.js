@@ -4,7 +4,27 @@
 
 import { state } from '../state.js';
 import { t } from '../config/i18n.js';
-import { formatCurrency } from '../utils.js';
+import { formatCurrency, isDateInRange } from '../utils.js';
+
+// Set precalculat de claus user|dateStart|dateEnd per a files d'absència amb conflicte
+let absConflictKeys = new Set();
+
+function buildAbsConflictKeys(absData) {
+    absConflictKeys = new Set();
+    if (!state.currentData.length) return;
+    const impDates = {};
+    state.currentData.forEach(r => {
+        if (!r.user || !r.date) return;
+        if (!impDates[r.user]) impDates[r.user] = [];
+        impDates[r.user].push(r.date);
+    });
+    absData.forEach(row => {
+        const dates = impDates[row.user];
+        if (dates && dates.some(d => isDateInRange(d, row.dateStart, row.dateEnd))) {
+            absConflictKeys.add(`${row.user}|${row.dateStart}|${row.dateEnd}`);
+        }
+    });
+}
 
 const tableBody = document.getElementById('tableBody');
 const absTableBody = document.getElementById('absTableBody');
@@ -36,20 +56,352 @@ export function renderTable(data) {
     });
 }
 
-export function renderAbsTable(data) {
-    absTableBody.innerHTML = '';
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${row.user || '-'}</td>
-            <td>${row.type || '-'}</td>
-            <td>${row.status || '-'}</td>
-            <td>${row.dateStart || '-'}</td>
-            <td>${row.dateEnd || '-'}</td>
-            <td class="number-col">${row.days || '0'}</td>
-            <td class="number-col">${(row.hours || 0).toFixed(2)}h</td>
-            <td>${row.approver || '-'}</td>
-        `;
-        absTableBody.appendChild(tr);
+function setDescendantsDisplay(groupId, display, tbody) {
+    tbody.querySelectorAll(`[data-parent-group="${groupId}"]`).forEach(el => {
+        el.style.display = display;
+        if (el.dataset.groupId) {
+            if (display === 'none' || !el.classList.contains('collapsed')) {
+                setDescendantsDisplay(el.dataset.groupId, display, tbody);
+            }
+        }
     });
+}
+
+function groupRows(rows, groupBy) {
+    const order = [];
+    const map = {};
+    rows.forEach(r => {
+        const key = groupBy === 'project'
+            ? `${r.project || '-'}|||${r.client || '-'}`
+            : (r[groupBy] || '-');
+        if (!map[key]) {
+            map[key] = {
+                label: groupBy === 'project'
+                    ? `${r.project || '-'} · ${r.client || '-'}`
+                    : (r[groupBy] || '-'),
+                rows: [], hours: 0, amount: 0
+            };
+            order.push(key);
+        }
+        map[key].rows.push(r);
+        map[key].hours  += r.hours || 0;
+        map[key].amount += r._importedCalculated || 0;
+    });
+    order.sort((a, b) =>
+        groupBy === 'date' ? a.localeCompare(b) : map[b].hours - map[a].hours
+    );
+    return order.map(k => map[k]);
+}
+
+function renderDataRow(row, parentGroupId) {
+    const hasAbsence = state.absData.some(abs => abs.user === row.user && abs.dateStart === row.date);
+    const isBillableBadge = row.isBillable
+        ? `<span class="badge badge-yes">${t('badgeYes')}</span>`
+        : `<span class="badge badge-no">${t('badgeNo')}</span>`;
+    const absenceWarning = hasAbsence
+        ? `<i class="ph ph-warning-circle" style="color:var(--danger-color);margin-left:5px" title="${t('lblOvertimeWarning')}"></i>`
+        : '';
+    const tr = document.createElement('tr');
+    tr.dataset.parentGroup = parentGroupId;
+    tr.innerHTML = `
+        <td>${row.date || '-'}</td>
+        <td>${row.user || '-'}${absenceWarning}</td>
+        <td>${row.client || '-'}</td>
+        <td>${row.project || '-'}</td>
+        <td>${row.task || '-'}</td>
+        <td>${isBillableBadge}</td>
+        <td class="number-col">${formatCurrency(row.rate)}</td>
+        <td class="number-col">${row.hours.toFixed(2)}h</td>
+        <td class="number-col highlight-col">${formatCurrency(row._importedCalculated)}</td>
+    `;
+    return tr;
+}
+
+function renderLevel(rows, groupByArray, level, tbody, parentGroupId, counter) {
+    const groupBy = groupByArray[0];
+    const remaining = groupByArray.slice(1);
+    const indent = `${0.6 + (level - 1) * 1.4}rem`;
+
+    groupRows(rows, groupBy).forEach(g => {
+        const groupId = `grp-${counter.n++}`;
+
+        const headerRow = document.createElement('tr');
+        headerRow.className = `group-header-row group-level-${level}`;
+        headerRow.dataset.groupId = groupId;
+        if (parentGroupId) headerRow.dataset.parentGroup = parentGroupId;
+        headerRow.innerHTML = `<td colspan="9" style="padding-left:${indent}">
+            <i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>
+            <strong>${g.label}</strong>
+            <span class="group-summary">${g.rows.length} ${t('lblImputacions')} &nbsp;·&nbsp; ${g.hours.toFixed(2)}h &nbsp;·&nbsp; ${formatCurrency(g.amount)}</span>
+        </td>`;
+        headerRow.addEventListener('click', () => {
+            const collapsed = headerRow.classList.toggle('collapsed');
+            setDescendantsDisplay(groupId, collapsed ? 'none' : '', tbody);
+        });
+        tbody.appendChild(headerRow);
+
+        if (remaining.length > 0) {
+            renderLevel(g.rows, remaining, level + 1, tbody, groupId, counter);
+        } else {
+            g.rows.forEach(row => tbody.appendChild(renderDataRow(row, groupId)));
+        }
+    });
+}
+
+export function renderGroupedTable(data, groupByArray, startCollapsed = false) {
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+    renderLevel(data, groupByArray, 1, tableBody, null, { n: 0 });
+    if (startCollapsed) {
+        tableBody.querySelectorAll('.group-header-row').forEach(h => h.classList.add('collapsed'));
+        tableBody.querySelectorAll('tr:not(.group-level-1)').forEach(el => { el.style.display = 'none'; });
+    }
+}
+
+export function renderSummaryView(data) {
+    const summaryTable = document.getElementById('summaryTable');
+    const summaryBody = document.getElementById('summaryBody');
+    if (!summaryTable || !summaryBody) return;
+
+    // 1. Extract sorted month keys from data
+    const monthSet = new Set();
+    data.forEach(r => {
+        if (!r.date) return;
+        const p = r.date.split('/');
+        if (p.length < 3) return;
+        monthSet.add(`${p[2]}-${p[1].padStart(2, '0')}`);
+    });
+    const monthKeys = [...monthSet].sort();
+    const monthLabels = t('months');
+    const monthMeta = monthKeys.map(k => {
+        const [yr, mo] = k.split('-');
+        return { key: k, label: `${monthLabels[parseInt(mo, 10) - 1]} ${yr}` };
+    });
+
+    // 2. Build dynamic two-row header
+    const thead = summaryTable.querySelector('thead');
+    let r1 = `<th rowspan="2" class="summary-entity-header">${t('summaryColEntity')}</th>`;
+    monthMeta.forEach(m => {
+        r1 += `<th colspan="2" class="summary-month-header">${m.label}</th>`;
+    });
+    r1 += `<th colspan="2" class="summary-total-header">Total</th>`;
+
+    let r2 = '';
+    for (let i = 0; i <= monthKeys.length; i++) {
+        const isTotal = i === monthKeys.length;
+        const hClass = `number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}`;
+        const aClass = `number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end`;
+        r2 += `<th class="${hClass}">${t('summaryColHours')}</th>`;
+        r2 += `<th class="${aClass}">${t('summaryColAmount')}</th>`;
+    }
+
+    thead.innerHTML = `<tr>${r1}</tr><tr>${r2}</tr>`;
+
+    // 3. Aggregate a row-set by month
+    const aggregate = (rows) => {
+        const map = Object.fromEntries(monthKeys.map(k => [k, { hours: 0, amount: 0 }]));
+        rows.forEach(r => {
+            if (!r.date) return;
+            const p = r.date.split('/');
+            if (p.length < 3) return;
+            const k = `${p[2]}-${p[1].padStart(2, '0')}`;
+            if (map[k]) {
+                map[k].hours += r.hours || 0;
+                map[k].amount += r._importedCalculated || 0;
+            }
+        });
+        return map;
+    };
+
+    // 4. Build monthly td cells + total td cells
+    const monthlyCells = (map, totalH, totalA) => {
+        let html = '';
+        monthKeys.forEach(k => {
+            const d = map[k];
+            html += `<td class="number-col">${d.hours > 0 ? d.hours.toFixed(2) + 'h' : '-'}</td>`;
+            html += `<td class="number-col highlight-col month-group-end">${d.amount > 0 ? formatCurrency(d.amount) : '-'}</td>`;
+        });
+        html += `<td class="number-col summary-total-cell"><strong>${totalH.toFixed(2)}h</strong></td>`;
+        html += `<td class="number-col highlight-col summary-total-cell"><strong>${formatCurrency(totalA)}</strong></td>`;
+        return html;
+    };
+
+    // 5. Build 3-level hierarchy: client → project → user
+    const clientOrder = [];
+    const clientMap = {};
+    data.forEach(r => {
+        const ck = r.client || '-';
+        const pk = r.project || '-';
+        const uk = r.user || '-';
+
+        if (!clientMap[ck]) {
+            clientMap[ck] = { hours: 0, amount: 0, rows: [], projects: {}, projectOrder: [] };
+            clientOrder.push(ck);
+        }
+        clientMap[ck].hours += r.hours || 0;
+        clientMap[ck].amount += r._importedCalculated || 0;
+        clientMap[ck].rows.push(r);
+
+        if (!clientMap[ck].projects[pk]) {
+            clientMap[ck].projects[pk] = { hours: 0, amount: 0, rows: [], users: {}, userOrder: [] };
+            clientMap[ck].projectOrder.push(pk);
+        }
+        clientMap[ck].projects[pk].hours += r.hours || 0;
+        clientMap[ck].projects[pk].amount += r._importedCalculated || 0;
+        clientMap[ck].projects[pk].rows.push(r);
+
+        if (!clientMap[ck].projects[pk].users[uk]) {
+            clientMap[ck].projects[pk].users[uk] = { hours: 0, amount: 0, rows: [] };
+            clientMap[ck].projects[pk].userOrder.push(uk);
+        }
+        clientMap[ck].projects[pk].users[uk].hours += r.hours || 0;
+        clientMap[ck].projects[pk].users[uk].amount += r._importedCalculated || 0;
+        clientMap[ck].projects[pk].users[uk].rows.push(r);
+    });
+
+    clientOrder.sort((a, b) => clientMap[b].hours - clientMap[a].hours);
+
+    summaryBody.innerHTML = '';
+    let counter = 0;
+
+    clientOrder.forEach(ck => {
+        const c = clientMap[ck];
+        const clientId = `sum-${counter++}`;
+        const cMap = aggregate(c.rows);
+
+        const clientRow = document.createElement('tr');
+        clientRow.className = 'group-header-row group-level-1';
+        clientRow.dataset.groupId = clientId;
+        clientRow.innerHTML = `
+            <td><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i><strong>${ck}</strong></td>
+            ${monthlyCells(cMap, c.hours, c.amount)}
+        `;
+        clientRow.addEventListener('click', () => {
+            const collapsed = clientRow.classList.toggle('collapsed');
+            setDescendantsDisplay(clientId, collapsed ? 'none' : '', summaryBody);
+        });
+        summaryBody.appendChild(clientRow);
+
+        c.projectOrder.sort((a, b) => c.projects[b].hours - c.projects[a].hours);
+        c.projectOrder.forEach(pk => {
+            const p = c.projects[pk];
+            const projectId = `sum-${counter++}`;
+            const pMap = aggregate(p.rows);
+
+            const projectRow = document.createElement('tr');
+            projectRow.className = 'group-header-row group-level-2';
+            projectRow.dataset.groupId = projectId;
+            projectRow.dataset.parentGroup = clientId;
+            projectRow.innerHTML = `
+                <td style="padding-left:1.6rem"><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>${pk}</td>
+                ${monthlyCells(pMap, p.hours, p.amount)}
+            `;
+            projectRow.addEventListener('click', () => {
+                const collapsed = projectRow.classList.toggle('collapsed');
+                setDescendantsDisplay(projectId, collapsed ? 'none' : '', summaryBody);
+            });
+            summaryBody.appendChild(projectRow);
+
+            p.userOrder.sort((a, b) => p.users[b].hours - p.users[a].hours);
+            p.userOrder.forEach(uk => {
+                const u = p.users[uk];
+                const uMap = aggregate(u.rows);
+                const userRow = document.createElement('tr');
+                userRow.dataset.parentGroup = projectId;
+                userRow.innerHTML = `
+                    <td style="padding-left:3.2rem">${uk}</td>
+                    ${monthlyCells(uMap, u.hours, u.amount)}
+                `;
+                summaryBody.appendChild(userRow);
+            });
+        });
+    });
+}
+
+function groupAbsRows(rows, groupBy) {
+    const order = [];
+    const map = {};
+    rows.forEach(r => {
+        const key = r[groupBy] || '-';
+        if (!map[key]) {
+            map[key] = { label: key, rows: [], days: 0, hours: 0 };
+            order.push(key);
+        }
+        map[key].rows.push(r);
+        map[key].days  += parseFloat(r.days) || 0;
+        map[key].hours += r.hours || 0;
+    });
+    order.sort((a, b) =>
+        groupBy === 'dateStart' ? a.localeCompare(b) : map[b].hours - map[a].hours
+    );
+    return order.map(k => map[k]);
+}
+
+function renderAbsDataRow(row, parentGroupId) {
+    const isConflict = absConflictKeys.has(`${row.user}|${row.dateStart}|${row.dateEnd}`);
+    const conflictIcon = isConflict
+        ? `<i class="ph ph-warning-circle" style="color:var(--danger-color);margin-left:5px" title="${t('lblAbsConflictWarning')}"></i>`
+        : '';
+    const tr = document.createElement('tr');
+    if (isConflict) tr.classList.add('abs-conflict-row');
+    if (parentGroupId) tr.dataset.parentGroup = parentGroupId;
+    tr.innerHTML = `
+        <td>${row.user || '-'}${conflictIcon}</td>
+        <td>${row.type || '-'}</td>
+        <td>${row.status || '-'}</td>
+        <td>${row.dateStart || '-'}</td>
+        <td>${row.dateEnd || '-'}</td>
+        <td class="number-col">${row.days || '0'}</td>
+        <td class="number-col">${(row.hours || 0).toFixed(2)}h</td>
+        <td>${row.approver || '-'}</td>
+    `;
+    return tr;
+}
+
+function renderAbsLevel(rows, groupByArray, level, tbody, parentGroupId, counter) {
+    const groupBy = groupByArray[0];
+    const remaining = groupByArray.slice(1);
+    const indent = `${0.6 + (level - 1) * 1.4}rem`;
+
+    groupAbsRows(rows, groupBy).forEach(g => {
+        const groupId = `absgrp-${counter.n++}`;
+
+        const headerRow = document.createElement('tr');
+        headerRow.className = `group-header-row group-level-${level}`;
+        headerRow.dataset.groupId = groupId;
+        if (parentGroupId) headerRow.dataset.parentGroup = parentGroupId;
+        headerRow.innerHTML = `<td colspan="8" style="padding-left:${indent}">
+            <i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>
+            <strong>${g.label}</strong>
+            <span class="group-summary">${g.rows.length} ${t('lblAbsencies')} &nbsp;·&nbsp; ${g.days.toFixed(2)}d &nbsp;·&nbsp; ${g.hours.toFixed(2)}h</span>
+        </td>`;
+        headerRow.addEventListener('click', () => {
+            const collapsed = headerRow.classList.toggle('collapsed');
+            setDescendantsDisplay(groupId, collapsed ? 'none' : '', tbody);
+        });
+        tbody.appendChild(headerRow);
+
+        if (remaining.length > 0) {
+            renderAbsLevel(g.rows, remaining, level + 1, tbody, groupId, counter);
+        } else {
+            g.rows.forEach(row => tbody.appendChild(renderAbsDataRow(row, groupId)));
+        }
+    });
+}
+
+export function renderGroupedAbsTable(data, groupByArray, startCollapsed = false) {
+    if (!absTableBody) return;
+    buildAbsConflictKeys(data);
+    absTableBody.innerHTML = '';
+    renderAbsLevel(data, groupByArray, 1, absTableBody, null, { n: 0 });
+    if (startCollapsed) {
+        absTableBody.querySelectorAll('.group-header-row').forEach(h => h.classList.add('collapsed'));
+        absTableBody.querySelectorAll('tr:not(.group-level-1)').forEach(el => { el.style.display = 'none'; });
+    }
+}
+
+export function renderAbsTable(data) {
+    buildAbsConflictKeys(data);
+    absTableBody.innerHTML = '';
+    data.forEach(row => absTableBody.appendChild(renderAbsDataRow(row, null)));
 }

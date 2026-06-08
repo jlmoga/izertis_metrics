@@ -19,7 +19,7 @@ import { state } from './state.js';
 import { normalizeName } from './utils.js';
 import { setupNavigation } from './ui/navigation.js';
 import { setupUploadHandlers } from './ui/upload.js';
-import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles } from './ui/filters.js';
+import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupViewToggle } from './ui/filters.js';
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
 import { updateChart } from './ui/charts.js';
@@ -82,6 +82,9 @@ setupOvertimeSortHandlers();
 setupFilterHandlers();
 setupAbsFilterHandlers();
 setupFilterToggles();
+setupGroupingHandlers();
+setupAbsGroupingHandlers();
+setupViewToggle();
 
 // 7. Impressió
 const btnPrintImp = document.getElementById('btn-print-imp');

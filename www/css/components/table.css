@@ -101,6 +101,134 @@ tbody tr:hover {
     color: var(--success-color);
 }
 
+/* --- Fila de capçalera de grup ---------------------------------------------- */
+.group-header-row {
+    cursor: pointer;
+    user-select: none;
+}
+
+.group-header-row td {
+    background: var(--accent-color);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.group-header-row:hover td {
+    filter: brightness(1.1);
+}
+
+body.theme-light .group-header-row td {
+    background: rgba(0, 120, 212, 0.10);
+    color: var(--text-primary);
+    border-top-color: var(--accent-color);
+}
+
+.group-toggle-icon {
+    margin-right: 0.5rem;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+}
+
+.group-header-row.collapsed .group-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.group-summary {
+    font-weight: 400;
+    font-size: 0.8rem;
+    margin-left: 1rem;
+    opacity: 0.85;
+}
+
+/* Nivells de grup niuat: opacitat decreixent */
+.group-header-row.group-level-2 td {
+    background: rgba(0, 120, 212, 0.55);
+}
+.group-header-row.group-level-3 td {
+    background: rgba(0, 120, 212, 0.35);
+}
+
+body.theme-light .group-header-row.group-level-2 td {
+    background: rgba(0, 120, 212, 0.07);
+}
+body.theme-light .group-header-row.group-level-3 td {
+    background: rgba(0, 120, 212, 0.04);
+}
+
+/* --- Fila d'absència amb conflicte de jornada ------------------------------- */
+.abs-conflict-row td {
+    background: rgba(209, 52, 56, 0.10) !important;
+}
+
+.abs-conflict-row:hover td {
+    background: rgba(209, 52, 56, 0.18) !important;
+}
+
+body.theme-light .abs-conflict-row td {
+    background: rgba(209, 52, 56, 0.07) !important;
+}
+
+body.theme-light .abs-conflict-row:hover td {
+    background: rgba(209, 52, 56, 0.14) !important;
+}
+
+/* --- Vista resum: capçalera de dos nivells ---------------------------------- */
+.summary-entity-header {
+    min-width: 220px;
+}
+
+.summary-month-header {
+    text-align: center;
+    background: rgba(0, 120, 212, 0.12);
+    border-left: 1px solid var(--border-color);
+    text-transform: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.summary-total-header {
+    text-align: center;
+    background: rgba(0, 120, 212, 0.22);
+    border-left: 2px solid var(--accent-color);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+
+.summary-sub-header {
+    font-size: 0.63rem;
+    font-weight: 500;
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+.summary-sub-header.summary-total-sub {
+    background: rgba(0, 120, 212, 0.12);
+    border-left: 2px solid var(--accent-color);
+    opacity: 1;
+    font-weight: 700;
+}
+
+/* Separador visual entre grups de mes */
+.month-group-end {
+    border-right: 1px solid rgba(0, 120, 212, 0.35);
+}
+
+/* Columna Total (últimes dues columnes) */
+.summary-total-cell {
+    border-left: 2px solid var(--accent-color);
+    background: rgba(0, 120, 212, 0.05);
+}
+
+body.theme-light .summary-month-header  { background: rgba(0, 120, 212, 0.06); }
+body.theme-light .summary-total-header  { background: rgba(0, 120, 212, 0.12); }
+body.theme-light .summary-total-cell    { background: rgba(0, 120, 212, 0.04); }
+body.theme-light .month-group-end       { border-right-color: rgba(0, 120, 212, 0.2); }
+
 /* --- Badges (Sí / No, estats) ----------------------------------------------- */
 .badge {
     padding: 0.2rem 0.6rem;

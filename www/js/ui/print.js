@@ -31,17 +31,22 @@ export function generatePrintReport(type) {
         if (state.trendImportChart) charts.push({ label: t('chartTitleEvolImport'), src: state.trendImportChart.toBase64Image() });
     }
 
+    const isSummary = !isAbs && state.viewMode === 'summary';
+
     const tables = isAbs
         ? [
             { title: t('printDetailAbsencies'), html: document.getElementById('absencesTable').outerHTML },
-            { title: t('titleOvertime'),            html: document.getElementById('overtimeTable').outerHTML }
+            { title: t('titleOvertime'),        html: document.getElementById('overtimeTable').outerHTML }
           ]
-        : [{ title: t('printDetailImputacions'), html: document.getElementById('dataTable').outerHTML }];
+        : [{
+            title: isSummary ? t('viewSummary') : t('printDetailImputacions'),
+            html: document.getElementById(isSummary ? 'summaryTable' : 'dataTable').outerHTML
+          }];
 
     const locale = currentLang === 'es' ? 'es-ES' : currentLang === 'en' ? 'en-GB' : 'ca-ES';
     const colsLayout = charts.length > 2 ? 'repeat(3, 1fr)' : '1fr 1fr';
     const colsGap    = charts.length > 2 ? '15px' : '30px';
-    const tableSize  = isAbs ? '9pt' : '8pt';
+    const tableSize  = isAbs ? '9pt' : isSummary ? '7pt' : '8pt';
 
     const printWin = window.open('', '_blank');
     printWin.document.write(`<!DOCTYPE html>
@@ -69,8 +74,17 @@ th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
 th { background: #f8f9fa; font-weight: 700; color: #333; text-transform: uppercase; }
 tr:nth-child(even) { background: #fafafa; }
 .number-col { text-align: right; }
-.sort-icon, .filter-group { display: none; }
+.sort-icon, .filter-group, .group-toggle-icon { display: none; }
 .highlight-col { font-weight: 600; background: #f0f4f8 !important; }
+.group-header-row td { background: #346B84 !important; color: #fff !important; font-weight: 700; }
+.group-header-row.group-level-2 td { background: rgba(52,107,132,0.55) !important; color: #fff !important; }
+.summary-entity-header { min-width: 160px; }
+.summary-month-header { text-align: center; background: #e8f0f7 !important; border-left: 1px solid #ccc; font-size: 0.9em; text-transform: none; font-weight: 700; }
+.summary-total-header { text-align: center; background: #d0e4f0 !important; border-left: 2px solid #346B84; font-weight: 700; }
+.summary-sub-header { font-size: 0.75em; }
+.summary-total-sub { background: #e8f0f7 !important; border-left: 2px solid #346B84; }
+.month-group-end { border-right: 1px solid rgba(52,107,132,0.3); }
+.summary-total-cell { border-left: 2px solid #346B84; background: #f5f8fb !important; }
 @media print { body { padding: 0; } .chart-box, tr, .stat-card { page-break-inside: avoid; } }
 </style>
 </head>

@@ -32,7 +32,7 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
 
         absData.filter(a => a.user === user).forEach(abs => {
             if (isDateInRange(dateStr, abs.dateStart, abs.dateEnd)) {
-                const dailyHours = (parseFloat(abs.days) > 0)
+                const dailyHours = (parseFloat(abs.days) > 1)
                     ? (parseFloat(abs.hours) / parseFloat(abs.days))
                     : parseFloat(abs.hours);
                 dayAbsenceHours += dailyHours;
