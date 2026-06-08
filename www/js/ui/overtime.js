@@ -1,0 +1,111 @@
+// =============================================================================
+// OVERTIME — Càlcul de conflictes de jornada i taula d'excés
+// =============================================================================
+
+import { state } from '../state.js';
+import { t } from '../config/i18n.js';
+import { parseDateToTime, isDateInRange } from '../utils.js';
+
+const overtimeTableBody = document.getElementById('overtimeTableBody');
+const filterAbsUsers = document.getElementById('filter-abs-users');
+const filterAbsDateStart = document.getElementById('filter-abs-date-start');
+const filterAbsDateEnd = document.getElementById('filter-abs-date-end');
+
+export function getConflicts(data, absData, userFilter = [], start = null, end = null) {
+    if (!data || !absData || data.length === 0 || absData.length === 0) return [];
+
+    const impMap = {};
+    data.forEach(row => {
+        if (userFilter.length > 0 && !userFilter.includes(row.user)) return;
+        const time = parseDateToTime(row.date);
+        if (start && time < start) return;
+        if (end && time > end) return;
+        const key = `${row.user}|${row.date}`;
+        impMap[key] = (impMap[key] || 0) + (parseFloat(row.hours) || 0);
+    });
+
+    const conflictsList = [];
+    Object.keys(impMap).forEach(key => {
+        const [user, dateStr] = key.split('|');
+        const impHours = impMap[key];
+        let dayAbsenceHours = 0;
+
+        absData.filter(a => a.user === user).forEach(abs => {
+            if (isDateInRange(dateStr, abs.dateStart, abs.dateEnd)) {
+                const dailyHours = (parseFloat(abs.days) > 0)
+                    ? (parseFloat(abs.hours) / parseFloat(abs.days))
+                    : parseFloat(abs.hours);
+                dayAbsenceHours += dailyHours;
+            }
+        });
+
+        if (dayAbsenceHours > 0) {
+            const totalCompute = impHours + dayAbsenceHours;
+            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 8.5 });
+        }
+    });
+    return conflictsList;
+}
+
+export function renderOvertimeTable() {
+    if (!overtimeTableBody) return;
+    overtimeTableBody.innerHTML = '';
+
+    if (!state.currentData.length || !state.absData.length) {
+        overtimeTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgOvertimeNeedsBoth')}</td></tr>`;
+        return;
+    }
+
+    const selectedUsers = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+    const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
+    const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
+
+    const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate);
+
+    if (conflicts.length === 0) {
+        overtimeTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoConflictsInPeriod')}</td></tr>`;
+        return;
+    }
+
+    const col = state.currentOvertimeSort.column;
+    const dir = state.currentOvertimeSort.direction;
+    conflicts.sort((a, b) => {
+        let valA = col === 'date' ? parseDateToTime(a.date) : a.user.toLowerCase();
+        let valB = col === 'date' ? parseDateToTime(b.date) : b.user.toLowerCase();
+        if (valA < valB) return dir === 'asc' ? -1 : 1;
+        if (valA > valB) return dir === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    conflicts.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${c.date}</td>
+            <td style="font-weight:600;">${c.user}</td>
+            <td class="number-col">${c.impHours.toFixed(2)}h</td>
+            <td class="number-col">${c.absHours.toFixed(2)}h</td>
+            <td class="number-col highlight-col" style="font-weight:700; color:var(--accent-color);">${c.totalCompute.toFixed(2)}h</td>
+        `;
+        overtimeTableBody.appendChild(tr);
+    });
+}
+
+export function setupOvertimeSortHandlers() {
+    document.querySelectorAll('#overtimeTable th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const column = th.getAttribute('data-sort-overtime');
+            if (state.currentOvertimeSort.column === column) {
+                state.currentOvertimeSort.direction = state.currentOvertimeSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                state.currentOvertimeSort.column = column;
+                state.currentOvertimeSort.direction = 'asc';
+            }
+            document.querySelectorAll('#overtimeTable .sort-icon').forEach(icon => {
+                icon.className = 'ph ph-caret-up sort-icon';
+            });
+            const icon = th.querySelector('.sort-icon');
+            if (icon) icon.className = `ph ph-caret-${state.currentOvertimeSort.direction === 'asc' ? 'up' : 'down'} sort-icon active`;
+            renderOvertimeTable();
+        });
+    });
+}

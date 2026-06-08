@@ -1,0 +1,138 @@
+/* =============================================================================
+   COMPONENT: Filters
+   Panell de filtres col·lapsable amb inputs, selects múltiples i dates.
+   Usat tant a la pantalla d'imputacions com a la d'absències.
+   ============================================================================= */
+
+/* --- Panell contenidor ------------------------------------------------------ */
+.filters-section {
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.9rem 1.25rem;
+    box-shadow: var(--glass-shadow);
+    animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Capçalera del panell --------------------------------------------------- */
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: margin 0.25s ease, padding 0.25s ease;
+}
+
+.filters-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+/* --- Estat minimitzat ------------------------------------------------------- */
+.filters-section.minimized .filters-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.filters-section.minimized .filters-container {
+    display: none;
+}
+
+.filters-section.minimized {
+    padding-bottom: 0.75rem;
+}
+
+/* Icona de toggle (flecha) */
+.toggle-icon {
+    transition: transform 0.25s ease;
+}
+
+.filters-section.minimized .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* --- Graella d'inputs ------------------------------------------------------- */
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* Grup de dates (horitzontal intern) */
+.dates-group {
+    gap: 1rem;
+    justify-content: flex-start;
+}
+
+.date-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* --- Etiquetes -------------------------------------------------------------- */
+.filter-group label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* --- Inputs i selects ------------------------------------------------------- */
+.filter-group input,
+.filter-group select {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 2px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    font-family: inherit;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
+}
+
+.filter-group select[multiple] {
+    padding: 0.35rem;
+}
+
+.filter-group select option {
+    background: var(--option-bg);
+    color: var(--text-primary);
+    padding: 0.35rem;
+}
+
+.filter-group select option:checked {
+    background: var(--accent-color) linear-gradient(0deg, var(--accent-color) 0%, var(--accent-color) 100%);
+    color: #ffffff;
+}

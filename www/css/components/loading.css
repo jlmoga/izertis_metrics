@@ -1,0 +1,37 @@
+/* =============================================================================
+   COMPONENT: Loading Overlay
+   Capa de bloqueig mentre es recuperen dades del localStorage.
+   ============================================================================= */
+
+.loading-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(243, 242, 241, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+}
+
+body.theme-dark .loading-overlay {
+    background: rgba(27, 26, 25, 0.95);
+}
+
+.loading-content {
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.spin-icon {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}

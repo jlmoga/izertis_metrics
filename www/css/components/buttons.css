@@ -1,0 +1,134 @@
+/* =============================================================================
+   COMPONENT: Buttons
+   Tots els variants de botons seguint Fluent Design.
+
+   Variants:
+     .btn-icon         — icona sense fons (capçalera i zones de contingut)
+     .custom-file-upload — botó primari (fons accent)
+     .btn-secondary    — botó secundari (contorn accent)
+     .btn-large        — modificador de mida gran
+     .btn-clear        — acció destructiva (contorn perill)
+     .btn-print        — acció auxiliar (contorn neutre)
+   ============================================================================= */
+
+/* --- Botó icona ------------------------------------------------------------- */
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--header-text);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem;
+    border-radius: 2px;
+    opacity: 0.85;
+}
+
+/* Hover dins la capçalera (fons blanc semi-transparent) */
+header .btn-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+    opacity: 1;
+}
+
+/* Variant contextual: dins filtres o modal (color de text secundari) */
+.filters-header .btn-icon,
+.modal-header .btn-icon {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    opacity: 1;
+}
+
+.filters-header .btn-icon:hover,
+.modal-header .btn-icon:hover {
+    background: var(--row-hover);
+    color: var(--accent-color);
+}
+
+/* --- Botó primari (accent solid) -------------------------------------------- */
+.custom-file-upload {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.5rem;
+    background: var(--accent-color);
+    color: #ffffff;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.custom-file-upload:hover {
+    background: var(--accent-hover);
+}
+
+/* --- Botó secundari (contorn accent) --------------------------------------- */
+.btn-secondary {
+    background: transparent !important;
+    border: 1px solid var(--accent-color) !important;
+    color: var(--accent-color) !important;
+}
+
+.btn-secondary:hover {
+    background: rgba(0, 120, 212, 0.08) !important;
+}
+
+body.theme-dark .btn-secondary:hover {
+    background: rgba(76, 194, 255, 0.08) !important;
+}
+
+/* --- Modificador de mida gran ----------------------------------------------- */
+.btn-large {
+    font-size: 1rem;
+    padding: 0.7rem 2rem;
+}
+
+/* --- Botó destructiu (netejar filtres, etc.) --------------------------------- */
+.btn-clear {
+    background: transparent;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    padding: 0.4rem 0.9rem;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-clear:hover {
+    background: rgba(209, 52, 56, 0.08);
+}
+
+body.theme-dark .btn-clear:hover {
+    background: rgba(241, 112, 123, 0.08);
+}
+
+/* --- Botó auxiliar (imprimir, etc.) ----------------------------------------- */
+.btn-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.875rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-print:hover {
+    background: var(--row-hover);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}

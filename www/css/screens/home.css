@@ -1,0 +1,103 @@
+/* =============================================================================
+   SCREEN: Home
+   Pantalla d'inici: estat buit, dashboard de resum i botons de navegació.
+   ============================================================================= */
+
+/* --- Contenidor de pantalla ------------------------------------------------- */
+.home-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* --- Estat buit (sense dades carregades) ------------------------------------ */
+.home-empty-state {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1.75rem 2rem;
+    max-width: 540px;
+    margin: 1.5rem auto;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    box-shadow: var(--glass-shadow);
+    animation: fadeIn 0.4s ease;
+}
+
+.home-empty-state.hidden {
+    display: none;
+}
+
+/* --- Dashboard principal ---------------------------------------------------- */
+.home-dashboard {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 1rem auto;
+}
+
+.home-dashboard .stats-cards {
+    margin-bottom: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+/* --- Fila de secció de KPIs (títol + graella) ------------------------------- */
+.stats-row {
+    margin: 1rem 0 0.5rem 0;
+    text-align: left;
+    width: 100%;
+}
+
+.stats-row h4 {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+/* --- Graella de columnes del dashboard -------------------------------------- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    text-align: left;
+}
+
+.dashboard-col h3 {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Botons de navegació principals ---------------------------------------- */
+.home-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.home-title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem) !important;
+    line-height: 1.2;
+}

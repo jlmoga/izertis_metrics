@@ -1,0 +1,77 @@
+/* =============================================================================
+   SCREEN: Imputacions
+   Pantalla del quadre d'imputacions: results-section, capçaleres de secció
+   i wrapper de gràfics.
+
+   NOTA: .results-section i .results-header s'usen també a la pantalla
+   d'absències, ja que comparteixen la mateixa estructura visual.
+   ============================================================================= */
+
+/* --- Contenidor de pantalla ------------------------------------------------- */
+#imputacions-screen,
+#absencies-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Sobreescriptura específica d'imputacions (evita col·lapse de flex) */
+#imputacions-screen {
+    min-height: 0;
+    width: 100%;
+}
+
+/* --- Secció de resultats (compartida amb absències) ------------------------- */
+.results-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    padding-bottom: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.results-header {
+    flex-shrink: 0;
+}
+
+/* Capçalera amb títol i acció (ex: botó imprimir) */
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.header-main h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Títol de subsecció (ex: "Excés de Jornada") */
+.results-header > h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.75rem;
+}
+
+/* --- Wrapper de gràfics (3 columnes) --------------------------------------- */
+.charts-wrapper {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    height: 200px;
+}

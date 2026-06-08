@@ -1,0 +1,36 @@
+/* =============================================================================
+   SCREEN: Absències
+   Pantalla del quadre d'absències: dashboard amb gràfics i taules.
+   ============================================================================= */
+
+/* --- Graella principal del dashboard d'absències ---------------------------- */
+.abs-dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* --- Fila de gràfics (2 gràfics en horitzontal) ----------------------------- */
+.abs-charts-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.abs-charts-row .chart-box {
+    flex: 1;
+    height: 220px;
+}
+
+/* --- Columna principal (taula d'absències) ---------------------------------- */
+.abs-main-col {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Les taules dins el dashboard d'absències no limiten l'alçada */
+.abs-dashboard-grid .table-container,
+#absencies-results-section .table-container {
+    flex: none;
+    max-height: none;
+}

@@ -1,0 +1,65 @@
+/* =============================================================================
+   LAYOUT — Estructura principal de la pàgina
+   Header (barra SharePoint) · App container · Main
+   ============================================================================= */
+
+/* --- Capçalera (SharePoint Top Nav) ----------------------------------------- */
+header {
+    flex-shrink: 0;
+    background: var(--header-bg);
+    color: var(--header-text);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 100%;
+}
+
+.header-content > i.ph {
+    font-size: 1.3rem;
+    color: var(--header-text);
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+h1.moga-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--header-text);
+    letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Contenidor i àrea principal -------------------------------------------- */
+.app-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem 1rem 1.5rem;
+    overflow: hidden;
+    min-height: 0;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}

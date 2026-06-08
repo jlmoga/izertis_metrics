@@ -1,0 +1,83 @@
+/* =============================================================================
+   TOKENS — Sistema de disseny Fluent / SharePoint
+   Font única de veritat per a tots els valors visuals.
+   Canviar aquí afecta tota l'aplicació.
+   ============================================================================= */
+
+/* --- TEMA CLAR (Light) — Per defecte ---------------------------------------- */
+:root {
+    /* Superfícies */
+    --bg-color:          #f3f2f1;
+    --card-bg:           #ffffff;
+
+    /* Contorns */
+    --border-color:      #e1dfdd;
+
+    /* Tipografia */
+    --text-primary:      #323130;
+    --text-secondary:    #605e5c;
+
+    /* Accent (Microsoft Blue) */
+    --accent-color:      #0078d4;
+    --accent-hover:      #106ebe;
+
+    /* Semàntica */
+    --success-color:     #107c10;
+    --danger-color:      #d13438;
+
+    /* Capçalera */
+    --header-bg:         #0078d4;
+    --header-text:       #ffffff;
+
+    /* Ombres i efectes */
+    --glass-shadow:      0 1.6px 3.6px rgba(0,0,0,0.132), 0 0.3px 0.9px rgba(0,0,0,0.108);
+    --transition:        all 0.15s ease;
+
+    /* Formularis */
+    --input-bg:          #ffffff;
+    --option-bg:         #ffffff;
+
+    /* Taula */
+    --row-hover:         #f3f2f1;
+    --table-header-bg:   #faf9f8;
+}
+
+/* --- TEMA CLAR explícit (quan s'aplica la classe .theme-light) --------------- */
+body.theme-light {
+    --bg-color:          #f3f2f1;
+    --card-bg:           #ffffff;
+    --border-color:      #e1dfdd;
+    --text-primary:      #323130;
+    --text-secondary:    #605e5c;
+    --accent-color:      #0078d4;
+    --accent-hover:      #106ebe;
+    --success-color:     #107c10;
+    --danger-color:      #d13438;
+    --header-bg:         #0078d4;
+    --header-text:       #ffffff;
+    --glass-shadow:      0 1.6px 3.6px rgba(0,0,0,0.132), 0 0.3px 0.9px rgba(0,0,0,0.108);
+    --input-bg:          #ffffff;
+    --option-bg:         #ffffff;
+    --row-hover:         #f3f2f1;
+    --table-header-bg:   #faf9f8;
+}
+
+/* --- TEMA FOSC (Dark) -------------------------------------------------------- */
+body.theme-dark {
+    --bg-color:          #1b1a19;
+    --card-bg:           #292827;
+    --border-color:      #484644;
+    --text-primary:      #ffffff;
+    --text-secondary:    #c8c6c4;
+    --accent-color:      #4cc2ff;
+    --accent-hover:      #6cb8f6;
+    --success-color:     #6bb700;
+    --danger-color:      #f1707b;
+    --header-bg:         #1f1f1f;
+    --header-text:       #ffffff;
+    --glass-shadow:      0 1.6px 3.6px rgba(0,0,0,0.4), 0 0.3px 0.9px rgba(0,0,0,0.3);
+    --input-bg:          #323130;
+    --option-bg:         #292827;
+    --row-hover:         #323130;
+    --table-header-bg:   #323130;
+}

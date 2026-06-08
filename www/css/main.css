@@ -1,0 +1,35 @@
+/* =============================================================================
+   MAIN — Punt d'entrada dels estils
+   Importa tots els mòduls en l'ordre de cascada correcte:
+     1. tokens    → variables CSS (ha d'anar primer)
+     2. base      → reset i body
+     3. utilities → classes auxiliars, animacions, scrollbar, impressió
+     4. layout    → esquelet de pàgina (header, app-container, main)
+     5. components → blocs reutilitzables independents de pantalla
+     6. screens   → composicions específiques de cada vista
+   ============================================================================= */
+
+/* 1 · Tokens ----------------------------------------------------------------- */
+@import 'tokens.css';
+
+/* 2 · Base ------------------------------------------------------------------- */
+@import 'base.css';
+
+/* 3 · Utilities -------------------------------------------------------------- */
+@import 'utilities.css';
+
+/* 4 · Layout ----------------------------------------------------------------- */
+@import 'layout.css';
+
+/* 5 · Components ------------------------------------------------------------- */
+@import 'components/loading.css';
+@import 'components/buttons.css';
+@import 'components/cards.css';
+@import 'components/table.css';
+@import 'components/filters.css';
+@import 'components/modal.css';
+
+/* 6 · Screens ---------------------------------------------------------------- */
+@import 'screens/home.css';
+@import 'screens/imputacions.css';
+@import 'screens/absencies.css';

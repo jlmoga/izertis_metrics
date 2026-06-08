@@ -1,0 +1,135 @@
+/* =============================================================================
+   COMPONENT: Table
+   Contenidor de taula, files, capçaleres, ordenació i badges.
+   ============================================================================= */
+
+/* --- Contenidor amb scroll -------------------------------------------------- */
+.table-container {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: auto;
+    box-shadow: var(--glass-shadow);
+}
+
+/* Variant compacta per al dashboard principal */
+.table-container.compact {
+    max-height: 260px;
+}
+
+.table-container.compact th,
+.table-container.compact td {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+/* --- Taula base ------------------------------------------------------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th, td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* --- Capçalera -------------------------------------------------------------- */
+th {
+    background: var(--table-header-bg);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: 2px solid var(--border-color);
+}
+
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+}
+
+th.sortable:hover {
+    color: var(--accent-color);
+    background: var(--row-hover);
+}
+
+/* Icona d'ordenació */
+.sort-icon {
+    opacity: 0.3;
+    margin-left: 4px;
+    transition: var(--transition);
+}
+
+th.sortable.active .sort-icon {
+    opacity: 1;
+    color: var(--accent-color);
+}
+
+th.sortable.desc .sort-icon {
+    transform: rotate(180deg);
+}
+
+/* --- Files de dades --------------------------------------------------------- */
+td {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+tbody tr {
+    transition: background 0.1s ease;
+}
+
+tbody tr:hover {
+    background: var(--row-hover);
+}
+
+/* --- Columnes especials ----------------------------------------------------- */
+.number-col {
+    text-align: right;
+}
+
+.highlight-col {
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+/* --- Badges (Sí / No, estats) ----------------------------------------------- */
+.badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-yes {
+    background: #dff6dd;
+    color: #107c10;
+    border: 1px solid #a9d5a9;
+}
+
+.badge-no {
+    background: #fde7e9;
+    color: #d13438;
+    border: 1px solid #f5b7ba;
+}
+
+body.theme-dark .badge-yes {
+    background: rgba(107, 183, 0, 0.15);
+    color: #6bb700;
+    border-color: rgba(107, 183, 0, 0.3);
+}
+
+body.theme-dark .badge-no {
+    background: rgba(241, 112, 123, 0.15);
+    color: #f1707b;
+    border-color: rgba(241, 112, 123, 0.3);
+}

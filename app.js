@@ -224,11 +224,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const themeSelect = document.getElementById('theme-select');
 
     // Inicialitzar Tema carregant des de LocalStorage
-    const savedTheme = localStorage.getItem('moga_theme') || 'default';
-    if(savedTheme !== 'default') {
-        document.body.className = savedTheme;
-        if(themeSelect) themeSelect.value = savedTheme;
-    }
+    const savedTheme = localStorage.getItem('moga_theme') || 'theme-light';
+    const appliedTheme = (savedTheme === 'default') ? 'theme-light' : savedTheme;
+    document.body.className = appliedTheme;
+    if(themeSelect) themeSelect.value = appliedTheme;
 
     btnSettings.addEventListener('click', () => settingsModal.classList.remove('hidden-modal'));
     
@@ -426,7 +425,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         themeSelect.addEventListener('change', (e) => {
             const theme = e.target.value;
             localStorage.setItem('moga_theme', theme);
-            document.body.className = theme === 'default' ? '' : theme;
+            document.body.className = theme;
             if (currentData.length > 0) {
                 updateChart(filteredData);
             }
