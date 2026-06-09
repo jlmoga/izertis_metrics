@@ -2,7 +2,7 @@
 // COLLAPSIBLE — Seccions col·lapsables del home
 // =============================================================================
 
-const SECTIONS = ['section-year', 'section-curr', 'section-prev', 'section-evolucio'];
+const SECTIONS = ['section-year', 'section-curr', 'section-prev', 'section-evolucio', 'section-abs-detail', 'section-overtime'];
 
 export function setupCollapsibleSections() {
     SECTIONS.forEach(id => {

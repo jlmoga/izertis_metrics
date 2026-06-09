@@ -133,10 +133,25 @@
     gap: 0.4rem;
 }
 
-/* Grup de dates (horitzontal intern) */
+/* Grup de dates: data inici + fi en fila, navegador de mes a sota */
 .dates-group {
-    gap: 1rem;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem 1rem;
+    align-items: start;
+}
+
+.month-nav-group {
+    grid-column: 1 / -1;
+}
+
+.month-nav-controls {
+    width: 100%;
+}
+
+.month-nav-input {
+    flex: 1;
+    min-width: 0;
 }
 
 .date-input {
@@ -187,4 +202,50 @@
 .filter-group select option:checked {
     background: var(--accent-color) linear-gradient(0deg, var(--accent-color) 0%, var(--accent-color) 100%);
     color: #ffffff;
+}
+
+/* --- Navegador de mes complet ----------------------------------------------- */
+.month-nav-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+}
+
+.month-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    padding: 0 0.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.month-nav-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.month-nav-input {
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    padding: 0.28rem 0.4rem;
+    font-size: 0.8rem;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.month-nav-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
 }

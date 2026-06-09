@@ -22,11 +22,22 @@ const totalRowsEl = document.getElementById('total-rows');
 const totalHoursEl = document.getElementById('total-hours');
 const totalAmountEl = document.getElementById('total-amount');
 
+// --- DOM refs navegador de mes (imputacions) ---
+const impMonthNav = document.getElementById('imp-month-nav');
+const btnImpMonthPrev = document.getElementById('btn-imp-month-prev');
+const btnImpMonthNext = document.getElementById('btn-imp-month-next');
+
+// --- DOM refs navegador de mes (absències) ---
+const absMonthNav = document.getElementById('abs-month-nav');
+const btnAbsMonthPrev = document.getElementById('btn-abs-month-prev');
+const btnAbsMonthNext = document.getElementById('btn-abs-month-next');
+
 // --- DOM refs absències ---
 const filterAbsDateStart = document.getElementById('filter-abs-date-start');
 const filterAbsDateEnd = document.getElementById('filter-abs-date-end');
 const filterAbsUsers = document.getElementById('filter-abs-users');
 const filterAbsStatus = document.getElementById('filter-abs-status');
+const filterAbsClients = document.getElementById('filter-abs-clients');
 const absTotalRequestsEl = document.getElementById('abs-total-requests');
 const absTotalDaysEl = document.getElementById('abs-total-days');
 const absPendingEl = document.getElementById('abs-pending');
@@ -156,17 +167,43 @@ export function applyFilters() {
     }
 }
 
+const absNameKey = name => name
+    ? name.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9\s]/g, '').trim()
+          .split(/\s+/).filter(Boolean).sort().join(' ')
+    : '?';
+
+const buildAbsUserClientMap = () => {
+    const userHours = {};
+    state.currentData.forEach(r => {
+        const u = absNameKey(r.user);
+        const c = r.client || '?';
+        if (!userHours[u]) userHours[u] = {};
+        userHours[u][c] = (userHours[u][c] || 0) + (r.hours || 0);
+    });
+    const map = {};
+    Object.entries(userHours).forEach(([u, clients]) => {
+        map[u] = Object.entries(clients).sort((a, b) => b[1] - a[1])[0][0];
+    });
+    return map;
+};
+
 export function applyAbsFilters() {
     const selectedUsersRaw = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
     const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
     const selectedStatusRaw = Array.from(filterAbsStatus.selectedOptions).map(o => o.value);
     const selectedStatus = selectedStatusRaw.includes('ALL') ? [] : selectedStatusRaw;
+    const selectedAbsClientsRaw = filterAbsClients ? Array.from(filterAbsClients.selectedOptions).map(o => o.value) : [];
+    const selectedAbsClients = selectedAbsClientsRaw.includes('ALL') ? [] : selectedAbsClientsRaw;
     const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
     const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
+
+    const userClientMap = buildAbsUserClientMap();
+    const getAbsClient = row => userClientMap[absNameKey(row.user)] || '?';
 
     state.filteredAbsData = state.absData.filter(row => {
         if (selectedUsers.length > 0 && !selectedUsers.includes(row.user)) return false;
         if (selectedStatus.length > 0 && !selectedStatus.includes(row.status)) return false;
+        if (selectedAbsClients.length > 0 && !selectedAbsClients.includes(getAbsClient(row))) return false;
         if (startDate || endDate) {
             const rowTime = parseDateToTime(row.dateStart);
             if (startDate && rowTime < startDate) return false;
@@ -183,6 +220,10 @@ export function applyAbsFilters() {
     };
     rebuildDynamic(filterAbsUsers, state.absData, 'user');
     rebuildDynamic(filterAbsStatus, state.absData, 'status');
+    if (filterAbsClients) {
+        const allAbsClients = [...new Set(state.absData.map(r => getAbsClient(r)))].sort();
+        rebuildSelect(filterAbsClients, allAbsClients, selectedAbsClients);
+    }
 
     absTotalRequestsEl.textContent = state.filteredAbsData.length;
     absTotalDaysEl.textContent = state.filteredAbsData.reduce((acc, r) => acc + (parseFloat(r.days) || 0), 0).toFixed(2);
@@ -207,10 +248,42 @@ export function applyAbsFilters() {
     }
 }
 
+function applyMonthToRange(monthInput, startInput, endInput, applyFn) {
+    if (!monthInput.value) return;
+    const [year, month] = monthInput.value.split('-').map(Number);
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 0);
+    startInput.value = start.toISOString().split('T')[0];
+    endInput.value = end.toISOString().split('T')[0];
+    applyFn();
+}
+
+function shiftMonth(monthInput, delta, startInput, endInput, applyFn) {
+    let year, month;
+    if (monthInput.value) {
+        [year, month] = monthInput.value.split('-').map(Number);
+    } else {
+        const now = new Date();
+        year = now.getFullYear();
+        month = now.getMonth() + 1;
+    }
+    month += delta;
+    if (month > 12) { month = 1; year++; }
+    if (month < 1) { month = 12; year--; }
+    monthInput.value = `${year}-${String(month).padStart(2, '0')}`;
+    applyMonthToRange(monthInput, startInput, endInput, applyFn);
+}
+
 export function setupFilterHandlers() {
     [filterDateStart, filterDateEnd, filterClients, filterProjects, filterUsers].forEach(el => {
         el.addEventListener('change', applyFilters);
     });
+
+    if (impMonthNav) {
+        impMonthNav.addEventListener('change', () => applyMonthToRange(impMonthNav, filterDateStart, filterDateEnd, applyFilters));
+        btnImpMonthPrev.addEventListener('click', () => shiftMonth(impMonthNav, -1, filterDateStart, filterDateEnd, applyFilters));
+        btnImpMonthNext.addEventListener('click', () => shiftMonth(impMonthNav, +1, filterDateStart, filterDateEnd, applyFilters));
+    }
 
     const btnClearFilters = document.getElementById('btn-clear-filters');
     if (btnClearFilters) {
@@ -226,15 +299,22 @@ export function setupFilterHandlers() {
 }
 
 export function setupAbsFilterHandlers() {
-    [filterAbsUsers, filterAbsStatus, filterAbsDateStart, filterAbsDateEnd].forEach(el => {
+    [filterAbsUsers, filterAbsStatus, filterAbsDateStart, filterAbsDateEnd, filterAbsClients].filter(Boolean).forEach(el => {
         el.addEventListener('change', applyAbsFilters);
     });
+
+    if (absMonthNav) {
+        absMonthNav.addEventListener('change', () => applyMonthToRange(absMonthNav, filterAbsDateStart, filterAbsDateEnd, applyAbsFilters));
+        btnAbsMonthPrev.addEventListener('click', () => shiftMonth(absMonthNav, -1, filterAbsDateStart, filterAbsDateEnd, applyAbsFilters));
+        btnAbsMonthNext.addEventListener('click', () => shiftMonth(absMonthNav, +1, filterAbsDateStart, filterAbsDateEnd, applyAbsFilters));
+    }
 
     const btnClearAbsFilters = document.getElementById('btn-clear-abs-filters');
     if (btnClearAbsFilters) {
         btnClearAbsFilters.addEventListener('click', () => {
             Array.from(filterAbsUsers.options).forEach(opt => opt.selected = false);
             Array.from(filterAbsStatus.options).forEach(opt => opt.selected = false);
+            if (filterAbsClients) Array.from(filterAbsClients.options).forEach(opt => opt.selected = false);
             filterAbsDateStart.value = '';
             filterAbsDateEnd.value = '';
             applyAbsFilters();

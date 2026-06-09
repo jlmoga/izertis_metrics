@@ -137,3 +137,8 @@ input[type="file"] {
     color: var(--accent-color);
     font-size: 0.9rem;
 }
+
+.dashboard-info .evo-type-btn {
+    padding: 0.45rem 1rem;
+    font-size: 0.875rem;
+}

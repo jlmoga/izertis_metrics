@@ -96,6 +96,8 @@
                     <div class="dashboard-info">
                         <span class="info-item"><i class="ph ph-clock"></i> <span data-i18n="lastUpdatedImp">Imputacions</span>: <span id="last-updated-imp">-</span></span>
                         <span class="info-item"><i class="ph ph-clock"></i> <span data-i18n="lastUpdatedAbs">Absències</span>: <span id="last-updated-abs">-</span></span>
+                        <div class="evo-client-filter" id="home-client-filter" style="margin-left: auto;"></div>
+                        <button id="btn-print-home" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
                     </div>
 
                     <!-- Global Stats -->
@@ -284,18 +286,33 @@
                             <i class="ph ph-caret-up stats-row-toggle"></i>
                         </h4>
                         <div class="stats-row-body">
+                            <div class="evo-toolbar">
+                                <div class="evo-type-btns">
+                                    <button class="evo-type-btn active" data-chart-type="bar" title="Columnes"><i class="ph ph-chart-bar"></i> <span>Columnes</span></button>
+                                    <button class="evo-type-btn" data-chart-type="line" title="Línies"><i class="ph ph-chart-line"></i> <span>Línies</span></button>
+                                    <button class="evo-type-btn" data-chart-type="table" title="Dades"><i class="ph ph-table"></i> <span>Dades</span></button>
+                                </div>
+                                <label class="evo-project-toggle">
+                                    <input type="checkbox" id="evo-by-project">
+                                    <i class="ph ph-folder-open"></i>
+                                    <span>Per projecte</span>
+                                </label>
+                            </div>
                             <div class="evolucio-grid">
                                 <div class="evolucio-col">
                                     <h3 class="dashboard-col-title" data-i18n="titleEvoPressupost">Evolució pressupost</h3>
                                     <div class="evolucio-chart-wrap"><canvas id="homeEvoPressupostChart"></canvas></div>
+                                    <div class="evolucio-table-wrap" id="homeEvoPressupostTable" style="display:none;"></div>
                                 </div>
                                 <div class="evolucio-col">
                                     <h3 class="dashboard-col-title" data-i18n="titleEvoAbsencies">Evolució absències</h3>
                                     <div class="evolucio-chart-wrap"><canvas id="homeEvoAbsenciesChart"></canvas></div>
+                                    <div class="evolucio-table-wrap" id="homeEvoAbsenciesTable" style="display:none;"></div>
                                 </div>
                                 <div class="evolucio-col">
                                     <h3 class="dashboard-col-title" data-i18n="titleEvoImputacions">Imputacions</h3>
                                     <div class="evolucio-chart-wrap"><canvas id="homeEvoImputacionsChart"></canvas></div>
+                                    <div class="evolucio-table-wrap" id="homeEvoImputacionsTable" style="display:none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -428,6 +445,14 @@
                             <label for="filter-date-end" data-i18n="lblDateEnd">Data Fi</label>
                             <input type="date" id="filter-date-end">
                         </div>
+                        <div class="date-input month-nav-group">
+                            <label data-i18n="lblMonthNav">Mes complet</label>
+                            <div class="month-nav-controls">
+                                <button class="month-nav-btn" id="btn-imp-month-prev" title="Mes anterior"><i class="ph ph-caret-left"></i></button>
+                                <input type="month" class="month-nav-input" id="imp-month-nav">
+                                <button class="month-nav-btn" id="btn-imp-month-next" title="Mes següent"><i class="ph ph-caret-right"></i></button>
+                            </div>
+                        </div>
                         <span data-i18n="disclaimerMaxMonths" style="position: absolute; bottom: -20px; left: 0; font-size: 0.75rem; color: var(--accent-color); white-space: nowrap;">* Es mostren/permeten màxim 6 mesos de dades alhora.</span>
                     </div>
                     <div class="filter-group">
@@ -498,56 +523,66 @@
                             </div>
                         </section>
 
-                        <div class="abs-main-col">
-                            <h2 class="abs-section-title"><i class="ph ph-clipboard-text"></i> <span data-i18n="absDetailTitle">Detall d'absències</span></h2>
-                            <div class="grouping-bar" id="abs-grouping-bar">
-                                <span class="grouping-label" data-i18n="groupByLabel">Agrupa per:</span>
-                                <button class="group-btn active" data-abs-group="" data-i18n="groupNone">Detall</button>
-                                <button class="group-btn" data-abs-group="user" data-i18n="groupAbsByUser">Per sol·licitant</button>
-                                <button class="group-btn" data-abs-group="type" data-i18n="groupAbsByType">Per tipus</button>
-                                <button class="group-btn" data-abs-group="status" data-i18n="groupAbsByStatus">Per estat</button>
-                                <button class="group-btn" data-abs-group="dateStart" data-i18n="groupByDate">Per data</button>
-                                <label class="group-collapsed-label hidden" id="abs-group-collapsed-label">
-                                    <input type="checkbox" id="abs-group-start-collapsed">
-                                    <span data-i18n="groupStartCollapsed">Tot col·lapsat</span>
-                                </label>
+                        <div class="abs-main-col stats-row" id="section-abs-detail">
+                            <div class="stats-row-header">
+                                <span><i class="ph ph-clipboard-text"></i> <span data-i18n="absDetailTitle">Detall d'absències</span></span>
+                                <span class="stats-row-toggle"><i class="ph ph-caret-up"></i></span>
                             </div>
-                            <div class="table-container">
-                                <table id="absencesTable">
-                                    <thead>
-                                        <tr>
-                                            <th class="sortable" data-sort-abs="user"><span data-i18n="colAbsUser">SOL·LICITANT</span> <i class="ph ph-caret-up sort-icon"></i></th>
-                                            <th data-i18n="colAbsType">TIPUS</th>
-                                            <th data-i18n="colAbsStatus">ESTAT</th>
-                                            <th class="sortable" data-sort-abs="dateStart"><span data-i18n="colAbsDateStart">DATA INICI</span> <i class="ph ph-caret-up sort-icon"></i></th>
-                                            <th class="sortable" data-sort-abs="dateEnd"><span data-i18n="colAbsDateEnd">DATA FI</span> <i class="ph ph-caret-up sort-icon"></i></th>
-                                            <th class="number-col" data-i18n="colAbsDays">DIES</th>
-                                            <th class="number-col" data-i18n="colAbsHours">HORES</th>
-                                            <th data-i18n="colAbsApprover">APROVADOR</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="absTableBody"></tbody>
-                                </table>
+                            <div class="stats-row-body">
+                                <div class="grouping-bar" id="abs-grouping-bar">
+                                    <span class="grouping-label" data-i18n="groupByLabel">Agrupa per:</span>
+                                    <button class="group-btn active" data-abs-group="" data-i18n="groupNone">Detall</button>
+                                    <button class="group-btn" data-abs-group="user" data-i18n="groupAbsByUser">Per sol·licitant</button>
+                                    <button class="group-btn" data-abs-group="type" data-i18n="groupAbsByType">Per tipus</button>
+                                    <button class="group-btn" data-abs-group="status" data-i18n="groupAbsByStatus">Per estat</button>
+                                    <button class="group-btn" data-abs-group="dateStart" data-i18n="groupByDate">Per data</button>
+                                    <label class="group-collapsed-label hidden" id="abs-group-collapsed-label">
+                                        <input type="checkbox" id="abs-group-start-collapsed">
+                                        <span data-i18n="groupStartCollapsed">Tot col·lapsat</span>
+                                    </label>
+                                </div>
+                                <div class="table-container">
+                                    <table id="absencesTable">
+                                        <thead>
+                                            <tr>
+                                                <th class="sortable" data-sort-abs="user"><span data-i18n="colAbsUser">SOL·LICITANT</span> <i class="ph ph-caret-up sort-icon"></i></th>
+                                                <th data-i18n="colAbsType">TIPUS</th>
+                                                <th data-i18n="colAbsStatus">ESTAT</th>
+                                                <th class="sortable" data-sort-abs="dateStart"><span data-i18n="colAbsDateStart">DATA INICI</span> <i class="ph ph-caret-up sort-icon"></i></th>
+                                                <th class="sortable" data-sort-abs="dateEnd"><span data-i18n="colAbsDateEnd">DATA FI</span> <i class="ph ph-caret-up sort-icon"></i></th>
+                                                <th class="number-col" data-i18n="colAbsDays">DIES</th>
+                                                <th class="number-col" data-i18n="colAbsHours">HORES</th>
+                                                <th data-i18n="colAbsApprover">APROVADOR</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="absTableBody"></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="results-header" style="margin-top: 3rem;">
-                        <h2><i class="ph ph-warning-octagon"></i> <span data-i18n="titleOvertime">Excés de Jornada (Conflictes)</span></h2>
-                    </div>
-                    <div class="table-container" style="margin-bottom: 3rem;">
-                        <table id="overtimeTable">
-                            <thead>
-                                <tr>
-                                    <th class="sortable" data-sort-overtime="date"><span data-i18n="colDate">DATA</span> <i class="ph ph-caret-up sort-icon"></i></th>
-                                    <th class="sortable" data-sort-overtime="user"><span data-i18n="colUser">TÈCNIC</span> <i class="ph ph-caret-up sort-icon"></i></th>
-                                    <th class="number-col" data-i18n="colOverImputation">IMPUTACIÓ (h)</th>
-                                    <th class="number-col" data-i18n="colOverAbsence">ABSÈNCIA (d)</th>
-                                    <th class="number-col highlight-col" data-i18n="colOverTotal">CÒMPUT DEL DIA (h)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="overtimeTableBody"></tbody>
-                        </table>
+                    <div class="stats-row" id="section-overtime" style="margin-top: 0.75rem;">
+                        <div class="stats-row-header">
+                            <span><i class="ph ph-warning-octagon"></i> <span data-i18n="titleOvertime">Excés de Jornada (Conflictes)</span></span>
+                            <span class="stats-row-toggle"><i class="ph ph-caret-up"></i></span>
+                        </div>
+                        <div class="stats-row-body">
+                            <div class="table-container" style="margin-bottom: 3rem;">
+                                <table id="overtimeTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="sortable" data-sort-overtime="date"><span data-i18n="colDate">DATA</span> <i class="ph ph-caret-up sort-icon"></i></th>
+                                            <th class="sortable" data-sort-overtime="user"><span data-i18n="colUser">TÈCNIC</span> <i class="ph ph-caret-up sort-icon"></i></th>
+                                            <th class="number-col" data-i18n="colOverImputation">IMPUTACIÓ (h)</th>
+                                            <th class="number-col" data-i18n="colOverAbsence">ABSÈNCIA (d)</th>
+                                            <th class="number-col highlight-col" data-i18n="colOverTotal">CÒMPUT DEL DIA (h)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="overtimeTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -570,6 +605,18 @@
                                 <label for="filter-abs-date-end" data-i18n="lblDateEnd">Data Fi</label>
                                 <input type="date" id="filter-abs-date-end">
                             </div>
+                            <div class="date-input month-nav-group">
+                                <label data-i18n="lblMonthNav">Mes complet</label>
+                                <div class="month-nav-controls">
+                                    <button class="month-nav-btn" id="btn-abs-month-prev" title="Mes anterior"><i class="ph ph-caret-left"></i></button>
+                                    <input type="month" class="month-nav-input" id="abs-month-nav">
+                                    <button class="month-nav-btn" id="btn-abs-month-next" title="Mes següent"><i class="ph ph-caret-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filter-abs-clients" data-i18n="lblClients">Clients</label>
+                            <select id="filter-abs-clients" multiple size="4"></select>
                         </div>
                         <div class="filter-group">
                             <label for="filter-abs-users" data-i18n="lblUsers">Tècnics</label>

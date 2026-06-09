@@ -112,6 +112,52 @@
     opacity: 0;
 }
 
+/* --- Taula de resum de clients: expansió per projecte ---------------------- */
+.client-summary-row.expandable-client {
+    cursor: pointer;
+    user-select: none;
+}
+
+.client-summary-row.expandable-client:hover td {
+    background: var(--hover-bg, rgba(0,120,212,0.05));
+}
+
+.client-name-cell,
+.project-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.project-name-cell {
+    padding-left: 22px !important;
+}
+
+.client-expand-icon {
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.client-expand-placeholder {
+    display: inline-block;
+    width: 14px;
+    flex-shrink: 0;
+}
+
+.client-color-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.project-summary-row td {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    border-bottom-style: dashed;
+}
+
 /* --- Graella de columnes del dashboard -------------------------------------- */
 .dashboard-grid {
     display: grid;
@@ -154,6 +200,144 @@
     line-height: 1.2;
 }
 
+/* --- Toolbar de controls dels gràfics d'evolució --------------------------- */
+.evo-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.evo-type-btns {
+    display: flex;
+    gap: 2px;
+}
+
+.evo-type-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    padding: 0.28rem 0.65rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.evo-type-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.evo-type-btn:not(.active):hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* --- Toggle "per projecte" dels gràfics d'evolució ------------------------- */
+.evo-project-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.65rem;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-family: inherit;
+    user-select: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.evo-project-toggle:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.evo-project-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.evo-project-toggle:has(input:checked) {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+/* --- Filtre de clients dels gràfics d'evolució ----------------------------- */
+.evo-client-filter {
+    position: relative;
+}
+
+.evo-client-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 210px;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 200;
+    padding: 0.4rem 0;
+}
+
+.evo-client-panel.open {
+    display: block;
+}
+
+.evo-client-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    transition: background 0.1s;
+    user-select: none;
+}
+
+.evo-client-check:hover {
+    background: var(--hover-bg, rgba(0,120,212,0.06));
+}
+
+.evo-client-check input[type="checkbox"] {
+    accent-color: var(--accent-color);
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.evo-client-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.evo-client-all-label {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.4rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* --- Gràfics d'evolució (dos columnes) ------------------------------------- */
 .evolucio-grid {
     display: grid;
@@ -180,6 +364,57 @@
 .evolucio-chart-wrap {
     height: 280px;
     position: relative;
+}
+
+.evolucio-grid.evo-mode-table {
+    grid-template-columns: 1fr;
+}
+
+.evolucio-table-wrap {
+    overflow-x: auto;
+}
+
+.evo-table-scroll {
+    min-width: 0;
+}
+
+.evo-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+
+.evo-data-table th,
+.evo-data-table td {
+    padding: 0.3rem 0.45rem;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.evo-data-table thead th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.5px;
+    background: var(--card-bg);
+    position: sticky;
+    top: 0;
+}
+
+.evo-data-table tbody tr:hover {
+    background: var(--hover-bg, rgba(0,120,212,0.04));
+}
+
+.evo-total-col {
+    font-weight: 600;
+    border-left: 1px solid var(--border-color);
+}
+
+.evo-client-td {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 @media (max-width: 1100px) {
