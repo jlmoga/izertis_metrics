@@ -45,6 +45,8 @@ const absPendingEl = document.getElementById('abs-pending');
 // Guard per evitar sincronitzacions recursives entre els dos filtres
 let syncingFilters = false;
 
+const toYMD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 // Copia dates i tècnics d'un conjunt de filtres a l'altre
 function syncDatesAndUsers(fromImp) {
     if (fromImp) {
@@ -58,6 +60,14 @@ function syncDatesAndUsers(fromImp) {
         const sel = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
         Array.from(filterUsers.options).forEach(opt => { opt.selected = sel.includes(opt.value); });
     }
+    // Propagar dates a facturació i demanar re-render
+    const src = fromImp ? { s: filterDateStart.value, e: filterDateEnd.value }
+                        : { s: filterAbsDateStart.value, e: filterAbsDateEnd.value };
+    const factStart = document.getElementById('fact-filter-date-start');
+    const factEnd   = document.getElementById('fact-filter-date-end');
+    if (factStart) factStart.value = src.s;
+    if (factEnd)   factEnd.value   = src.e;
+    document.dispatchEvent(new CustomEvent('fact:render'));
 }
 
 // Helper per reconstruir un <select> mantenint la selecció actual
@@ -78,33 +88,8 @@ function rebuildSelect(el, values, selectedValues) {
 }
 
 export function applyFilters() {
-    const SIX_MONTHS = 6;
-    let pStart = filterDateStart.value ? new Date(filterDateStart.value) : null;
-    let pEnd = filterDateEnd.value ? new Date(filterDateEnd.value) : null;
-
-    // Garantia: sempre hi ha un rang de 6 mesos
-    if (!pStart && !pEnd) {
-        pEnd = new Date();
-        pStart = new Date(pEnd);
-        pStart.setMonth(pStart.getMonth() - SIX_MONTHS);
-        filterDateStart.value = pStart.toISOString().split('T')[0];
-        filterDateEnd.value = pEnd.toISOString().split('T')[0];
-    } else if (pStart && !pEnd) {
-        pEnd = new Date(pStart);
-        pEnd.setMonth(pEnd.getMonth() + SIX_MONTHS);
-        filterDateEnd.value = pEnd.toISOString().split('T')[0];
-    } else if (!pStart && pEnd) {
-        pStart = new Date(pEnd);
-        pStart.setMonth(pStart.getMonth() - SIX_MONTHS);
-        filterDateStart.value = pStart.toISOString().split('T')[0];
-    } else {
-        const diffMonths = (pEnd.getFullYear() - pStart.getFullYear()) * 12 + (pEnd.getMonth() - pStart.getMonth());
-        if (diffMonths > SIX_MONTHS || (diffMonths === SIX_MONTHS && pEnd.getDate() > pStart.getDate())) {
-            pEnd = new Date(pStart);
-            pEnd.setMonth(pEnd.getMonth() + SIX_MONTHS);
-            filterDateEnd.value = pEnd.toISOString().split('T')[0];
-        }
-    }
+    const pStart = filterDateStart.value ? new Date(filterDateStart.value) : null;
+    const pEnd   = filterDateEnd.value   ? new Date(filterDateEnd.value)   : null;
 
     const startTs = pStart ? parseDateToTime(filterDateStart.value) : 0;
     const endTs = pEnd ? parseDateToTime(filterDateEnd.value) + (24 * 60 * 60 * 1000 - 1) : Infinity;
@@ -248,13 +233,37 @@ export function applyAbsFilters() {
     }
 }
 
+export function syncFromBilling(startVal, endVal, clientName) {
+    if (syncingFilters) return;
+    syncingFilters = true;
+    if (startVal !== null) {
+        if (filterDateStart)    filterDateStart.value    = startVal;
+        if (filterAbsDateStart) filterAbsDateStart.value = startVal;
+    }
+    if (endVal !== null) {
+        if (filterDateEnd)    filterDateEnd.value    = endVal;
+        if (filterAbsDateEnd) filterAbsDateEnd.value = endVal;
+    }
+    if (clientName != null) {
+        if (filterClients) {
+            Array.from(filterClients.options).forEach(opt => { opt.selected = opt.value === clientName; });
+        }
+        if (filterAbsClients) {
+            Array.from(filterAbsClients.options).forEach(opt => { opt.selected = opt.value === clientName; });
+        }
+    }
+    if (state.currentData.length > 0) applyFilters();
+    if (state.absData.length > 0) applyAbsFilters();
+    syncingFilters = false;
+}
+
 function applyMonthToRange(monthInput, startInput, endInput, applyFn) {
     if (!monthInput.value) return;
     const [year, month] = monthInput.value.split('-').map(Number);
     const start = new Date(year, month - 1, 1);
     const end = new Date(year, month, 0);
-    startInput.value = start.toISOString().split('T')[0];
-    endInput.value = end.toISOString().split('T')[0];
+    startInput.value = toYMD(start);
+    endInput.value = toYMD(end);
     applyFn();
 }
 

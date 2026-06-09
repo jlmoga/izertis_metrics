@@ -440,7 +440,7 @@
                     </div>
                 </div>
                 <div class="filters-container">
-                    <div class="filter-group dates-group" style="position: relative;">
+                    <div class="filter-group dates-group">
                         <div class="date-input">
                             <label for="filter-date-start" data-i18n="lblDateStart">Data Inici</label>
                             <input type="date" id="filter-date-start">
@@ -457,7 +457,6 @@
                                 <button class="month-nav-btn" id="btn-imp-month-next" title="Mes següent"><i class="ph ph-caret-right"></i></button>
                             </div>
                         </div>
-                        <span data-i18n="disclaimerMaxMonths" style="position: absolute; bottom: -20px; left: 0; font-size: 0.75rem; color: var(--accent-color); white-space: nowrap;">* Es mostren/permeten màxim 6 mesos de dades alhora.</span>
                     </div>
                     <div class="filter-group">
                         <label for="filter-clients" data-i18n="lblClients">Clients</label>
@@ -641,34 +640,95 @@
                         <p data-i18n="factNoImputations">Carrega les dades d'imputacions per accedir a la facturació</p>
                     </div>
                     <div id="fact-main" class="hidden">
-                        <div class="fact-toolbar">
-                            <div class="fact-filter-group">
-                                <label for="fact-month" data-i18n="factLblMonth">Mes</label>
-                                <input type="month" id="fact-month">
-                            </div>
-                            <div class="fact-filter-group">
-                                <label for="fact-client" data-i18n="factLblClient">Client</label>
-                                <select id="fact-client"></select>
+                        <div class="results-header">
+                            <div class="header-main">
+                                <h2 data-i18n="titleFacturacio">Facturació</h2>
                             </div>
                         </div>
-                        <div class="fact-results">
-                            <div class="results-header">
-                                <h2 id="fact-table-title" class="results-title"></h2>
+                        <div class="fact-toolbar">
+                            <div class="fact-mode-toggle">
+                                <button id="fact-btn-validacio" class="fact-mode-btn fact-mode-btn--active" data-i18n="factModeValidacio">Validació</button>
+                                <button id="fact-btn-ordres" class="fact-mode-btn" data-i18n="factModeOrdres">Ordres de facturació</button>
                             </div>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th data-i18n="colClient">CLIENT</th>
-                                            <th data-i18n="colProject">PROJECTE</th>
-                                            <th data-i18n="colUser">TÈCNIC</th>
-                                            <th class="number-col" data-i18n="factColHours">HORES</th>
-                                            <th class="number-col" data-i18n="factColImport">IMPORT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="fact-tbody"></tbody>
-                                </table>
+                            <div class="fact-filter-group fact-filter-group--right">
+                                <label for="fact-client-lang" data-i18n="factLblCommLang">Idioma de comunicació</label>
+                                <select id="fact-client-lang">
+                                    <option value="ca" data-i18n="optCatalan">Català</option>
+                                    <option value="es" data-i18n="optSpanish">Castellà</option>
+                                    <option value="en" data-i18n="optEnglish">Anglès</option>
+                                </select>
                             </div>
+                        </div>
+                        <div class="fact-content-scroll">
+                            <div id="fact-panel-validacio" class="fact-panel">
+                                <div class="fact-results">
+                                    <div class="fact-panel-header">
+                                        <h2 data-i18n="factTitleValidacio">Validació de la facturació.</h2>
+                                        <span id="fact-table-title" class="fact-panel-meta"></span>
+                                    </div>
+                                    <div class="table-container">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th id="fact-th-project" data-i18n="colProject">PROJECTE</th>
+                                                    <th id="fact-th-user" data-i18n="colUser">TÈCNIC</th>
+                                                    <th id="fact-th-rate" class="number-col" data-i18n="factColRate">PREU/HORA</th>
+                                                    <th id="fact-th-hours" class="number-col" data-i18n="factColHours">HORES</th>
+                                                    <th id="fact-th-import" class="number-col" data-i18n="factColImport">IMPORT</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="fact-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="fact-panel-ordres" class="fact-panel hidden">
+                                <div class="fact-panel-header">
+                                    <h2 data-i18n="factTitleOrdres">Ordre de facturació</h2>
+                                    <span id="fact-ordres-title" class="fact-panel-meta"></span>
+                                </div>
+                            </div>
+                            <section class="filters-section" id="fact-filters-section">
+                                <div class="filters-header">
+                                    <h2><i class="ph ph-funnel"></i> <span data-i18n="factFiltersTitle">Filtres de facturació</span></h2>
+                                    <div style="display: flex; gap: 0.8rem; align-items: center;">
+                                        <button id="fact-btn-clear-filters" class="btn-clear"><i class="ph ph-trash"></i> <span data-i18n="btnClearFilters">Netejar Filtres</span></button>
+                                        <button id="fact-btn-toggle-filters" class="btn-icon" data-i18n-title="tooltipToggleFilters" title="Minimitzar/Maximitzar filtres"><i class="ph ph-caret-up toggle-icon"></i></button>
+                                    </div>
+                                </div>
+                                <div class="filters-container">
+                                    <div class="filter-group dates-group">
+                                        <div class="date-input">
+                                            <label for="fact-filter-date-start" data-i18n="lblDateStart">Data Inici</label>
+                                            <input type="date" id="fact-filter-date-start">
+                                        </div>
+                                        <div class="date-input">
+                                            <label for="fact-filter-date-end" data-i18n="lblDateEnd">Data Fi</label>
+                                            <input type="date" id="fact-filter-date-end">
+                                        </div>
+                                        <div class="date-input month-nav-group">
+                                            <label data-i18n="lblMonthNav">Mes complet</label>
+                                            <div class="month-nav-controls">
+                                                <button class="month-nav-btn" id="fact-btn-month-prev" title="Mes anterior"><i class="ph ph-caret-left"></i></button>
+                                                <input type="month" class="month-nav-input" id="fact-month-nav">
+                                                <button class="month-nav-btn" id="fact-btn-month-next" title="Mes següent"><i class="ph ph-caret-right"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label for="fact-filter-clients" data-i18n="lblClients">Clients</label>
+                                        <select id="fact-filter-clients" size="4"></select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label for="fact-filter-projects" data-i18n="lblProjects">Projectes</label>
+                                        <select id="fact-filter-projects" multiple size="4"></select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label for="fact-filter-users" data-i18n="lblUsers">Tècnics</label>
+                                        <select id="fact-filter-users" multiple size="4"></select>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
                 </div>

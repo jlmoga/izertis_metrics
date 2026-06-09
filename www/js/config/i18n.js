@@ -142,9 +142,16 @@ const translations = {
         titleFacturacio: "Facturació",
         factLblMonth: "Mes",
         factLblClient: "Client",
+        factColRate: "PREU/HORA",
         factColHours: "HORES",
         factColImport: "IMPORT",
         factTotal: "TOTAL",
+        factFiltersTitle: "Filtres de facturació",
+        factModeValidacio: "Validació",
+        factModeOrdres: "Ordres de facturació",
+        factTitleValidacio: "Validació de la facturació.",
+        factTitleOrdres: "Ordre de facturació",
+        factLblCommLang: "Idioma de comunicació",
         factNoImputations: "Carrega les dades d'imputacions per accedir a la facturació",
         factNoResults: "No hi ha imputacions per al client i mes seleccionats"
     },
@@ -287,9 +294,16 @@ const translations = {
         titleFacturacio: "Facturación",
         factLblMonth: "Mes",
         factLblClient: "Cliente",
+        factColRate: "PRECIO/HORA",
         factColHours: "HORAS",
         factColImport: "IMPORTE",
         factTotal: "TOTAL",
+        factFiltersTitle: "Filtros de facturación",
+        factModeValidacio: "Validación",
+        factModeOrdres: "Órdenes de facturación",
+        factTitleValidacio: "Validación de la facturación.",
+        factTitleOrdres: "Orden de facturación",
+        factLblCommLang: "Idioma de comunicación",
         factNoImputations: "Carga los datos de imputaciones para acceder a la facturación",
         factNoResults: "No hay imputaciones para el cliente y mes seleccionados"
     },
@@ -432,9 +446,16 @@ const translations = {
         titleFacturacio: "Billing",
         factLblMonth: "Month",
         factLblClient: "Client",
+        factColRate: "PRICE/HOUR",
         factColHours: "HOURS",
         factColImport: "AMOUNT",
         factTotal: "TOTAL",
+        factFiltersTitle: "Billing filters",
+        factModeValidacio: "Validation",
+        factModeOrdres: "Billing Orders",
+        factTitleValidacio: "Billing validation.",
+        factTitleOrdres: "Billing order",
+        factLblCommLang: "Communication language",
         factNoImputations: "Load imputations data to access billing",
         factNoResults: "No imputations found for the selected client and month"
     }
@@ -449,6 +470,7 @@ function detectLang(b) {
 export let currentLang = localStorage.getItem('moga_lang') || detectLang(browserLang);
 
 export const t = (key) => (translations[currentLang] && translations[currentLang][key]) ? translations[currentLang][key] : key;
+export const tForLang = (lang, key) => (translations[lang] && translations[lang][key]) ? translations[lang][key] : key;
 
 export function setLang(lang) {
     currentLang = lang;
