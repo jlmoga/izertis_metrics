@@ -76,6 +76,10 @@
                 <i class="ph ph-calendar-blank"></i>
                 <span data-i18n="btnGoAbsencies">Quadre d'absències</span>
             </button>
+            <button class="sidebar-item" id="nav-facturacio">
+                <i class="ph ph-invoice"></i>
+                <span data-i18n="btnGoFacturacio">Facturació</span>
+            </button>
             <div class="sidebar-spacer"></div>
             <div class="sidebar-mode-footer">
                 <button class="sidebar-mode-btn active" data-mode="links" data-i18n-title="sidebarModeLinks" title="Visió d'enllaços"><i class="ph ph-list"></i></button>
@@ -629,6 +633,46 @@
                     </div>
                 </section>
             </div>
+            <!-- Facturació -->
+            <section id="facturacio-screen" class="hidden">
+                <div class="fact-container">
+                    <div id="fact-no-data" class="fact-no-data">
+                        <i class="ph ph-invoice"></i>
+                        <p data-i18n="factNoImputations">Carrega les dades d'imputacions per accedir a la facturació</p>
+                    </div>
+                    <div id="fact-main" class="hidden">
+                        <div class="fact-toolbar">
+                            <div class="fact-filter-group">
+                                <label for="fact-month" data-i18n="factLblMonth">Mes</label>
+                                <input type="month" id="fact-month">
+                            </div>
+                            <div class="fact-filter-group">
+                                <label for="fact-client" data-i18n="factLblClient">Client</label>
+                                <select id="fact-client"></select>
+                            </div>
+                        </div>
+                        <div class="fact-results">
+                            <div class="results-header">
+                                <h2 id="fact-table-title" class="results-title"></h2>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th data-i18n="colClient">CLIENT</th>
+                                            <th data-i18n="colProject">PROJECTE</th>
+                                            <th data-i18n="colUser">TÈCNIC</th>
+                                            <th class="number-col" data-i18n="factColHours">HORES</th>
+                                            <th class="number-col" data-i18n="factColImport">IMPORT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fact-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 

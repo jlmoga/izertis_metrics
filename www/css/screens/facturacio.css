@@ -1,0 +1,133 @@
+/* =============================================================================
+   SCREEN: Facturació
+   Pantalla de resum facturable per client i mes.
+   ============================================================================= */
+
+#facturacio-screen {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.fact-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* --- Estat buit (sense dades d'imputació) ---------------------------------- */
+.fact-no-data {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1.75rem 2rem;
+    max-width: 540px;
+    margin: 1.5rem auto;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-align: center;
+    box-shadow: var(--glass-shadow);
+    animation: fadeIn 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.fact-no-data i {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    opacity: 0.4;
+}
+
+/* --- Àrea principal (filters + taula) --------------------------------------- */
+#fact-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* --- Barra de filtres ------------------------------------------------------- */
+.fact-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.9rem 1.25rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.fact-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.fact-filter-group label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.fact-filter-group input[type="month"],
+.fact-filter-group select {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 2px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    min-width: 180px;
+}
+
+.fact-filter-group input[type="month"]:focus,
+.fact-filter-group select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
+}
+
+/* --- Secció de resultats ---------------------------------------------------- */
+.fact-results {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.fact-results .results-header {
+    flex-shrink: 0;
+}
+
+.fact-results .table-container {
+    flex: none;
+    max-height: none;
+}
+
+/* --- Fila de totals --------------------------------------------------------- */
+.fact-total-row td {
+    font-weight: 700;
+    border-top: 2px solid var(--border-color);
+    background: var(--card-bg);
+}
+
+/* --- Cel·la sense resultats ------------------------------------------------- */
+.fact-no-results {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 1.5rem !important;
+}

@@ -137,7 +137,16 @@ const translations = {
         groupAbsByType: "Per tipus",
         groupAbsByStatus: "Per estat",
         absDetailTitle: "Detall d'absències",
-        lblAbsConflictWarning: "Conflicte de jornada detectat en aquest període"
+        lblAbsConflictWarning: "Conflicte de jornada detectat en aquest període",
+        btnGoFacturacio: "Facturació",
+        titleFacturacio: "Facturació",
+        factLblMonth: "Mes",
+        factLblClient: "Client",
+        factColHours: "HORES",
+        factColImport: "IMPORT",
+        factTotal: "TOTAL",
+        factNoImputations: "Carrega les dades d'imputacions per accedir a la facturació",
+        factNoResults: "No hi ha imputacions per al client i mes seleccionats"
     },
     es: {
         appTitle: "Cuadro de Imputaciones",
@@ -273,7 +282,16 @@ const translations = {
         groupAbsByType: "Por tipo",
         groupAbsByStatus: "Por estado",
         absDetailTitle: "Detalle de ausencias",
-        lblAbsConflictWarning: "Conflicto de jornada detectado en este período"
+        lblAbsConflictWarning: "Conflicto de jornada detectado en este período",
+        btnGoFacturacio: "Facturación",
+        titleFacturacio: "Facturación",
+        factLblMonth: "Mes",
+        factLblClient: "Cliente",
+        factColHours: "HORAS",
+        factColImport: "IMPORTE",
+        factTotal: "TOTAL",
+        factNoImputations: "Carga los datos de imputaciones para acceder a la facturación",
+        factNoResults: "No hay imputaciones para el cliente y mes seleccionados"
     },
     en: {
         appTitle: "Imputations Dashboard",
@@ -409,7 +427,16 @@ const translations = {
         groupAbsByType: "By type",
         groupAbsByStatus: "By status",
         absDetailTitle: "Absence detail",
-        lblAbsConflictWarning: "Workday conflict detected in this period"
+        lblAbsConflictWarning: "Workday conflict detected in this period",
+        btnGoFacturacio: "Billing",
+        titleFacturacio: "Billing",
+        factLblMonth: "Month",
+        factLblClient: "Client",
+        factColHours: "HOURS",
+        factColImport: "AMOUNT",
+        factTotal: "TOTAL",
+        factNoImputations: "Load imputations data to access billing",
+        factNoResults: "No imputations found for the selected client and month"
     }
 };
 

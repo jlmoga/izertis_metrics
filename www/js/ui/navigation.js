@@ -5,11 +5,13 @@
 import { state } from '../state.js';
 import { applyTranslations } from '../config/i18n.js';
 import { updateHomeDashboard } from './home.js';
+import { renderFacturacio } from './facturacio.js';
 
 export function setupNavigation() {
     const homeScreen = document.getElementById('home-screen');
     const imputacionsScreen = document.getElementById('imputacions-screen');
     const absenciesScreen = document.getElementById('absencies-screen');
+    const facturacioScreen = document.getElementById('facturacio-screen');
     const btnGoImputacions = document.getElementById('btn-go-imputacions');
     const btnGoAbsencies = document.getElementById('btn-go-absencies');
     const btnBackHome = document.getElementById('btn-back-home');
@@ -20,7 +22,8 @@ export function setupNavigation() {
     const navHome = document.getElementById('nav-home');
     const navImputacions = document.getElementById('nav-imputacions');
     const navAbsencies = document.getElementById('nav-absencies');
-    const sidebarItems = [navHome, navImputacions, navAbsencies].filter(Boolean);
+    const navFacturacio = document.getElementById('nav-facturacio');
+    const sidebarItems = [navHome, navImputacions, navAbsencies, navFacturacio].filter(Boolean);
 
     if (!btnGoImputacions || !btnGoAbsencies || !btnBackHome) return {};
 
@@ -30,9 +33,22 @@ export function setupNavigation() {
         if (target) target.classList.add('active');
     }
 
+    function goToFacturacio() {
+        homeScreen.classList.add('hidden');
+        imputacionsScreen.classList.add('hidden');
+        absenciesScreen.classList.add('hidden');
+        facturacioScreen.classList.remove('hidden');
+        btnBackHome.classList.remove('hidden');
+        headerTitle.setAttribute('data-i18n', 'titleFacturacio');
+        applyTranslations();
+        setActive('nav-facturacio');
+        renderFacturacio();
+    }
+
     function goToImputacions() {
         homeScreen.classList.add('hidden');
         absenciesScreen.classList.add('hidden');
+        facturacioScreen.classList.add('hidden');
         imputacionsScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'appTitle');
@@ -51,6 +67,7 @@ export function setupNavigation() {
     function goToAbsencies() {
         homeScreen.classList.add('hidden');
         imputacionsScreen.classList.add('hidden');
+        facturacioScreen.classList.add('hidden');
         absenciesScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'btnGoAbsencies');
@@ -69,6 +86,7 @@ export function setupNavigation() {
     async function goToHome() {
         imputacionsScreen.classList.add('hidden');
         absenciesScreen.classList.add('hidden');
+        facturacioScreen.classList.add('hidden');
         homeScreen.classList.remove('hidden');
         btnBackHome.classList.add('hidden');
         headerTitle.setAttribute('data-i18n', 'homeTitle');
@@ -84,6 +102,7 @@ export function setupNavigation() {
     if (navHome) navHome.addEventListener('click', goToHome);
     if (navImputacions) navImputacions.addEventListener('click', goToImputacions);
     if (navAbsencies) navAbsencies.addEventListener('click', goToAbsencies);
+    if (navFacturacio) navFacturacio.addEventListener('click', goToFacturacio);
 
     return { btnGoImputacions, btnGoAbsencies };
 }

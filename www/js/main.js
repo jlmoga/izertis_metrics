@@ -29,6 +29,7 @@ import { updateChart } from './ui/charts.js';
 import { renderOvertimeTable, setupOvertimeSortHandlers } from './ui/overtime.js';
 import { updateHomeDashboard } from './ui/home.js';
 import { generatePrintReport } from './ui/print.js';
+import { setupFacturacio } from './ui/facturacio.js';
 
 // 1. Tema
 const themeSelect = document.getElementById('theme-select');
@@ -76,6 +77,7 @@ if (langSelect) {
 setupSidebarMode();
 setupAppLauncher();
 setupCollapsibleSections();
+setupFacturacio();
 const { btnGoImputacions, btnGoAbsencies } = setupNavigation();
 
 // 5. Càrrega de fitxers (input + drag & drop)
