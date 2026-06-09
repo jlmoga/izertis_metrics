@@ -1,0 +1,97 @@
+{
+    "customers": [
+        {
+            "customer_id": "Caja Ingenieros",
+            "customer_name": "Caixa d'enginyers",
+            "projects": [
+                {
+                    "project_id": "SE-AM-CdE-Call Center 2026",
+                    "project_description": "Call Center y Centro Atención Usuarios",
+                    "cost_calculation": "hours",
+                    "hours_per_day": 0,
+                    "project_navision_code": "PRO2501294",
+                    "is_time_materials": false,
+                    "ok_required": false,
+                    "list_mails_validation": "",
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_list_mails": "OMO Software (omo.software@izertis.com), Alfonso (a.ggonzalez@izertis.com), David Bargalló (dbargallo@izertis.com)",
+                    "OMO_intro": "PRO2501294 – Tarea 01 – Para emitir factura:",
+                    "OMO_observations": ""
+                },
+                {
+                    "project_id": "SE-AM-CdE-Soporte operación externo 2026",
+                    "project_description": "Proyecto 70249975 – Soporte operación externo",
+                    "cost_calculation": "hours",
+                    "hours_per_day": 0,
+                    "project_navision_code": "PRO2501303",
+                    "is_time_materials": true,
+                    "ok_required": false,
+                    "list_mails_validation": "",
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_list_mails": "OMO Software (omo.software@izertis.com), Alfonso (a.ggonzalez@izertis.com), David Bargalló (dbargallo@izertis.com)",
+                    "OMO_intro": "PRO2501303 – Tarea 02 - Para emitir factura:",
+                    "OMO_observations": ""
+                }
+            ]
+        },
+        {
+            "customer_id": "IbercajaTech",
+            "customer_name": "Ibercaja Tech Solutions",
+            "projects": [
+                {
+                    "project_id": "SE-AM-IberTech-DEV 2026",
+                    "project_description": "Servicio Desarrollo",
+                    "cost_calculation": "days",
+                    "hours_per_day": 8,
+                    "project_navision_code": "PRO2501191",
+                    "is_time_materials": true,
+                    "ok_required": true,
+                    "list_mails_validation": "Nuria Perez Castro (nperezc@techserv.ibercaja.es), Chukwudi Udochukwo (cuuzoma@techserv.ibercaja.es), Abraham Tempesti (neabraham@techserv.ibercaja.es), Joaquin Revilla (jrevilla@techserv.ibercaja.es), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
+                    "validation_intro": "Buenos días,\nAdjunto los datos para la facturación correspondiente al periodo en curso.\nQuedo a la espera de vuestro OK para emitir la facturación.",
+                    "validation_observations": "",
+                    "OMO_list_mails": "OMO Software, (omo.software@izertis.com), Gema Perez (gema.perez@izertis.com), Josep Lluís Monte (jmonte@izertis.com), Javier Vera (javier.vera@izertis.com), Fernando Alias (falias@ibercaja.es), Abraham Tempesti (neabraham@techserv.ibercaja.es), Joaquin Revilla (jrevilla@techserv.ibercaja.es), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
+                    "OMO_intro": "Órdenes de facturación",
+                    "OMO_observations": ""
+                },
+                {
+                    "project_id": "SE-AM-IberTech-INFRA 2026",
+                    "project_description": "Servicio de Arquitectura e Infraestructura",
+                    "cost_calculation": "days",
+                    "hours_per_day": 8,
+                    "project_navision_code": "PRO2501191",
+                    "is_time_materials": true,
+                    "ok_required": true,
+                    "list_mails_validation": "Nuria Perez Castro (nperezc@techserv.ibercaja.es), Chukwudi Udochukwo (cuuzoma@techserv.ibercaja.es), Abraham Tempesti (neabraham@techserv.ibercaja.es), Joaquin Revilla (jrevilla@techserv.ibercaja.es), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
+                    "validation_intro": "Buenos días,\nAdjunto los datos para la facturación correspondiente al periodo en curso.\nQuedo a la espera de vuestro OK para emitir la facturación.",
+                    "validation_observations": "",
+                    "OMO_list_mails": "OMO Software, (omo.software@izertis.com), Gema Perez (gema.perez@izertis.com), Josep Lluís Monte (jmonte@izertis.com), Javier Vera (javier.vera@izertis.com), Fernando Alias (falias@ibercaja.es), Abraham Tempesti (neabraham@techserv.ibercaja.es), Joaquin Revilla (jrevilla@techserv.ibercaja.es), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
+                    "OMO_intro": "Órdenes de facturación",
+                    "OMO_observations": ""
+                }
+            ]
+        },
+        {
+            "customer_id": "ID del client",
+            "customer_name": "Nom del client",
+            "projects": [
+                {
+                    "project_id": "Nom del projecte",
+                    "project_description": "",
+                    "cost_calculation": "hours|days",
+                    "hours_per_day": 8,
+                    "project_navision_code": "",
+                    "is_time_materials": true,
+                    "ok_required": true,
+                    "list_mails_validation": "",
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_list_mails": "",
+                    "OMO_intro": "",
+                    "OMO_observations": ""
+                }
+            ]
+        }
+    ]
+}

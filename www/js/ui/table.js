@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { state } from '../state.js';
-import { t } from '../config/i18n.js';
+import { t, tForLang } from '../config/i18n.js';
 import { formatCurrency, isDateInRange } from '../utils.js';
 
 // Set precalculat de claus user|dateStart|dateEnd per a files d'absència amb conflicte
@@ -155,12 +155,14 @@ export function renderGroupedTable(data, groupByArray, startCollapsed = false) {
 }
 
 
-export function renderBillingSummary(data, rateHeader) {
+export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {}, customerName = null) {
     const summaryTable = document.getElementById('summaryTable');
     const summaryBody  = document.getElementById('summaryBody');
     if (!summaryTable || !summaryBody) return;
 
-    const fmt2 = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tl    = (key) => tForLang(lang, key);
+    const fmt2  = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const hasDays = Object.values(projectCostCalc).some(v => v.cost === 'days');
 
     // Mesos presents a les dades
     const monthSet = new Set();
@@ -171,24 +173,26 @@ export function renderBillingSummary(data, rateHeader) {
         monthSet.add(`${p[2]}-${p[1].padStart(2, '0')}`);
     });
     const monthKeys   = [...monthSet].sort();
-    const monthLabels = t('months');
+    const monthLabels = tl('months');
     const monthMeta   = monthKeys.map(k => {
         const [yr, mo] = k.split('-');
         return { key: k, label: `${monthLabels[parseInt(mo, 10) - 1]} ${yr}` };
     });
 
     // Capçalera: entitat | tarifa | mesos... | total
+    const colSpan = hasDays ? 3 : 2;
     const thead = summaryTable.querySelector('thead');
-    let r1 = `<th rowspan="2" class="summary-entity-header">${t('summaryColEntity')}</th>`;
+    let r1 = `<th rowspan="2" class="summary-entity-header">${tl('summaryColEntity')}</th>`;
     r1 += `<th rowspan="2" class="summary-entity-header number-col">${rateHeader}</th>`;
-    monthMeta.forEach(m => { r1 += `<th colspan="2" class="summary-month-header">${m.label}</th>`; });
-    r1 += `<th colspan="2" class="summary-total-header">Total</th>`;
+    monthMeta.forEach(m => { r1 += `<th colspan="${colSpan}" class="summary-month-header">${m.label}</th>`; });
+    r1 += `<th colspan="${colSpan}" class="summary-total-header">Total</th>`;
 
     let r2 = '';
     for (let i = 0; i <= monthKeys.length; i++) {
         const isTotal = i === monthKeys.length;
-        r2 += `<th class="number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}">${t('summaryColHours')}</th>`;
-        r2 += `<th class="number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end">${t('summaryColAmount')}</th>`;
+        r2 += `<th class="number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}">${tl('summaryColHours')}</th>`;
+        if (hasDays) r2 += `<th class="number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}">${tl('factColDays')}</th>`;
+        r2 += `<th class="number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end">${tl('summaryColAmount')}</th>`;
     }
     thead.innerHTML = `<tr>${r1}</tr><tr>${r2}</tr>`;
 
@@ -205,14 +209,22 @@ export function renderBillingSummary(data, rateHeader) {
         return map;
     };
 
-    const monthlyCells = (map, totalH, totalA) => {
+    const monthlyCells = (map, totalH, totalA, isDays = false, hoursPerDay = 8) => {
         let html = '';
         monthKeys.forEach(k => {
             const d = map[k];
             html += `<td class="number-col">${d.hours > 0 ? d.hours.toFixed(2) + 'h' : '-'}</td>`;
+            if (hasDays) {
+                const j = isDays && d.hours > 0 ? (d.hours / hoursPerDay).toFixed(2) : '-';
+                html += `<td class="number-col">${j}</td>`;
+            }
             html += `<td class="number-col highlight-col month-group-end">${d.amount > 0 ? formatCurrency(d.amount) : '-'}</td>`;
         });
         html += `<td class="number-col summary-total-cell"><strong>${totalH.toFixed(2)}h</strong></td>`;
+        if (hasDays) {
+            const totalJ = isDays ? `<strong>${(totalH / hoursPerDay).toFixed(2)}</strong>` : '-';
+            html += `<td class="number-col summary-total-cell">${totalJ}</td>`;
+        }
         html += `<td class="number-col highlight-col summary-total-cell"><strong>${formatCurrency(totalA)}</strong></td>`;
         return html;
     };
@@ -267,7 +279,7 @@ export function renderBillingSummary(data, rateHeader) {
         clientRow.className = 'group-header-row group-level-1';
         clientRow.dataset.groupId = clientId;
         clientRow.innerHTML = `
-            <td><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i><strong>${ck}</strong></td>
+            <td><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i><strong>${customerName || ck}</strong></td>
             <td class="number-col"></td>
             ${monthlyCells(cMap, c.hours, c.amount)}`;
         clientRow.addEventListener('click', () => {
@@ -282,6 +294,9 @@ export function renderBillingSummary(data, rateHeader) {
             const projectId = `sum-${counter++}`;
             const pMap      = aggregate(p.rows);
 
+            const projInfo   = projectCostCalc[pk] || { cost: 'hours', hpd: 8 };
+            const isDays     = projInfo.cost === 'days';
+            const hoursPerDay = projInfo.hpd;
             const projectRow = document.createElement('tr');
             projectRow.className = 'group-header-row group-level-2';
             projectRow.dataset.groupId    = projectId;
@@ -289,7 +304,7 @@ export function renderBillingSummary(data, rateHeader) {
             projectRow.innerHTML = `
                 <td style="padding-left:1.6rem"><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>${pk}</td>
                 <td class="number-col"></td>
-                ${monthlyCells(pMap, p.hours, p.amount)}`;
+                ${monthlyCells(pMap, p.hours, p.amount, isDays, hoursPerDay)}`;
             projectRow.addEventListener('click', () => {
                 const collapsed = projectRow.classList.toggle('collapsed');
                 setDescendantsDisplay(projectId, collapsed ? 'none' : '', summaryBody);
@@ -305,7 +320,7 @@ export function renderBillingSummary(data, rateHeader) {
                 userRow.innerHTML = `
                     <td style="padding-left:3.2rem">${u.user}</td>
                     <td class="number-col">${fmt2(u.rate)} €/h</td>
-                    ${monthlyCells(uMap, u.hours, u.amount)}`;
+                    ${monthlyCells(uMap, u.hours, u.amount, isDays, hoursPerDay)}`;
                 summaryBody.appendChild(userRow);
             });
         });

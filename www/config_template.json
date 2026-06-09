@@ -1,0 +1,25 @@
+{
+    "customers": [
+        {
+            "customer_id": "",
+            "customer_name": "",
+            "projects": [
+                {
+                    "project_id": "",
+                    "project_description": "",
+                    "cost_calculation": "hours|days",
+                    "hours_per_day": 8,
+                    "project_navision_code": "",
+                    "is_time_materials": true,
+                    "ok_required": true,
+                    "list_mails_validation": "",
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_list_mails": "",
+                    "OMO_intro": "",
+                    "OMO_observations": ""
+                }
+            ]
+        }
+    ]
+}

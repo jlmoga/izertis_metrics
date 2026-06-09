@@ -10,6 +10,33 @@ import { renderBillingSummary } from './table.js';
 
 let factClientLang = localStorage.getItem('moga_fact_lang') || currentLang;
 let syncingFact = false;
+let configCache = null;
+
+async function loadConfig() {
+    if (configCache !== null) return configCache;
+    try {
+        const res = await fetch('config.json', { cache: 'no-store' });
+        if (!res.ok) { console.warn('[config] HTTP error', res.status); configCache = { customers: [] }; return configCache; }
+        configCache = await res.json();
+    } catch (e) {
+        console.warn('[config] error carregant config.json:', e);
+        configCache = { customers: [] };
+    }
+    return configCache;
+}
+
+function buildProjectCostCalc(config, clientId) {
+    const norm = s => s?.trim().toLowerCase() ?? '';
+    const customer = config.customers?.find(c => norm(c.customer_id) === norm(clientId));
+    const map = {};
+    customer?.projects?.forEach(p => {
+        if (p.project_id) map[p.project_id] = {
+            cost: p.cost_calculation || 'hours',
+            hpd: p.hours_per_day || 8
+        };
+    });
+    return map;
+}
 
 const fmt2 = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const toYMD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -93,9 +120,10 @@ export function setupFacturacio() {
     if (btnMonthPrev) btnMonthPrev.addEventListener('click', () => shiftMonthNav(-1));
     if (btnMonthNext) btnMonthNext.addEventListener('click', () => shiftMonthNav(+1));
 
-    // Dates: render + propagar a imputacions/absències
+    // Dates: rebuild en cascada + render + propagar a imputacions/absències
     [dateStart, dateEnd].filter(Boolean).forEach(el => {
         el.addEventListener('change', () => {
+            rebuildProjectsAndUsers();
             renderFactTable();
             if (!syncingFact) {
                 syncingFact = true;
@@ -105,9 +133,10 @@ export function setupFacturacio() {
         });
     });
 
-    // Client: render + propagar selecció a imputacions/absències (unidireccional)
+    // Client: rebuild en cascada + render + propagar selecció a imputacions/absències
     if (clientSelect) {
         clientSelect.addEventListener('change', () => {
+            rebuildProjectsAndUsers();
             renderFactTable();
             const client = clientSelect.options[clientSelect.selectedIndex]?.value || null;
             if (!syncingFact && client) {
@@ -118,10 +147,18 @@ export function setupFacturacio() {
         });
     }
 
-    // Projectes i tècnics: només re-renderitzen facturació
-    [projectSelect, userSelect].filter(Boolean).forEach(el => {
-        el.addEventListener('change', renderFactTable);
-    });
+    // Projectes: rebuild tècnics + render
+    if (projectSelect) {
+        projectSelect.addEventListener('change', () => {
+            rebuildUsers(null, null, userSelect);
+            renderFactTable();
+        });
+    }
+
+    // Tècnics: només re-renderitza
+    if (userSelect) {
+        userSelect.addEventListener('change', renderFactTable);
+    }
 
     // Netejar filtres
     const btnClear = document.getElementById('fact-btn-clear-filters');
@@ -168,8 +205,7 @@ export function renderFacturacio() {
 
 function populateFilters() {
     populateClients();
-    populateMultiSelect('fact-filter-projects', state.currentData.map(r => r.project).filter(Boolean));
-    populateMultiSelect('fact-filter-users',    state.currentData.map(r => r.user).filter(Boolean));
+    rebuildProjectsAndUsers();
 }
 
 function populateClients() {
@@ -181,17 +217,57 @@ function populateClients() {
     if (!clients.includes(prev) && clients.length > 0) sel.selectedIndex = 0;
 }
 
-function populateMultiSelect(id, rawValues) {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    const prevSelected = Array.from(sel.selectedOptions).map(o => o.value);
-    const values = [...new Set(rawValues)].sort();
-    sel.innerHTML = values.map(v =>
-        `<option value="${v}"${prevSelected.includes(v) ? ' selected' : ''}>${v}</option>`
+// Reconstrueix projectes i tècnics filtrats únicament pel client seleccionat.
+// Les dates no filtren les opcions disponibles, només la taula de resultats.
+function rebuildProjectsAndUsers() {
+    const clientSelect  = document.getElementById('fact-filter-clients');
+    const projectSelect = document.getElementById('fact-filter-projects');
+    const userSelect    = document.getElementById('fact-filter-users');
+    if (!projectSelect || !userSelect) return;
+
+    const client   = clientSelect?.options[clientSelect.selectedIndex]?.value || '';
+    const byClient = client
+        ? state.currentData.filter(r => (r.client || '?') === client)
+        : state.currentData;
+
+    const prevProjects  = Array.from(projectSelect.selectedOptions).map(o => o.value);
+    const availProjects = [...new Set(byClient.map(r => r.project).filter(Boolean))].sort();
+    const validProjects = prevProjects.filter(p => availProjects.includes(p));
+    projectSelect.innerHTML = availProjects.map(p =>
+        `<option value="${p}"${validProjects.includes(p) ? ' selected' : ''}>${p}</option>`
+    ).join('');
+
+    rebuildUsers(byClient, validProjects, userSelect);
+}
+
+// Reconstrueix tècnics filtrats per client i projectes seleccionats.
+function rebuildUsers(byClient, selectedProjects, userSelect) {
+    if (!userSelect) userSelect = document.getElementById('fact-filter-users');
+    if (!userSelect) return;
+    if (!byClient) {
+        const clientSelect = document.getElementById('fact-filter-clients');
+        const client = clientSelect?.options[clientSelect.selectedIndex]?.value || '';
+        byClient = client
+            ? state.currentData.filter(r => (r.client || '?') === client)
+            : state.currentData;
+    }
+    if (!selectedProjects) {
+        const projectSelect = document.getElementById('fact-filter-projects');
+        selectedProjects = projectSelect ? Array.from(projectSelect.selectedOptions).map(o => o.value) : [];
+    }
+
+    const byProject  = selectedProjects.length > 0
+        ? byClient.filter(r => selectedProjects.includes(r.project))
+        : byClient;
+    const prevUsers  = Array.from(userSelect.selectedOptions).map(o => o.value);
+    const availUsers = [...new Set(byProject.map(r => r.user).filter(Boolean))].sort();
+    const validUsers = prevUsers.filter(u => availUsers.includes(u));
+    userSelect.innerHTML = availUsers.map(u =>
+        `<option value="${u}"${validUsers.includes(u) ? ' selected' : ''}>${u}</option>`
     ).join('');
 }
 
-function renderFactTable() {
+async function renderFactTable() {
     const dateStartEl   = document.getElementById('fact-filter-date-start');
     const dateEndEl     = document.getElementById('fact-filter-date-end');
     const clientSelect  = document.getElementById('fact-filter-clients');
@@ -207,14 +283,7 @@ function renderFactTable() {
     const selectedProjects = projectSelect ? Array.from(projectSelect.selectedOptions).map(o => o.value) : [];
     const selectedUsers    = userSelect    ? Array.from(userSelect.selectedOptions).map(o => o.value)    : [];
 
-    // Títol: client + rang de dates
-    let titleText = client;
-    if (dateStartEl?.value || dateEndEl?.value) {
-        titleText += ` — ${dateStartEl?.value || '…'} / ${dateEndEl?.value || '…'}`;
-    }
-    if (titleEl) titleEl.textContent = titleText;
     const ordresTitleEl = document.getElementById('fact-ordres-title');
-    if (ordresTitleEl) ordresTitleEl.textContent = titleText;
 
     const totalHoursEl  = document.getElementById('fact-total-hours');
     const totalAmountEl = document.getElementById('total-amount');
@@ -243,5 +312,19 @@ function renderFactTable() {
     if (totalHoursEl)  totalHoursEl.textContent  = totalHours.toFixed(2);
     if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-    renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'));
+    const config          = await loadConfig();
+    const norm            = s => s?.trim().toLowerCase() ?? '';
+    const customerEntry   = config.customers?.find(c => norm(c.customer_id) === norm(client));
+    const customerName    = customerEntry?.customer_name || client;
+    const projectCostCalc = buildProjectCostCalc(config, client);
+
+    // Títol: nom oficial del client + rang de dates
+    let titleText = customerName;
+    if (dateStartEl?.value || dateEndEl?.value) {
+        titleText += ` — ${dateStartEl?.value || '…'} / ${dateEndEl?.value || '…'}`;
+    }
+    if (titleEl) titleEl.textContent = titleText;
+    if (ordresTitleEl) ordresTitleEl.textContent = titleText;
+
+    renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName);
 }
