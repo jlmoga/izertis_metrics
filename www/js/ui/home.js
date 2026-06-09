@@ -431,10 +431,20 @@ export async function updateHomeDashboard() {
             year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
         });
     };
-    const tsImp = await getFromDB('imputacions_updated');
-    const tsAbs = await getFromDB('absencies_updated');
+    const tsImp       = await getFromDB('imputacions_updated');
+    const tsAbs       = await getFromDB('absencies_updated');
+    const filesImp    = await getFromDB('total_files');
+    const filesAbs    = await getFromDB('total_abs_files');
     if (document.getElementById('last-updated-imp')) document.getElementById('last-updated-imp').textContent = formatTS(tsImp);
     if (document.getElementById('last-updated-abs')) document.getElementById('last-updated-abs').textContent = formatTS(tsAbs);
+    const setFileCount = (id, count) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (count) { el.textContent = `(${count})`; el.classList.remove('hidden'); }
+        else el.classList.add('hidden');
+    };
+    setFileCount('imp-file-count', filesImp);
+    setFileCount('abs-file-count', filesAbs);
 
     // --- Títols dinàmics amb mes actual i mes anterior ---
     const monthLabel = `${names[currMonth]} ${currYear}`;

@@ -89,17 +89,13 @@
         </nav>
         <main>
             <section id="home-screen" class="home-screen">
-                <div class="home-app-brand">
-                    <img src="img/izertis_logo.jpg" alt="Izertis" class="home-app-logo">
-                    <span class="home-app-name">Izertis Metrics</span>
-                </div>
                 <div id="home-empty-state" class="home-empty-state">
                     <p data-i18n="homeEmptyState">Actualitza les dades d'imputacions i absències per poder mostrar informació de l'estat</p>
                 </div>
                 <div id="home-dashboard" class="home-dashboard hidden">
                     <div class="dashboard-info">
-                        <span class="info-item"><i class="ph ph-clock"></i> <span data-i18n="lastUpdatedImp">Imputacions</span>: <span id="last-updated-imp">-</span></span>
-                        <span class="info-item"><i class="ph ph-clock"></i> <span data-i18n="lastUpdatedAbs">Absències</span>: <span id="last-updated-abs">-</span></span>
+                        <span class="info-item"><i class="ph ph-clock"></i> <span data-i18n="lastUpdatedImp">Imputacions</span>: <span id="last-updated-imp">-</span><span id="imp-file-count" class="file-count-badge hidden"></span></span>
+                        <span class="info-item"><i class="ph ph-clock"></i> <span data-i18n="lastUpdatedAbs">Absències</span>: <span id="last-updated-abs">-</span><span id="abs-file-count" class="file-count-badge hidden"></span></span>
                         <div class="evo-client-filter" id="home-client-filter" style="margin-left: auto;"></div>
                         <button id="btn-print-home" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
                     </div>
@@ -350,10 +346,6 @@
                         </div>
                         <div class="stats-cards">
                         <div class="stat-card">
-                            <span class="stat-title" data-i18n="statFiles">Total Arxius Processats</span>
-                            <span class="stat-value" id="total-files">0</span>
-                        </div>
-                        <div class="stat-card">
                             <span class="stat-title" data-i18n="statRows">Nombre d'imputacions al llistat</span>
                             <span class="stat-value" id="total-rows">0</span>
                         </div>
@@ -361,17 +353,9 @@
                             <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
                             <span class="stat-value" id="total-hours">0.00</span>
                         </div>
-                        <div class="stat-card total-earnings">
-                            <span class="stat-title" data-i18n="statAmount">Import Facturable Estimat</span>
-                            <span class="stat-value" id="total-amount">0.00 €</span>
-                        </div>
                     </div>
                 </div>
 
-                <div class="view-toggle-bar" id="view-toggle-bar">
-                    <button class="group-btn view-btn active" data-view="detail" data-i18n="viewDetail">Vista detall</button>
-                    <button class="group-btn view-btn" data-view="summary" data-i18n="viewSummary">Vista resum</button>
-                </div>
 
                 <div class="grouping-bar" id="grouping-bar">
                     <span class="grouping-label" data-i18n="groupByLabel">Agrupa per:</span>
@@ -396,9 +380,7 @@
                                 <th class="sortable" data-sort="project"><span data-i18n="colProject">PROJECTE</span> <i class="ph ph-caret-up sort-icon"></i></th>
                                 <th data-i18n="colTask">TASCA</th>
                                 <th data-i18n="colBillable">FACTURABLE</th>
-                                <th class="number-col" data-i18n="colRate">IMPORT HORA</th>
                                 <th class="number-col" data-i18n="colTotalHours">HORES TOTALS</th>
-                                <th class="number-col highlight-col" data-i18n="colTotalImport">IMPORT TOTAL</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
@@ -407,14 +389,6 @@
                     </table>
                 </div>
 
-                <div id="summary-section" class="hidden">
-                    <div class="table-container">
-                        <table id="summaryTable">
-                            <thead></thead>
-                            <tbody id="summaryBody"></tbody>
-                        </table>
-                    </div>
-                </div>
 
                 <section class="charts-section" id="charts-section">
                     <div class="charts-header">
@@ -425,7 +399,6 @@
                         <div class="charts-wrapper">
                             <div class="chart-box"><canvas id="hoursChart"></canvas></div>
                             <div class="chart-box"><canvas id="trendHoursChart"></canvas></div>
-                            <div class="chart-box"><canvas id="trendImportChart"></canvas></div>
                         </div>
                     </div>
                 </section>
@@ -665,19 +638,21 @@
                                     <div class="fact-panel-header">
                                         <h2 data-i18n="factTitleValidacio">Validació de la facturació.</h2>
                                         <span id="fact-table-title" class="fact-panel-meta"></span>
+                                        <div class="fact-stats-group">
+                                            <div class="stat-card">
+                                                <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
+                                                <span class="stat-value" id="fact-total-hours">0.00</span>
+                                            </div>
+                                            <div class="stat-card total-earnings">
+                                                <span class="stat-title" data-i18n="statAmount">Import Facturable Estimat</span>
+                                                <span class="stat-value" id="total-amount">0.00 €</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="table-container">
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th id="fact-th-project" data-i18n="colProject">PROJECTE</th>
-                                                    <th id="fact-th-user" data-i18n="colUser">TÈCNIC</th>
-                                                    <th id="fact-th-rate" class="number-col" data-i18n="factColRate">PREU/HORA</th>
-                                                    <th id="fact-th-hours" class="number-col" data-i18n="factColHours">HORES</th>
-                                                    <th id="fact-th-import" class="number-col" data-i18n="factColImport">IMPORT</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="fact-tbody"></tbody>
+                                        <table id="summaryTable">
+                                            <thead></thead>
+                                            <tbody id="summaryBody"></tbody>
                                         </table>
                                     </div>
                                 </div>

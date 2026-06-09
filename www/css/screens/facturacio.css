@@ -208,11 +208,18 @@
 .fact-panel-header {
     flex-shrink: 0;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 1rem;
     margin-bottom: 1rem;
     padding-bottom: 0.6rem;
     border-bottom: 2px solid var(--accent-color);
+}
+
+.fact-stats-group {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.75rem;
 }
 
 .fact-panel-header h2 {
@@ -234,17 +241,3 @@
     max-height: none;
 }
 
-/* --- Fila de totals --------------------------------------------------------- */
-.fact-total-row td {
-    font-weight: 700;
-    border-top: 2px solid var(--border-color);
-    background: var(--card-bg);
-}
-
-/* --- Cel·la sense resultats ------------------------------------------------- */
-.fact-no-results {
-    text-align: center;
-    color: var(--text-secondary);
-    font-style: italic;
-    padding: 1.5rem !important;
-}

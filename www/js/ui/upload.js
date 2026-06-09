@@ -49,6 +49,7 @@ export async function handleAbsenciesFiles(files) {
 
     await saveToDB('absencies_data', state.absData);
     await saveToDB('absencies_updated', new Date().getTime());
+    await saveToDB('total_abs_files', excelFiles.length);
 
     applyAbsFilters();
     await updateHomeDashboard();

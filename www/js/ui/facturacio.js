@@ -6,6 +6,7 @@ import { state } from '../state.js';
 import { t, tForLang, currentLang } from '../config/i18n.js';
 import { parseDateToDateObj, parseDateToTime } from '../utils.js';
 import { syncFromBilling } from './filters.js';
+import { renderBillingSummary } from './table.js';
 
 let factClientLang = localStorage.getItem('moga_fact_lang') || currentLang;
 let syncingFact = false;
@@ -196,17 +197,34 @@ function renderFactTable() {
     const clientSelect  = document.getElementById('fact-filter-clients');
     const projectSelect = document.getElementById('fact-filter-projects');
     const userSelect    = document.getElementById('fact-filter-users');
-    const tbody         = document.getElementById('fact-tbody');
+    const summaryBody   = document.getElementById('summaryBody');
     const titleEl       = document.getElementById('fact-table-title');
-    if (!clientSelect || !tbody) return;
+    if (!clientSelect || !summaryBody) return;
 
-    const client          = clientSelect.options[clientSelect.selectedIndex]?.value || '';
-    const startTs         = dateStartEl?.value ? parseDateToTime(dateStartEl.value) : 0;
-    const endTs           = dateEndEl?.value   ? parseDateToTime(dateEndEl.value) + 86399999 : Infinity;
+    const client           = clientSelect.options[clientSelect.selectedIndex]?.value || '';
+    const startTs          = dateStartEl?.value ? parseDateToTime(dateStartEl.value) : 0;
+    const endTs            = dateEndEl?.value   ? parseDateToTime(dateEndEl.value) + 86399999 : Infinity;
     const selectedProjects = projectSelect ? Array.from(projectSelect.selectedOptions).map(o => o.value) : [];
     const selectedUsers    = userSelect    ? Array.from(userSelect.selectedOptions).map(o => o.value)    : [];
 
-    if (!client) { tbody.innerHTML = ''; return; }
+    // Títol: client + rang de dates
+    let titleText = client;
+    if (dateStartEl?.value || dateEndEl?.value) {
+        titleText += ` — ${dateStartEl?.value || '…'} / ${dateEndEl?.value || '…'}`;
+    }
+    if (titleEl) titleEl.textContent = titleText;
+    const ordresTitleEl = document.getElementById('fact-ordres-title');
+    if (ordresTitleEl) ordresTitleEl.textContent = titleText;
+
+    const totalHoursEl  = document.getElementById('fact-total-hours');
+    const totalAmountEl = document.getElementById('total-amount');
+
+    if (!client) {
+        summaryBody.innerHTML = '';
+        if (totalHoursEl)  totalHoursEl.textContent  = '0.00';
+        if (totalAmountEl) totalAmountEl.textContent = '0.00 €';
+        return;
+    }
 
     const rows = state.currentData.filter(r => {
         if ((r.client || '?') !== client) return false;
@@ -220,60 +238,10 @@ function renderFactTable() {
         return true;
     });
 
-    // Agrega per projecte + tècnic + tarifa
-    const agg = {};
-    rows.forEach(r => {
-        const key = `${r.project || '?'}\x00${r.user || '?'}\x00${r.rate || 0}`;
-        if (!agg[key]) agg[key] = { project: r.project || '?', user: r.user || '?', rate: r.rate || 0, hours: 0, amount: 0 };
-        agg[key].hours  += r.hours || 0;
-        agg[key].amount += r._importedCalculated || 0;
-    });
+    const totalHours  = rows.reduce((s, r) => s + (r.hours || 0), 0);
+    const totalAmount = rows.reduce((s, r) => s + (r._importedCalculated || 0), 0);
+    if (totalHoursEl)  totalHoursEl.textContent  = totalHours.toFixed(2);
+    if (totalAmountEl) totalAmountEl.textContent = totalAmount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-    const entries = Object.values(agg).sort((a, b) =>
-        a.project.localeCompare(b.project) || a.user.localeCompare(b.user) || a.rate - b.rate);
-
-    const tF = (key) => tForLang(factClientLang, key);
-
-    // Encapçalaments en l'idioma de comunicació
-    const thMap = { 'fact-th-project': 'colProject', 'fact-th-user': 'colUser', 'fact-th-rate': 'factColRate', 'fact-th-hours': 'factColHours', 'fact-th-import': 'factColImport' };
-    Object.entries(thMap).forEach(([id, key]) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = tF(key);
-    });
-
-    // Títol: client + rang de dates si n'hi ha
-    let titleText = client;
-    if (dateStartEl?.value || dateEndEl?.value) {
-        titleText += ` — ${dateStartEl?.value || '…'} / ${dateEndEl?.value || '…'}`;
-    }
-    if (titleEl) titleEl.textContent = titleText;
-    const ordresTitleEl = document.getElementById('fact-ordres-title');
-    if (ordresTitleEl) ordresTitleEl.textContent = titleText;
-
-    if (entries.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="fact-no-results">${tF('factNoResults')}</td></tr>`;
-        return;
-    }
-
-    const totalHours  = entries.reduce((s, r) => s + r.hours, 0);
-    const totalAmount = entries.reduce((s, r) => s + r.amount, 0);
-
-    let lastProject = null;
-    tbody.innerHTML = entries.map(r => {
-        const projectCell = r.project !== lastProject ? `<td>${r.project}</td>` : `<td></td>`;
-        lastProject = r.project;
-        return `<tr>
-            ${projectCell}
-            <td>${r.user}</td>
-            <td class="number-col">${fmt2(r.rate)} €/h</td>
-            <td class="number-col">${fmt2(r.hours)} h</td>
-            <td class="number-col">${fmt2(r.amount)} €</td>
-        </tr>`;
-    }).join('')
-        + `<tr class="fact-total-row">
-            <td colspan="2">${tF('factTotal')}</td>
-            <td class="number-col"></td>
-            <td class="number-col">${fmt2(totalHours)} h</td>
-            <td class="number-col">${fmt2(totalAmount)} €</td>
-        </tr>`;
+    renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'));
 }

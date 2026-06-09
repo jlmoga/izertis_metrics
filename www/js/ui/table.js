@@ -48,9 +48,7 @@ export function renderTable(data) {
             <td>${row.project || '-'}</td>
             <td>${row.task || '-'}</td>
             <td>${isBillableBadge}</td>
-            <td class="number-col">${formatCurrency(row.rate)}</td>
             <td class="number-col">${row.hours.toFixed(2)}h</td>
-            <td class="number-col highlight-col">${formatCurrency(row._importedCalculated)}</td>
         `;
         tableBody.appendChild(tr);
     });
@@ -110,9 +108,7 @@ function renderDataRow(row, parentGroupId) {
         <td>${row.project || '-'}</td>
         <td>${row.task || '-'}</td>
         <td>${isBillableBadge}</td>
-        <td class="number-col">${formatCurrency(row.rate)}</td>
         <td class="number-col">${row.hours.toFixed(2)}h</td>
-        <td class="number-col highlight-col">${formatCurrency(row._importedCalculated)}</td>
     `;
     return tr;
 }
@@ -158,12 +154,15 @@ export function renderGroupedTable(data, groupByArray, startCollapsed = false) {
     }
 }
 
-export function renderSummaryView(data) {
+
+export function renderBillingSummary(data, rateHeader) {
     const summaryTable = document.getElementById('summaryTable');
-    const summaryBody = document.getElementById('summaryBody');
+    const summaryBody  = document.getElementById('summaryBody');
     if (!summaryTable || !summaryBody) return;
 
-    // 1. Extract sorted month keys from data
+    const fmt2 = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Mesos presents a les dades
     const monthSet = new Set();
     data.forEach(r => {
         if (!r.date) return;
@@ -171,33 +170,29 @@ export function renderSummaryView(data) {
         if (p.length < 3) return;
         monthSet.add(`${p[2]}-${p[1].padStart(2, '0')}`);
     });
-    const monthKeys = [...monthSet].sort();
+    const monthKeys   = [...monthSet].sort();
     const monthLabels = t('months');
-    const monthMeta = monthKeys.map(k => {
+    const monthMeta   = monthKeys.map(k => {
         const [yr, mo] = k.split('-');
         return { key: k, label: `${monthLabels[parseInt(mo, 10) - 1]} ${yr}` };
     });
 
-    // 2. Build dynamic two-row header
+    // Capçalera: entitat | tarifa | mesos... | total
     const thead = summaryTable.querySelector('thead');
     let r1 = `<th rowspan="2" class="summary-entity-header">${t('summaryColEntity')}</th>`;
-    monthMeta.forEach(m => {
-        r1 += `<th colspan="2" class="summary-month-header">${m.label}</th>`;
-    });
+    r1 += `<th rowspan="2" class="summary-entity-header number-col">${rateHeader}</th>`;
+    monthMeta.forEach(m => { r1 += `<th colspan="2" class="summary-month-header">${m.label}</th>`; });
     r1 += `<th colspan="2" class="summary-total-header">Total</th>`;
 
     let r2 = '';
     for (let i = 0; i <= monthKeys.length; i++) {
         const isTotal = i === monthKeys.length;
-        const hClass = `number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}`;
-        const aClass = `number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end`;
-        r2 += `<th class="${hClass}">${t('summaryColHours')}</th>`;
-        r2 += `<th class="${aClass}">${t('summaryColAmount')}</th>`;
+        r2 += `<th class="number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}">${t('summaryColHours')}</th>`;
+        r2 += `<th class="number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end">${t('summaryColAmount')}</th>`;
     }
-
     thead.innerHTML = `<tr>${r1}</tr><tr>${r2}</tr>`;
 
-    // 3. Aggregate a row-set by month
+    // Agrega files per mes
     const aggregate = (rows) => {
         const map = Object.fromEntries(monthKeys.map(k => [k, { hours: 0, amount: 0 }]));
         rows.forEach(r => {
@@ -205,15 +200,11 @@ export function renderSummaryView(data) {
             const p = r.date.split('/');
             if (p.length < 3) return;
             const k = `${p[2]}-${p[1].padStart(2, '0')}`;
-            if (map[k]) {
-                map[k].hours += r.hours || 0;
-                map[k].amount += r._importedCalculated || 0;
-            }
+            if (map[k]) { map[k].hours += r.hours || 0; map[k].amount += r._importedCalculated || 0; }
         });
         return map;
     };
 
-    // 4. Build monthly td cells + total td cells
     const monthlyCells = (map, totalH, totalA) => {
         let html = '';
         monthKeys.forEach(k => {
@@ -226,37 +217,40 @@ export function renderSummaryView(data) {
         return html;
     };
 
-    // 5. Build 3-level hierarchy: client → project → user
+    // Jerarquia: client → projecte → (tècnic + tarifa)
     const clientOrder = [];
-    const clientMap = {};
+    const clientMap   = {};
     data.forEach(r => {
-        const ck = r.client || '-';
-        const pk = r.project || '-';
-        const uk = r.user || '-';
+        const ck  = r.client  || '-';
+        const pk  = r.project || '-';
+        const uk  = r.user    || '-';
+        const rt  = r.rate    || 0;
+        const urk = `${uk}\x00${rt}`;
 
         if (!clientMap[ck]) {
             clientMap[ck] = { hours: 0, amount: 0, rows: [], projects: {}, projectOrder: [] };
             clientOrder.push(ck);
         }
-        clientMap[ck].hours += r.hours || 0;
+        clientMap[ck].hours  += r.hours || 0;
         clientMap[ck].amount += r._importedCalculated || 0;
         clientMap[ck].rows.push(r);
 
-        if (!clientMap[ck].projects[pk]) {
-            clientMap[ck].projects[pk] = { hours: 0, amount: 0, rows: [], users: {}, userOrder: [] };
+        const cp = clientMap[ck].projects;
+        if (!cp[pk]) {
+            cp[pk] = { hours: 0, amount: 0, rows: [], users: {}, userOrder: [] };
             clientMap[ck].projectOrder.push(pk);
         }
-        clientMap[ck].projects[pk].hours += r.hours || 0;
-        clientMap[ck].projects[pk].amount += r._importedCalculated || 0;
-        clientMap[ck].projects[pk].rows.push(r);
+        cp[pk].hours  += r.hours || 0;
+        cp[pk].amount += r._importedCalculated || 0;
+        cp[pk].rows.push(r);
 
-        if (!clientMap[ck].projects[pk].users[uk]) {
-            clientMap[ck].projects[pk].users[uk] = { hours: 0, amount: 0, rows: [] };
-            clientMap[ck].projects[pk].userOrder.push(uk);
+        if (!cp[pk].users[urk]) {
+            cp[pk].users[urk] = { user: uk, rate: rt, hours: 0, amount: 0, rows: [] };
+            cp[pk].userOrder.push(urk);
         }
-        clientMap[ck].projects[pk].users[uk].hours += r.hours || 0;
-        clientMap[ck].projects[pk].users[uk].amount += r._importedCalculated || 0;
-        clientMap[ck].projects[pk].users[uk].rows.push(r);
+        cp[pk].users[urk].hours  += r.hours || 0;
+        cp[pk].users[urk].amount += r._importedCalculated || 0;
+        cp[pk].users[urk].rows.push(r);
     });
 
     clientOrder.sort((a, b) => clientMap[b].hours - clientMap[a].hours);
@@ -265,17 +259,17 @@ export function renderSummaryView(data) {
     let counter = 0;
 
     clientOrder.forEach(ck => {
-        const c = clientMap[ck];
+        const c        = clientMap[ck];
         const clientId = `sum-${counter++}`;
-        const cMap = aggregate(c.rows);
+        const cMap     = aggregate(c.rows);
 
         const clientRow = document.createElement('tr');
         clientRow.className = 'group-header-row group-level-1';
         clientRow.dataset.groupId = clientId;
         clientRow.innerHTML = `
             <td><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i><strong>${ck}</strong></td>
-            ${monthlyCells(cMap, c.hours, c.amount)}
-        `;
+            <td class="number-col"></td>
+            ${monthlyCells(cMap, c.hours, c.amount)}`;
         clientRow.addEventListener('click', () => {
             const collapsed = clientRow.classList.toggle('collapsed');
             setDescendantsDisplay(clientId, collapsed ? 'none' : '', summaryBody);
@@ -284,18 +278,18 @@ export function renderSummaryView(data) {
 
         c.projectOrder.sort((a, b) => c.projects[b].hours - c.projects[a].hours);
         c.projectOrder.forEach(pk => {
-            const p = c.projects[pk];
+            const p         = c.projects[pk];
             const projectId = `sum-${counter++}`;
-            const pMap = aggregate(p.rows);
+            const pMap      = aggregate(p.rows);
 
             const projectRow = document.createElement('tr');
             projectRow.className = 'group-header-row group-level-2';
-            projectRow.dataset.groupId = projectId;
+            projectRow.dataset.groupId    = projectId;
             projectRow.dataset.parentGroup = clientId;
             projectRow.innerHTML = `
                 <td style="padding-left:1.6rem"><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>${pk}</td>
-                ${monthlyCells(pMap, p.hours, p.amount)}
-            `;
+                <td class="number-col"></td>
+                ${monthlyCells(pMap, p.hours, p.amount)}`;
             projectRow.addEventListener('click', () => {
                 const collapsed = projectRow.classList.toggle('collapsed');
                 setDescendantsDisplay(projectId, collapsed ? 'none' : '', summaryBody);
@@ -303,15 +297,15 @@ export function renderSummaryView(data) {
             summaryBody.appendChild(projectRow);
 
             p.userOrder.sort((a, b) => p.users[b].hours - p.users[a].hours);
-            p.userOrder.forEach(uk => {
-                const u = p.users[uk];
-                const uMap = aggregate(u.rows);
+            p.userOrder.forEach(urk => {
+                const u       = p.users[urk];
+                const uMap    = aggregate(u.rows);
                 const userRow = document.createElement('tr');
                 userRow.dataset.parentGroup = projectId;
                 userRow.innerHTML = `
-                    <td style="padding-left:3.2rem">${uk}</td>
-                    ${monthlyCells(uMap, u.hours, u.amount)}
-                `;
+                    <td style="padding-left:3.2rem">${u.user}</td>
+                    <td class="number-col">${fmt2(u.rate)} €/h</td>
+                    ${monthlyCells(uMap, u.hours, u.amount)}`;
                 summaryBody.appendChild(userRow);
             });
         });

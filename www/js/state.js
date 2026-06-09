@@ -7,7 +7,6 @@ export const state = {
     filteredAbsData: [],
     currentGroup: [],
     groupStartCollapsed: false,
-    viewMode: 'detail',
     currentAbsGroup: [],
     absGroupStartCollapsed: false,
     currentSort: { column: null, direction: 'asc' },
@@ -15,7 +14,6 @@ export const state = {
     currentOvertimeSort: { column: 'date', direction: 'desc' },
     hoursChart: null,
     trendHoursChart: null,
-    trendImportChart: null,
     absStatusChart: null,
     absTypeChart: null,
 };

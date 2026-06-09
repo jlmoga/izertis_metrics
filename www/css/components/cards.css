@@ -138,6 +138,12 @@ input[type="file"] {
     font-size: 0.9rem;
 }
 
+.file-count-badge {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: 0.15rem;
+}
+
 .dashboard-info .evo-type-btn {
     padding: 0.45rem 1rem;
     font-size: 0.875rem;

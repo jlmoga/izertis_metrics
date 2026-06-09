@@ -22,7 +22,7 @@ import { setupSidebarMode } from './ui/sidebar.js';
 import { setupAppLauncher } from './ui/appLauncher.js';
 import { setupCollapsibleSections } from './ui/collapsible.js';
 import { setupUploadHandlers } from './ui/upload.js';
-import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupViewToggle } from './ui/filters.js';
+import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, initDefaultDates } from './ui/filters.js';
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
 import { updateChart } from './ui/charts.js';
@@ -30,6 +30,10 @@ import { renderOvertimeTable, setupOvertimeSortHandlers } from './ui/overtime.js
 import { updateHomeDashboard } from './ui/home.js';
 import { generatePrintReport } from './ui/print.js';
 import { setupFacturacio } from './ui/facturacio.js';
+import { injectSectionHeaders } from './ui/appHeader.js';
+
+// 0. Header parcial (async, no bloqueja la resta d'inicialització)
+injectSectionHeaders();
 
 // 1. Tema
 const themeSelect = document.getElementById('theme-select');
@@ -84,6 +88,7 @@ const { btnGoImputacions, btnGoAbsencies } = setupNavigation();
 const { folderInputImp, folderInputAbs } = setupUploadHandlers();
 
 // 6. Ordenació i filtres
+initDefaultDates();
 setupImpSortHandlers();
 setupAbsSortHandlers();
 setupOvertimeSortHandlers();
@@ -92,7 +97,6 @@ setupAbsFilterHandlers();
 setupFilterToggles();
 setupGroupingHandlers();
 setupAbsGroupingHandlers();
-setupViewToggle();
 
 // 7. Impressió
 const btnPrintImp = document.getElementById('btn-print-imp');
@@ -123,12 +127,6 @@ try {
 
     if (savedData && savedData.length > 0) {
         state.currentData = savedData.map(r => ({ ...r, user: normalizeName(r.user) }));
-        const savedFiles = await getFromDB('total_files') || 1;
-        const totalFilesEl = document.getElementById('total-files');
-        if (totalFilesEl) {
-            totalFilesEl.textContent = savedFiles;
-            totalFilesEl.dataset.value = savedFiles;
-        }
         applyFilters();
         document.getElementById('upload-imputacions').classList.add('hidden');
         document.getElementById('results-section').classList.remove('hidden');

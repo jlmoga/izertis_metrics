@@ -6,7 +6,7 @@ import { state } from '../state.js';
 import { t } from '../config/i18n.js';
 import { parseDateToTime, formatCurrency } from '../utils.js';
 import { sortData, sortAbsData } from './sort.js';
-import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable, renderSummaryView } from './table.js';
+import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable } from './table.js';
 import { updateChart, updateAbsCharts } from './charts.js';
 import { renderOvertimeTable } from './overtime.js';
 import { updateHomeDashboard } from './home.js';
@@ -20,7 +20,6 @@ const filterUsers = document.getElementById('filter-users');
 const filtersSection = document.getElementById('filters-section');
 const totalRowsEl = document.getElementById('total-rows');
 const totalHoursEl = document.getElementById('total-hours');
-const totalAmountEl = document.getElementById('total-amount');
 
 // --- DOM refs navegador de mes (imputacions) ---
 const impMonthNav = document.getElementById('imp-month-nav');
@@ -130,12 +129,9 @@ export function applyFilters() {
 
     totalRowsEl.textContent = state.filteredData.length;
     totalHoursEl.textContent = state.filteredData.reduce((acc, r) => acc + (r.hours || 0), 0).toFixed(2);
-    totalAmountEl.textContent = formatCurrency(state.filteredData.reduce((acc, r) => acc + (r._importedCalculated || 0), 0));
     filtersSection.classList.remove('hidden');
 
-    if (state.viewMode === 'summary') {
-        renderSummaryView(state.filteredData);
-    } else if (state.currentGroup.length > 0) {
+    if (state.currentGroup.length > 0) {
         renderGroupedTable(state.filteredData, state.currentGroup, state.groupStartCollapsed);
     } else {
         sortData();
@@ -281,6 +277,30 @@ function shiftMonth(monthInput, delta, startInput, endInput, applyFn) {
     if (month < 1) { month = 12; year--; }
     monthInput.value = `${year}-${String(month).padStart(2, '0')}`;
     applyMonthToRange(monthInput, startInput, endInput, applyFn);
+}
+
+export function initDefaultDates() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const ym = `${y}-${String(m).padStart(2, '0')}`;
+    const first = toYMD(new Date(y, m - 1, 1));
+    const last  = toYMD(new Date(y, m, 0));
+
+    if (filterDateStart)    filterDateStart.value    = first;
+    if (filterDateEnd)      filterDateEnd.value      = last;
+    if (impMonthNav)        impMonthNav.value        = ym;
+
+    if (filterAbsDateStart) filterAbsDateStart.value = first;
+    if (filterAbsDateEnd)   filterAbsDateEnd.value   = last;
+    if (absMonthNav)        absMonthNav.value        = ym;
+
+    const factStart   = document.getElementById('fact-filter-date-start');
+    const factEnd     = document.getElementById('fact-filter-date-end');
+    const factMonthNav = document.getElementById('fact-month-nav');
+    if (factStart)    factStart.value    = first;
+    if (factEnd)      factEnd.value      = last;
+    if (factMonthNav) factMonthNav.value = ym;
 }
 
 export function setupFilterHandlers() {
@@ -445,27 +465,3 @@ export function setupAbsGroupingHandlers() {
     }
 }
 
-export function setupViewToggle() {
-    const viewBtns = document.querySelectorAll('.view-btn');
-    const groupingBar = document.getElementById('grouping-bar');
-    const impTableContainer = document.getElementById('imp-table-container');
-    const summarySection = document.getElementById('summary-section');
-
-    const applyViewMode = () => {
-        const isSummary = state.viewMode === 'summary';
-        viewBtns.forEach(b => b.classList.toggle('active', b.dataset.view === state.viewMode));
-        if (groupingBar) groupingBar.classList.toggle('hidden', isSummary);
-        if (impTableContainer) impTableContainer.classList.toggle('hidden', isSummary);
-        if (summarySection) summarySection.classList.toggle('hidden', !isSummary);
-    };
-
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            state.viewMode = btn.dataset.view;
-            applyViewMode();
-            if (state.currentData.length > 0) applyFilters();
-        });
-    });
-
-    applyViewMode();
-}

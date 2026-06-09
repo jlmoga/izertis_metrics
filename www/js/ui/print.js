@@ -16,9 +16,8 @@ export function generatePrintReport(type) {
             pending: { label: t('statPending'),         value: document.getElementById('abs-pending').textContent }
           }
         : {
-            files:  { label: t('statFiles'),  value: document.getElementById('total-files').textContent },
             rows:   { label: t('statRows'),   value: document.getElementById('total-rows').textContent },
-            amount: { label: t('statAmount'), value: document.getElementById('total-amount').textContent }
+            hours:  { label: t('statTotalHours'), value: document.getElementById('total-hours').textContent }
           };
 
     const charts = [];
@@ -28,10 +27,7 @@ export function generatePrintReport(type) {
     } else {
         if (state.hoursChart)       charts.push({ label: t('chartTitleHours'),     src: state.hoursChart.toBase64Image() });
         if (state.trendHoursChart)  charts.push({ label: t('chartTitleEvolHours'), src: state.trendHoursChart.toBase64Image() });
-        if (state.trendImportChart) charts.push({ label: t('chartTitleEvolImport'), src: state.trendImportChart.toBase64Image() });
     }
-
-    const isSummary = !isAbs && state.viewMode === 'summary';
 
     const tables = isAbs
         ? [
@@ -39,14 +35,14 @@ export function generatePrintReport(type) {
             { title: t('titleOvertime'),        html: document.getElementById('overtimeTable').outerHTML }
           ]
         : [{
-            title: isSummary ? t('viewSummary') : t('printDetailImputacions'),
-            html: document.getElementById(isSummary ? 'summaryTable' : 'dataTable').outerHTML
+            title: t('printDetailImputacions'),
+            html: document.getElementById('dataTable').outerHTML
           }];
 
     const locale = currentLang === 'es' ? 'es-ES' : currentLang === 'en' ? 'en-GB' : 'ca-ES';
     const colsLayout = charts.length > 2 ? 'repeat(3, 1fr)' : '1fr 1fr';
     const colsGap    = charts.length > 2 ? '15px' : '30px';
-    const tableSize  = isAbs ? '9pt' : isSummary ? '7pt' : '8pt';
+    const tableSize  = isAbs ? '9pt' : '8pt';
 
     const printWin = window.open('', '_blank');
     printWin.document.write(`<!DOCTYPE html>
