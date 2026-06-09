@@ -20,9 +20,7 @@ header {
     align-items: center;
     gap: 0.75rem;
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1.25rem;
     height: 100%;
 }
 
@@ -47,11 +45,8 @@ h1.moga-title {
 .app-container {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    max-width: 1400px;
+    flex-direction: row;
     width: 100%;
-    margin: 0 auto;
-    padding: 1.25rem 1.5rem 1rem 1.5rem;
     overflow: hidden;
     min-height: 0;
 }
@@ -62,4 +57,147 @@ main {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    padding: 1.25rem 1.25rem 1rem 1.25rem;
+}
+
+/* --- Sidebar (estil SharePoint Left Nav) ------------------------------------ */
+.sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0.75rem 0;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 1rem 0.6rem 1.1rem;
+    width: 100%;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    text-align: left;
+    transition: var(--transition);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-item:hover {
+    background: var(--row-hover);
+}
+
+.sidebar-item.active {
+    background: var(--sidebar-active-bg);
+    border-left-color: var(--accent-color);
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.sidebar-item .ph {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* --- Footer de modes de la sidebar ----------------------------------------- */
+.sidebar-spacer {
+    flex: 1;
+}
+
+.sidebar-mode-footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+    padding: 0.4rem 0.5rem;
+    display: flex;
+    gap: 0.2rem;
+    justify-content: flex-end;
+}
+
+.sidebar-mode-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: 3px;
+    padding: 0.3rem 0.4rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    line-height: 1;
+}
+
+.sidebar-mode-btn:hover {
+    background: var(--row-hover);
+    color: var(--text-primary);
+}
+
+.sidebar-mode-btn.active {
+    color: var(--accent-color);
+    background: var(--sidebar-active-bg);
+}
+
+/* --- Mode "icones" ---------------------------------------------------------- */
+body.sidebar-mode-icons .sidebar {
+    width: 48px;
+}
+
+body.sidebar-mode-icons .sidebar-item span {
+    display: none;
+}
+
+body.sidebar-mode-icons .sidebar-item {
+    justify-content: center;
+    padding: 0.65rem 0;
+    border-left: 3px solid transparent;
+}
+
+body.sidebar-mode-icons .sidebar-item.active {
+    border-left-color: var(--accent-color);
+}
+
+body.sidebar-mode-icons .sidebar-mode-footer {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.4rem 0;
+    gap: 0.15rem;
+}
+
+/* --- Mode "amagat" ---------------------------------------------------------- */
+body.sidebar-mode-hidden .sidebar {
+    display: none;
+}
+
+body.sidebar-mode-hidden #btn-sidebar-restore {
+    display: flex !important;
+}
+
+@media (max-width: 640px) {
+    .sidebar {
+        width: 48px;
+    }
+    .sidebar-item span {
+        display: none;
+    }
+    .sidebar-item {
+        justify-content: center;
+        padding: 0.65rem 0;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+    .sidebar-item.active {
+        border-bottom-color: var(--accent-color);
+        border-left-color: transparent;
+    }
 }

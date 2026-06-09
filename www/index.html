@@ -23,17 +23,72 @@
 
     <header>
         <div class="header-content">
+            <button id="btn-app-launcher" class="btn-icon btn-waffle" aria-label="Aplicacions" aria-expanded="false"><i class="ph ph-squares-four"></i></button>
+            <button id="btn-sidebar-restore" class="btn-icon" data-i18n-title="sidebarModeLinks" title="Mostrar menú" style="display:none;"><i class="ph ph-list"></i></button>
             <button id="btn-back-home" class="btn-icon hidden" data-i18n-aria="ariaBack" aria-label="Tornar"><i class="ph ph-arrow-left"></i></button>
             <i class="ph ph-table"></i>
-            <h1 data-i18n="homeTitle" class="moga-title">Quadre de facturació dels serveis de Banca Izertis</h1>
+            <h1 data-i18n="homeTitle" class="moga-title">Izertis Metrics</h1>
             <div class="spacer" style="flex: 1;"></div>
             <button id="btn-settings" class="btn-icon" data-i18n-aria="ariaSettings" aria-label="Configuració"><i class="ph ph-gear"></i></button>
         </div>
     </header>
 
+    <!-- App Launcher Panel -->
+    <div id="app-launcher" class="app-launcher" aria-hidden="true">
+        <div class="app-launcher-header">
+            <span data-i18n="appLauncherTitle">Aplicacions</span>
+        </div>
+        <div class="app-launcher-grid">
+            <a href="https://app.myhours.com/track/week" target="_blank" rel="noopener noreferrer" class="app-card">
+                <div class="app-card-icon" style="background:#f59e0b;"><i class="ph ph-clock"></i></div>
+                <span>My Hours</span>
+            </a>
+            <a href="https://izertia.bizneohr.com/" target="_blank" rel="noopener noreferrer" class="app-card">
+                <div class="app-card-icon" style="background:#7c3aed;"><i class="ph ph-users"></i></div>
+                <span>Bizneo</span>
+            </a>
+            <a href="https://outlook.office.com/mail/" target="_blank" rel="noopener noreferrer" class="app-card">
+                <div class="app-card-icon" style="background:#0078d4;"><i class="ph ph-envelope-simple"></i></div>
+                <span>Outlook Mail</span>
+            </a>
+            <a href="https://outlook.office.com/calendar/view/workweek" target="_blank" rel="noopener noreferrer" class="app-card">
+                <div class="app-card-icon" style="background:#107c10;"><i class="ph ph-calendar"></i></div>
+                <span>Outlook Calendar</span>
+            </a>
+            <a href="https://izertis100.sharepoint.com/_layouts/15/sharepoint.aspx/discover" target="_blank" rel="noopener noreferrer" class="app-card">
+                <div class="app-card-icon" style="background:#038387;"><i class="ph ph-share-network"></i></div>
+                <span>SharePoint</span>
+            </a>
+        </div>
+    </div>
+
     <div class="app-container">
+        <nav id="sidebar" class="sidebar">
+            <button class="sidebar-item active" id="nav-home">
+                <i class="ph ph-house"></i>
+                <span data-i18n="btnHome">Inici</span>
+            </button>
+            <button class="sidebar-item" id="nav-imputacions">
+                <i class="ph ph-table"></i>
+                <span data-i18n="btnGoImputacions">Quadre d'imputacions</span>
+            </button>
+            <button class="sidebar-item" id="nav-absencies">
+                <i class="ph ph-calendar-blank"></i>
+                <span data-i18n="btnGoAbsencies">Quadre d'absències</span>
+            </button>
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-mode-footer">
+                <button class="sidebar-mode-btn active" data-mode="links" data-i18n-title="sidebarModeLinks" title="Visió d'enllaços"><i class="ph ph-list"></i></button>
+                <button class="sidebar-mode-btn" data-mode="icons" data-i18n-title="sidebarModeIcons" title="Visió d'icones"><i class="ph ph-dots-nine"></i></button>
+                <button class="sidebar-mode-btn" data-mode="hidden" data-i18n-title="sidebarModeHidden" title="Amagar columna"><i class="ph ph-eye-slash"></i></button>
+            </div>
+        </nav>
         <main>
             <section id="home-screen" class="home-screen">
+                <div class="home-app-brand">
+                    <img src="img/izertis_logo.jpg" alt="Izertis" class="home-app-logo">
+                    <span class="home-app-name">Izertis Metrics</span>
+                </div>
                 <div id="home-empty-state" class="home-empty-state">
                     <p data-i18n="homeEmptyState">Actualitza les dades d'imputacions i absències per poder mostrar informació de l'estat</p>
                 </div>
@@ -44,8 +99,12 @@
                     </div>
 
                     <!-- Global Stats -->
-                    <div class="stats-row">
-                        <h4 data-i18n="titleGlobalSummary">Situació des de l'inici</h4>
+                    <div class="stats-row" id="section-year">
+                        <h4 id="home-global-title" class="stats-row-header">
+                            <span data-i18n="titleGlobalSummary">Situació any en curs</span>
+                            <i class="ph ph-caret-up stats-row-toggle"></i>
+                        </h4>
+                        <div class="stats-row-body">
                         <div class="stats-cards">
                             <div class="stat-card">
                                 <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
@@ -64,11 +123,17 @@
                                 <span class="stat-value" id="home-total-conflicts">0</span>
                             </div>
                         </div>
+                        <div class="home-stacked-chart"><canvas id="homeYearChart"></canvas></div>
+                        </div>
                     </div>
 
                     <!-- Monthly Stats -->
-                    <div class="stats-row">
-                        <h4 id="home-month-title">Situació a mes...</h4>
+                    <div class="stats-row" id="section-curr">
+                        <h4 id="home-month-title" class="stats-row-header">
+                            <span>Situació a mes...</span>
+                            <i class="ph ph-caret-up stats-row-toggle"></i>
+                        </h4>
+                        <div class="stats-row-body">
                         <div class="stats-cards">
                             <div class="stat-card">
                                 <span class="stat-title" data-i18n="statTotalHours">Hores Imputades</span>
@@ -87,11 +152,63 @@
                                 <span class="stat-value" id="home-curr-conflicts">0</span>
                             </div>
                         </div>
+                        <div class="home-stacked-chart"><canvas id="homeCurrChart"></canvas></div>
+                        <div class="dashboard-grid">
+                            <div class="dashboard-col">
+                                <h3 id="home-client-title"></h3>
+                                <div class="table-container compact">
+                                    <table id="homeClientTable">
+                                        <thead>
+                                            <tr>
+                                                <th data-i18n="colClient">CLIENT</th>
+                                                <th class="number-col" data-i18n="colTotalHours">HORES</th>
+                                                <th class="number-col" data-i18n="colTotalImport">IMPORT</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="homeClientBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="dashboard-col">
+                                <h3 id="home-alerts-title"></h3>
+                                <div class="table-container compact">
+                                    <table id="homeAlertsTable">
+                                        <thead>
+                                            <tr>
+                                                <th data-i18n="colDate">DATA</th>
+                                                <th data-i18n="colUser">TÈCNIC</th>
+                                                <th class="number-col" data-i18n="colAbsenceH">MANQUEN (h)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="homeAlertsBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="dashboard-col">
+                                <h3 id="home-abs-client-curr-title"></h3>
+                                <div class="table-container compact">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th data-i18n="colClient">CLIENT</th>
+                                                <th class="number-col" data-i18n="colTotalHours">HORES</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="homeAbsClientCurrBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
 
                     <!-- Previous Month Stats -->
-                    <div class="stats-row">
-                        <h4 id="home-prev-month-title">Situació a mes de...</h4>
+                    <div class="stats-row" id="section-prev">
+                        <h4 id="home-prev-month-title" class="stats-row-header">
+                            <span>Situació a mes de...</span>
+                            <i class="ph ph-caret-up stats-row-toggle"></i>
+                        </h4>
+                        <div class="stats-row-body">
                         <div class="stats-cards">
                             <div class="stat-card">
                                 <span class="stat-title" data-i18n="statTotalHours">Hores Imputades</span>
@@ -110,43 +227,82 @@
                                 <span class="stat-value" id="home-prev-conflicts">0</span>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <div class="dashboard-col">
-                            <h3 data-i18n="titleClientSummary">Resum per Client</h3>
-                            <div class="table-container compact">
-                                <table id="homeClientTable">
-                                    <thead>
-                                        <tr>
-                                            <th data-i18n="colClient">CLIENT</th>
-                                            <th class="number-col" data-i18n="colTotalHours">HORES</th>
-                                            <th class="number-col" data-i18n="colTotalImport">IMPORT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="homeClientBody"></tbody>
-                                </table>
+                        <div class="home-stacked-chart"><canvas id="homePrevChart"></canvas></div>
+                        <div class="dashboard-grid">
+                            <div class="dashboard-col">
+                                <h3 id="home-client-prev-title"></h3>
+                                <div class="table-container compact">
+                                    <table id="homeClientPrevTable">
+                                        <thead>
+                                            <tr>
+                                                <th data-i18n="colClient">CLIENT</th>
+                                                <th class="number-col" data-i18n="colTotalHours">HORES</th>
+                                                <th class="number-col" data-i18n="colTotalImport">IMPORT</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="homeClientPrevBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="dashboard-col">
+                                <h3 id="home-alerts-prev-title"></h3>
+                                <div class="table-container compact">
+                                    <table id="homeAlertsPrevTable">
+                                        <thead>
+                                            <tr>
+                                                <th data-i18n="colDate">DATA</th>
+                                                <th data-i18n="colUser">TÈCNIC</th>
+                                                <th class="number-col" data-i18n="colAbsenceH">MANQUEN (h)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="homeAlertsPrevBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="dashboard-col">
+                                <h3 id="home-abs-client-prev-title"></h3>
+                                <div class="table-container compact">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th data-i18n="colClient">CLIENT</th>
+                                                <th class="number-col" data-i18n="colTotalHours">HORES</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="homeAbsClientPrevBody"></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                        <div class="dashboard-col">
-                            <h3 data-i18n="titleRecentAlerts">Últims Conflictes Detectats</h3>
-                            <div class="table-container compact">
-                                <table id="homeAlertsTable">
-                                    <thead>
-                                        <tr>
-                                            <th data-i18n="colDate">DATA</th>
-                                            <th data-i18n="colUser">TÈCNIC</th>
-                                            <th class="number-col" data-i18n="colAbsenceH">MANQUEN (h)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="homeAlertsBody"></tbody>
-                                </table>
+                        </div>
+                    </div>
+
+                    <!-- Evolució -->
+                    <div class="stats-row" id="section-evolucio">
+                        <h4 class="stats-row-header">
+                            <span data-i18n="titleEvolucio">Evolució</span>
+                            <i class="ph ph-caret-up stats-row-toggle"></i>
+                        </h4>
+                        <div class="stats-row-body">
+                            <div class="evolucio-grid">
+                                <div class="evolucio-col">
+                                    <h3 class="dashboard-col-title" data-i18n="titleEvoPressupost">Evolució pressupost</h3>
+                                    <div class="evolucio-chart-wrap"><canvas id="homeEvoPressupostChart"></canvas></div>
+                                </div>
+                                <div class="evolucio-col">
+                                    <h3 class="dashboard-col-title" data-i18n="titleEvoAbsencies">Evolució absències</h3>
+                                    <div class="evolucio-chart-wrap"><canvas id="homeEvoAbsenciesChart"></canvas></div>
+                                </div>
+                                <div class="evolucio-col">
+                                    <h3 class="dashboard-col-title" data-i18n="titleEvoImputacions">Imputacions</h3>
+                                    <div class="evolucio-chart-wrap"><canvas id="homeEvoImputacionsChart"></canvas></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="home-buttons">
+                <div class="home-buttons" style="display:none;">
                     <button id="btn-go-imputacions" class="custom-file-upload btn-large" data-i18n="btnGoImputacions">Quadre d'imputacions</button>
                     <button id="btn-go-absencies" class="custom-file-upload btn-large btn-secondary" data-i18n="btnGoAbsencies">Quadre d'absències</button>
                 </div>

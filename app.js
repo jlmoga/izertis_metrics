@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const translations = {
         ca: {
             appTitle: "Quadre d'Imputacions",
-            homeTitle: "Quadre de facturació dels serveis de Banca Izertis",
+            homeTitle: "Izertis Metrics",
+            btnHome: "Inici",
             btnGoImputacions: "Quadre d'imputacions",
             btnGoAbsencies: "Quadre d'absències",
             selectFolderTitle: "Selecciona la carpeta",

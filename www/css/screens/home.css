@@ -8,10 +8,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     gap: 1.25rem;
-    text-align: center;
+    text-align: left;
     padding: 0.25rem 0.5rem;
     overflow-y: auto;
     animation: fadeIn 0.3s ease-out;
@@ -39,8 +39,7 @@
 /* --- Dashboard principal ---------------------------------------------------- */
 .home-dashboard {
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto 1rem auto;
+    margin: 0 0 1rem 0;
 }
 
 .home-dashboard .stats-cards {
@@ -48,28 +47,75 @@
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.stats-row .dashboard-grid {
+    margin-top: 1rem;
+}
+
+/* --- Gràfic apilat horitzontal de clients ----------------------------------- */
+.home-stacked-chart {
+    width: 100%;
+    height: 90px;
+    margin-top: 0.75rem;
+}
+
 /* --- Fila de secció de KPIs (títol + graella) ------------------------------- */
 .stats-row {
-    margin: 1rem 0 0.5rem 0;
+    margin: 1rem 0 2rem 0;
     text-align: left;
     width: 100%;
 }
 
-.stats-row h4 {
-    font-size: 0.72rem;
-    color: var(--text-secondary);
+.stats-row-header {
+    font-size: 0.82rem;
+    color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 0.65rem;
-    padding-bottom: 0.4rem;
+    letter-spacing: 1.2px;
+    margin-bottom: 0.75rem;
+    padding: 0.45rem 0.6rem 0.45rem 0.75rem;
+    border-left: 3px solid var(--accent-color);
     border-bottom: 1px solid var(--border-color);
-    font-weight: 600;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    background: var(--card-bg);
+    border-radius: 0 2px 2px 0;
+}
+
+.stats-row-header:hover {
+    color: var(--accent-color);
+    background: var(--hover-bg, rgba(0,120,212,0.04));
+}
+
+.stats-row-toggle {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.stats-row.collapsed .stats-row-toggle {
+    transform: rotate(180deg);
+}
+
+/* --- Cos col·lapsable ------------------------------------------------------ */
+.stats-row-body {
+    overflow: hidden;
+    max-height: 3000px;
+    transition: max-height 0.35s ease, opacity 0.25s ease;
+    opacity: 1;
+}
+
+.stats-row.collapsed .stats-row-body {
+    max-height: 0;
+    opacity: 0;
 }
 
 /* --- Graella de columnes del dashboard -------------------------------------- */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     text-align: left;
 }
@@ -83,7 +129,13 @@
     font-weight: 600;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
@@ -100,4 +152,67 @@
 .home-title {
     font-size: clamp(1.5rem, 3vw, 2.5rem) !important;
     line-height: 1.2;
+}
+
+/* --- Gràfics d'evolució (dos columnes) ------------------------------------- */
+.evolucio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.evolucio-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dashboard-col-title {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.evolucio-chart-wrap {
+    height: 280px;
+    position: relative;
+}
+
+@media (max-width: 1100px) {
+    .evolucio-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .evolucio-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Logo + títol d'aplicació al home --------------------------------------- */
+.home-app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.75rem 0 0.25rem 0;
+    align-self: flex-start;
+}
+
+.home-app-logo {
+    height: 36px;
+    width: auto;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+.home-app-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
 }

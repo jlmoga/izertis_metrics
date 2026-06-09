@@ -18,6 +18,9 @@ import { getFromDB } from './services/db.js';
 import { state } from './state.js';
 import { normalizeName } from './utils.js';
 import { setupNavigation } from './ui/navigation.js';
+import { setupSidebarMode } from './ui/sidebar.js';
+import { setupAppLauncher } from './ui/appLauncher.js';
+import { setupCollapsibleSections } from './ui/collapsible.js';
 import { setupUploadHandlers } from './ui/upload.js';
 import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupViewToggle } from './ui/filters.js';
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
@@ -69,7 +72,10 @@ if (langSelect) {
     });
 }
 
-// 4. Navegació
+// 4. Navegació i mode de sidebar
+setupSidebarMode();
+setupAppLauncher();
+setupCollapsibleSections();
 const { btnGoImputacions, btnGoAbsencies } = setupNavigation();
 
 // 5. Càrrega de fitxers (input + drag & drop)

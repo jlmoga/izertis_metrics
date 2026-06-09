@@ -28,6 +28,7 @@
 @import 'components/table.css';
 @import 'components/filters.css';
 @import 'components/modal.css';
+@import 'components/applauncher.css';
 
 /* 6 · Screens ---------------------------------------------------------------- */
 @import 'screens/home.css';

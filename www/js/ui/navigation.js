@@ -17,15 +17,27 @@ export function setupNavigation() {
     const absResultsSection = document.getElementById('absencies-results-section');
     const headerTitle = document.querySelector('header h1');
 
+    const navHome = document.getElementById('nav-home');
+    const navImputacions = document.getElementById('nav-imputacions');
+    const navAbsencies = document.getElementById('nav-absencies');
+    const sidebarItems = [navHome, navImputacions, navAbsencies].filter(Boolean);
+
     if (!btnGoImputacions || !btnGoAbsencies || !btnBackHome) return {};
 
-    btnGoImputacions.addEventListener('click', () => {
+    function setActive(id) {
+        sidebarItems.forEach(item => item.classList.remove('active'));
+        const target = document.getElementById(id);
+        if (target) target.classList.add('active');
+    }
+
+    function goToImputacions() {
         homeScreen.classList.add('hidden');
         absenciesScreen.classList.add('hidden');
         imputacionsScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'appTitle');
         applyTranslations();
+        setActive('nav-imputacions');
 
         if (state.currentData.length === 0) {
             document.getElementById('upload-imputacions').classList.remove('hidden');
@@ -34,15 +46,16 @@ export function setupNavigation() {
             document.getElementById('upload-imputacions').classList.add('hidden');
             resultsSection.classList.remove('hidden');
         }
-    });
+    }
 
-    btnGoAbsencies.addEventListener('click', () => {
+    function goToAbsencies() {
         homeScreen.classList.add('hidden');
         imputacionsScreen.classList.add('hidden');
         absenciesScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'btnGoAbsencies');
         applyTranslations();
+        setActive('nav-absencies');
 
         if (state.absData.length === 0) {
             document.getElementById('upload-absencies').classList.remove('hidden');
@@ -51,17 +64,26 @@ export function setupNavigation() {
             document.getElementById('upload-absencies').classList.add('hidden');
             absResultsSection.classList.remove('hidden');
         }
-    });
+    }
 
-    btnBackHome.addEventListener('click', async () => {
+    async function goToHome() {
         imputacionsScreen.classList.add('hidden');
         absenciesScreen.classList.add('hidden');
         homeScreen.classList.remove('hidden');
         btnBackHome.classList.add('hidden');
         headerTitle.setAttribute('data-i18n', 'homeTitle');
         applyTranslations();
+        setActive('nav-home');
         await updateHomeDashboard();
-    });
+    }
+
+    btnGoImputacions.addEventListener('click', goToImputacions);
+    btnGoAbsencies.addEventListener('click', goToAbsencies);
+    btnBackHome.addEventListener('click', goToHome);
+
+    if (navHome) navHome.addEventListener('click', goToHome);
+    if (navImputacions) navImputacions.addEventListener('click', goToImputacions);
+    if (navAbsencies) navAbsencies.addEventListener('click', goToAbsencies);
 
     return { btnGoImputacions, btnGoAbsencies };
 }

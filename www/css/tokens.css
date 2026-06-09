@@ -29,6 +29,11 @@
     --header-bg:         #0078d4;
     --header-text:       #ffffff;
 
+    /* Sidebar */
+    --sidebar-bg:        #edebe9;
+    --sidebar-active-bg: rgba(0, 120, 212, 0.08);
+    --sidebar-width:     220px;
+
     /* Ombres i efectes */
     --glass-shadow:      0 1.6px 3.6px rgba(0,0,0,0.132), 0 0.3px 0.9px rgba(0,0,0,0.108);
     --transition:        all 0.15s ease;
@@ -60,6 +65,9 @@ body.theme-light {
     --option-bg:         #ffffff;
     --row-hover:         #f3f2f1;
     --table-header-bg:   #faf9f8;
+    --sidebar-bg:        #edebe9;
+    --sidebar-active-bg: rgba(0, 120, 212, 0.08);
+    --sidebar-width:     220px;
 }
 
 /* --- TEMA FOSC (Dark) -------------------------------------------------------- */
@@ -80,4 +88,7 @@ body.theme-dark {
     --option-bg:         #292827;
     --row-hover:         #323130;
     --table-header-bg:   #323130;
+    --sidebar-bg:        #201f1e;
+    --sidebar-active-bg: rgba(76, 194, 255, 0.1);
+    --sidebar-width:     220px;
 }
