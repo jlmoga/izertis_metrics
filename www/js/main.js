@@ -27,7 +27,7 @@ import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
 import { updateChart } from './ui/charts.js';
 import { renderOvertimeTable, setupOvertimeSortHandlers } from './ui/overtime.js';
-import { updateHomeDashboard } from './ui/home.js';
+import { updateHomeDashboard, setupEvoExport } from './ui/home.js';
 import { generatePrintReport } from './ui/print.js';
 import { setupFacturacio } from './ui/facturacio.js';
 import { injectSectionHeaders } from './ui/appHeader.js';
@@ -99,6 +99,7 @@ setupGroupingHandlers();
 setupAbsGroupingHandlers();
 setupExportXlsx();
 setupExportAbsXlsx();
+setupEvoExport();
 
 // 7. Impressió
 const btnPrintImp = document.getElementById('btn-print-imp');

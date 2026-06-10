@@ -173,7 +173,14 @@ const translations = {
         factNoDataSelection: "No hi ha dades de facturació amb aquesta selecció",
         factValidationConfigTitle: "Configuració de validació de la facturació per al client",
         factOMOConfigTitle: "Configuració de l'ordre de facturació per al client",
-        factOMOMailList: "Llista de distribució OMO:"
+        factOMOMailList: "Llista de distribució OMO:",
+        evoTypeColumns: "Columnes",
+        evoTypeLines: "Línies",
+        evoTypeData: "Dades",
+        evoByProject: "Per projecte",
+        filterAllClients: "Tots els clients",
+        filterNoClients: "Cap client",
+        filterOf: "de"
     },
     es: {
         appTitle: "Cuadro de Imputaciones",
@@ -345,7 +352,14 @@ const translations = {
         factNoDataSelection: "No hay datos de facturación con esta selección",
         factValidationConfigTitle: "Configuración de validación de la facturación para el cliente",
         factOMOConfigTitle: "Configuración de la orden de facturación para el cliente",
-        factOMOMailList: "Lista de distribución OMO:"
+        factOMOMailList: "Lista de distribución OMO:",
+        evoTypeColumns: "Columnas",
+        evoTypeLines: "Líneas",
+        evoTypeData: "Datos",
+        evoByProject: "Por proyecto",
+        filterAllClients: "Todos los clientes",
+        filterNoClients: "Ningún cliente",
+        filterOf: "de"
     },
     en: {
         appTitle: "Imputations Dashboard",
@@ -517,7 +531,14 @@ const translations = {
         factNoDataSelection: "No billing data found for this selection",
         factValidationConfigTitle: "Billing validation configuration for client",
         factOMOConfigTitle: "Billing order configuration for client",
-        factOMOMailList: "OMO distribution list:"
+        factOMOMailList: "OMO distribution list:",
+        evoTypeColumns: "Columns",
+        evoTypeLines: "Lines",
+        evoTypeData: "Data",
+        evoByProject: "By project",
+        filterAllClients: "All clients",
+        filterNoClients: "No client",
+        filterOf: "of"
     }
 };
 

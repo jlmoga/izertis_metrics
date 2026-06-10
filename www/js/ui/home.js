@@ -274,18 +274,23 @@ function renderEvoTable(containerId, rows, absRows, currYear, shortMonths, unit,
     if (!container) return;
 
     const byKey = computeEvoByKey(rows, absRows, currYear, unit, byProject);
-    const sorted = sortedEvoEntries(byKey, selectedClients, byProject);
+    const sorted = sortedEvoEntries(byKey, selectedClients, byProject)
+        .sort((a, b) => a[0].localeCompare(b[0]));
     const isCurrency = unit === '€';
     const fmt = v => v > 0
         ? v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (isCurrency ? ' €' : ' h')
         : '—';
+
+    const colTotals = Array(shortMonths.length).fill(0);
+    sorted.forEach(([, vals]) => vals.forEach((v, i) => { colTotals[i] += v; }));
+    const grandTotal = colTotals.reduce((s, v) => s + v, 0);
 
     container.innerHTML = `
         <div class="evo-table-scroll">
             <table class="evo-data-table">
                 <thead>
                     <tr>
-                        <th>Client</th>
+                        <th>${t('lblClients')}</th>
                         ${shortMonths.map(m => `<th class="number-col">${m}</th>`).join('')}
                         <th class="number-col evo-total-col">Total</th>
                     </tr>
@@ -303,6 +308,11 @@ function renderEvoTable(containerId, rows, absRows, currYear, shortMonths, unit,
                             <td class="number-col evo-total-col">${fmt(total)}</td>
                         </tr>`;
                     }).join('')}
+                    <tr class="evo-totals-row">
+                        <td><strong>Total</strong></td>
+                        ${colTotals.map(v => `<td class="number-col"><strong>${fmt(v)}</strong></td>`).join('')}
+                        <td class="number-col evo-total-col"><strong>${fmt(grandTotal)}</strong></td>
+                    </tr>
                 </tbody>
             </table>
         </div>`;
@@ -617,9 +627,9 @@ export async function updateHomeDashboard() {
         const updateBtnLabel = () => {
             const lbl = filterContainer.querySelector('.evo-client-btn-label');
             if (!lbl) return;
-            if (selectedClients.size === allEvoClients.length) lbl.textContent = 'Tots els clients';
-            else if (selectedClients.size === 0) lbl.textContent = 'Cap client';
-            else lbl.textContent = `${selectedClients.size} de ${allEvoClients.length} clients`;
+            if (selectedClients.size === allEvoClients.length) lbl.textContent = t('filterAllClients');
+            else if (selectedClients.size === 0) lbl.textContent = t('filterNoClients');
+            else lbl.textContent = `${selectedClients.size} ${t('filterOf')} ${allEvoClients.length} ${t('lblClients').toLowerCase()}`;
         };
 
         const allSelected = () => selectedClients.size === allEvoClients.length;
@@ -633,7 +643,7 @@ export async function updateHomeDashboard() {
             <div class="evo-client-panel" id="home-client-panel">
                 <label class="evo-client-check evo-client-all-label">
                     <input type="checkbox" id="home-check-all" ${allSelected() ? 'checked' : ''}>
-                    <span>Tots els clients</span>
+                    <span>${t('filterAllClients')}</span>
                 </label>
                 <div id="home-client-list">
                     ${allEvoClients.map(c => `
@@ -856,3 +866,57 @@ ${monthSection('home-prev-month-title',
 }
 
 document.getElementById('btn-print-home')?.addEventListener('click', printHomeReport);
+
+export function setupEvoExport() {
+    const btn = document.getElementById('btn-export-evo-xlsx');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        const XLSX = window.XLSX;
+        if (!XLSX) { console.warn('XLSX not loaded'); return; }
+
+        const currYear  = new Date().getFullYear();
+        const shortMonths = t('monthsShort');
+
+        // Llegir configuració actual dels selectors (persistida en localStorage)
+        const evoByProject = localStorage.getItem('moga_evo_by_project') === 'true';
+        const yearData = state.currentData.filter(r => {
+            const d = parseDateToDateObj(r.date);
+            return d && d.getFullYear() === currYear;
+        });
+        const allEvoClients = [...new Set(yearData.map(r => r.client || '?'))].sort();
+        let selectedClients;
+        try {
+            const stored = JSON.parse(localStorage.getItem('moga_evo_clients'));
+            const valid  = stored ? stored.filter(c => allEvoClients.includes(c)) : null;
+            selectedClients = valid ? new Set(valid) : new Set(allEvoClients);
+        } catch { selectedClients = new Set(allEvoClients); }
+
+        const buildSheetData = (unit, byProject) => {
+            const byKey = computeEvoByKey(state.currentData, state.absData, currYear, unit, byProject);
+            const sorted = sortedEvoEntries(byKey, selectedClients, byProject)
+                .sort((a, b) => a[0].localeCompare(b[0]));
+
+            const header = [t('lblClients'), ...shortMonths, 'Total'];
+            const dataRows = sorted.map(([key, vals]) => {
+                const total = vals.reduce((s, v) => s + v, 0);
+                return [key, ...vals.map(v => v || 0), total];
+            });
+            const colTotals = Array(shortMonths.length).fill(0);
+            sorted.forEach(([, vals]) => vals.forEach((v, i) => { colTotals[i] += v; }));
+            const grandTotal = colTotals.reduce((s, v) => s + v, 0);
+            return [header, ...dataRows, ['Total', ...colTotals, grandTotal]];
+        };
+
+        const wb = XLSX.utils.book_new();
+        const addSheet = (data, name) => {
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, name.substring(0, 31));
+        };
+
+        addSheet(buildSheetData('€',     evoByProject), t('titleEvoPressupost'));
+        addSheet(buildSheetData('h',     false),         t('titleEvoAbsencies'));
+        addSheet(buildSheetData('imp-h', evoByProject), t('titleEvoImputacions'));
+
+        XLSX.writeFile(wb, `evolucio_${currYear}.xlsx`);
+    });
+}

@@ -411,6 +411,12 @@
     border-left: 1px solid var(--border-color);
 }
 
+.evo-totals-row td {
+    border-top: 2px solid var(--border-color);
+    border-bottom: none;
+    background: var(--hover-bg, rgba(0,0,0,0.03));
+}
+
 .evo-client-td {
     display: flex;
     align-items: center;
