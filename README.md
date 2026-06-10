@@ -1,55 +1,113 @@
-# Com llançar l'aplicació amb un Servidor Local
+# Running the Application with a Local Server
 
-Aquesta aplicació guarda dades al navegador. Perquè funcioni correctament i no es perdin les dades en fer F5 (especialment en Chrome/Edge), es recomana executar-la mitjançant un servidor local en lloc d'obrir el fitxer directament.
+This application stores data in the browser. To work correctly and avoid losing data on page refresh (especially in Chrome/Edge), it is recommended to run it through a local server rather than opening the file directly.
 
-## Instruccions
+## Instructions
 
-1. Assegura't de tenir **Node.js** instal·lat.
-2. Obre una terminal a la carpeta del projecte.
-3. Executa la següent ordre per instal·lar i llançar el servidor:
+1. Make sure you have **Node.js** installed.
+2. Open a terminal in the project folder.
+3. Run the following command to install dependencies and start the server:
    ```bash
    npm start
    ```
-4. L'aplicació s'obrirà automàticament a `http://localhost:8080`.
+4. The application will open automatically at `http://localhost:8080`.
 
-Si no tens Node.js, també pots utilitzar Python:
+If you don't have Node.js, you can also use Python:
 ```bash
 python -m http.server 8080
 ```
-A continuació, obre el navegador a `http://localhost:8080`.
+Then open your browser at `http://localhost:8080`.
 
 ---
 
-# config.json — Documentació
+# User Manual
 
-Fitxer de configuració de clients i projectes per a la facturació.
+## Settings Window
 
-## Estructura
+The settings window opens by clicking the gear icon (⚙) in the top-right bar.
+
+### Interface Language
+
+The **Language** dropdown lets you change the language of all interface texts. Available languages:
+
+| Code | Language   |
+|------|------------|
+| ca   | Català     |
+| es   | Español    |
+| en   | English    |
+
+The language is automatically detected from the browser settings the first time the application is opened. If the browser uses an unsupported language, English is set by default. The selection is saved in the browser and restored in subsequent sessions.
+
+> **Note:** The interface language is independent of the **communication language** used in the billing section to generate the text of emails and documents sent to the client.
+
+### Colour Theme
+
+The **Theme** dropdown lets you switch between appearance modes:
+
+| Option | Description                                  |
+|--------|----------------------------------------------|
+| Light  | White background, dark text (day mode)       |
+| Dark   | Dark background, light text (night mode)     |
+| System | Follows the operating system preference      |
+
+The selected theme is saved in the browser and restored automatically.
+
+### Loading Data Files
+
+The application works with two independent datasets that are loaded manually:
+
+#### Imputations
+
+Contains hours logged per project and technician. To load them:
+
+1. Navigate to the **Imputations** tab.
+2. Click **Select folder** or drag the folder directly to the upload area.
+3. Select the folder containing the CSV imputations files exported from the management system.
+
+The application processes all `.csv` files in the folder and merges the data automatically.
+
+#### Absences
+
+Contains staff absence records. The process is equivalent:
+
+1. Navigate to the **Absences** tab.
+2. Click **Select folder** or drag the folder to the upload area.
+3. Select the folder containing the CSV absence files.
+
+Data is saved in the browser (IndexedDB) and restored automatically when the application is reopened. To clear it and load a new dataset, click the reset button (circular arrow icon) in the settings window.
+
+---
+
+# config.json — Documentation
+
+Configuration file for clients and projects used in the billing workflow.
+
+## Structure
 
 ```jsonc
 {
     "customers": [
         {
-            "customer_id": "",           // Identificador del client provinent del sistema d'imputacions (ha de coincidir exactament)
-            "customer_name": "",         // Nom oficial del client (usat únicament per mostrar en pantalla)
-            "customer_validation_intro": "",        // Text d'introducció genèric per a les comunicacions amb aquest client
-            "customer_validation_observations": "", // Text de tancament genèric per a les comunicacions amb aquest client
-            "list_mails_validation": "",            // Llista de correus (separats per comes) als quals s'envia la validació de facturació
+            "customer_id": "",           // Client identifier from the imputations system (must match exactly)
+            "customer_name": "",         // Official client name (used for display purposes only)
+            "customer_validation_intro": "",        // Generic opening text for communications with this client
+            "customer_validation_observations": "", // Generic closing text for communications with this client
+            "list_mails_validation": "",            // Comma-separated list of addresses to receive billing validation emails
             "projects": [
                 {
-                    "project_id": "",                // Identificador del projecte provinent del sistema d'imputacions (ha de coincidir exactament)
-                    "project_description": "",        // Descripció llarga del projecte
-                    "cost_calculation": "hours|days|fixed", // Unitat de càlcul del cost: "hours", "days" o "fixed"
-                    "cost_fixed": 0,                  // Import fix de facturació (només rellevant si cost_calculation = "fixed")
-                    "hours_per_day": 8,               // Hores per jornada (només rellevant si cost_calculation = "days")
-                    "project_navision_code": "",      // Codi Navision del projecte
-                    "is_time_materials": true,        // El projecte està en modalitat time & materials
-                    "ok_required": true,              // El client requereix OK previ per emetre facturació
-                    "list_mails_OMO": "",             // Llista de destinataris de les ordres de facturació (separats per comes)
-                    "validation_intro": "",           // Text previ a les dades a l'enviament de validació
-                    "validation_observations": "",    // Text posterior a les dades a l'enviament de validació
-                    "OMO_intro": "",                  // Text previ a les dades a l'ordre de facturació
-                    "OMO_observations": ""            // Text posterior a les dades a l'ordre de facturació
+                    "project_id": "",                // Project identifier from the imputations system (must match exactly)
+                    "project_description": "",        // Full project description
+                    "cost_calculation": "hours|days|fixed", // Cost calculation unit: "hours", "days" or "fixed"
+                    "cost_fixed": 0,                  // Fixed billing amount (only relevant when cost_calculation = "fixed")
+                    "hours_per_day": 8,               // Hours per working day (only relevant when cost_calculation = "days")
+                    "project_navision_code": "",      // Navision project code
+                    "is_time_materials": true,        // Whether the project is on a time & materials basis
+                    "ok_required": true,              // Whether the client requires prior approval before invoicing
+                    "list_mails_OMO": "",             // Comma-separated list of recipients for billing order emails
+                    "validation_intro": "",           // Opening text for the billing validation email
+                    "validation_observations": "",    // Closing text for the billing validation email
+                    "OMO_intro": "",                  // Opening text for the billing order
+                    "OMO_observations": ""            // Closing text for the billing order
                 }
             ]
         }
@@ -59,9 +117,9 @@ Fitxer de configuració de clients i projectes per a la facturació.
 
 ## Notes
 
-- `cost_calculation`: accepta `"hours"` (càlcul per hores), `"days"` (càlcul per jornades) o `"fixed"` (import fix independent del desglós d'hores).
-- `cost_fixed`: import de facturació fix per al projecte; s'utilitza únicament quan `cost_calculation = "fixed"`. El desglós d'hores dels tècnics es mostra informativament però no afecta el cost facturat.
-- `list_mails_validation`: definit a nivell de client (no de projecte); múltiples adreces separades per comes, p. ex. `"joan@izertis.com,maria@izertis.com"`.
-- `list_mails_OMO`: múltiples adreces separades per comes, p. ex. `"joan@izertis.com,maria@izertis.com"`.
-- `customer_validation_intro` i `customer_validation_observations`: textos a nivell de client, comuns a tots els projectes d'aquell client. Complementen els camps `validation_intro` i `validation_observations` definits per projecte.
-- El fitxer `config_template.json` conté la plantilla neta per afegir nous registres.
+- `cost_calculation`: accepts `"hours"` (calculated by hours), `"days"` (calculated by working days) or `"fixed"` (fixed amount regardless of the hours breakdown).
+- `cost_fixed`: fixed billing amount for the project; used only when `cost_calculation = "fixed"`. The technicians' hours breakdown is shown for reference but does not affect the billed amount.
+- `list_mails_validation`: defined at client level (not project level); multiple addresses separated by commas, e.g. `"joan@izertis.com,maria@izertis.com"`.
+- `list_mails_OMO`: multiple addresses separated by commas, e.g. `"joan@izertis.com,maria@izertis.com"`.
+- `customer_validation_intro` and `customer_validation_observations`: client-level texts, shared across all projects for that client. They complement the per-project `validation_intro` and `validation_observations` fields.
+- The file `config_template.json` contains the clean template for adding new records.
