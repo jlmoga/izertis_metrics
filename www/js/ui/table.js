@@ -155,9 +155,9 @@ export function renderGroupedTable(data, groupByArray, startCollapsed = false) {
 }
 
 
-export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {}, customerName = null) {
-    const summaryTable = document.getElementById('summaryTable');
-    const summaryBody  = document.getElementById('summaryBody');
+export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {}, customerName = null, tableEl = null, totalsOnly = false) {
+    const summaryTable = tableEl ?? document.getElementById('summaryTable');
+    const summaryBody  = summaryTable?.querySelector('tbody');
     if (!summaryTable || !summaryBody) return;
 
     const tl    = (key) => tForLang(lang, key);
@@ -209,7 +209,24 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
         return map;
     };
 
-    const monthlyCells = (map, totalH, totalA, isDays = false, hoursPerDay = 8) => {
+    // Com aggregate però exclou els amounts de projectes amb cost fix
+    const aggregateEffective = (rows, fixedPids) => {
+        const map = Object.fromEntries(monthKeys.map(k => [k, { hours: 0, amount: 0 }]));
+        rows.forEach(r => {
+            if (!r.date) return;
+            const p = r.date.split('/');
+            if (p.length < 3) return;
+            const k = `${p[2]}-${p[1].padStart(2, '0')}`;
+            if (map[k]) {
+                map[k].hours += r.hours || 0;
+                if (!fixedPids.has(r.project)) map[k].amount += r._importedCalculated || 0;
+            }
+        });
+        return map;
+    };
+
+    // isFixed=true: suprimeix amounts mensuals; totalA=null: mostra '-' a la cel·la de total
+    const monthlyCells = (map, totalH, totalA, isDays = false, hoursPerDay = 8, isFixed = false) => {
         let html = '';
         monthKeys.forEach(k => {
             const d = map[k];
@@ -218,14 +235,14 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
                 const j = isDays && d.hours > 0 ? (d.hours / hoursPerDay).toFixed(2) : '-';
                 html += `<td class="number-col">${j}</td>`;
             }
-            html += `<td class="number-col highlight-col month-group-end">${d.amount > 0 ? formatCurrency(d.amount) : '-'}</td>`;
+            html += `<td class="number-col highlight-col month-group-end">${!isFixed && d.amount > 0 ? formatCurrency(d.amount) : '-'}</td>`;
         });
         html += `<td class="number-col summary-total-cell"><strong>${totalH.toFixed(2)}h</strong></td>`;
         if (hasDays) {
             const totalJ = isDays ? `<strong>${(totalH / hoursPerDay).toFixed(2)}</strong>` : '-';
             html += `<td class="number-col summary-total-cell">${totalJ}</td>`;
         }
-        html += `<td class="number-col highlight-col summary-total-cell"><strong>${formatCurrency(totalA)}</strong></td>`;
+        html += `<td class="number-col highlight-col summary-total-cell"><strong>${totalA != null ? formatCurrency(totalA) : '-'}</strong></td>`;
         return html;
     };
 
@@ -267,13 +284,25 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
 
     clientOrder.sort((a, b) => clientMap[b].hours - clientMap[a].hours);
 
+    // Precalcula amounts efectius per a clients amb projectes de cost fix
+    clientOrder.forEach(ck => {
+        const c = clientMap[ck];
+        const fixedPids = new Set(c.projectOrder.filter(pk => projectCostCalc[pk]?.cost === 'fixed'));
+        c.fixedPids = fixedPids;
+        c.effectiveAmount = c.projectOrder.reduce((sum, pk) => {
+            const projInfo = projectCostCalc[pk] || { cost: 'hours', fixedAmount: 0 };
+            const p = c.projects[pk];
+            return sum + (projInfo.cost === 'fixed' ? (projInfo.fixedAmount || 0) : p.amount);
+        }, 0);
+    });
+
     summaryBody.innerHTML = '';
     let counter = 0;
 
     clientOrder.forEach(ck => {
         const c        = clientMap[ck];
         const clientId = `sum-${counter++}`;
-        const cMap     = aggregate(c.rows);
+        const cMap     = c.fixedPids.size > 0 ? aggregateEffective(c.rows, c.fixedPids) : aggregate(c.rows);
 
         const clientRow = document.createElement('tr');
         clientRow.className = 'group-header-row group-level-1';
@@ -281,7 +310,7 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
         clientRow.innerHTML = `
             <td><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i><strong>${customerName || ck}</strong></td>
             <td class="number-col"></td>
-            ${monthlyCells(cMap, c.hours, c.amount)}`;
+            ${monthlyCells(cMap, c.hours, c.effectiveAmount)}`;
         clientRow.addEventListener('click', () => {
             const collapsed = clientRow.classList.toggle('collapsed');
             setDescendantsDisplay(clientId, collapsed ? 'none' : '', summaryBody);
@@ -294,22 +323,34 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
             const projectId = `sum-${counter++}`;
             const pMap      = aggregate(p.rows);
 
-            const projInfo   = projectCostCalc[pk] || { cost: 'hours', hpd: 8 };
-            const isDays     = projInfo.cost === 'days';
-            const hoursPerDay = projInfo.hpd;
+            const projInfo      = projectCostCalc[pk] || { cost: 'hours', hpd: 8, navision: '', fixedAmount: 0 };
+            const isDays        = projInfo.cost === 'days';
+            const isFixed       = projInfo.cost === 'fixed';
+            const hoursPerDay   = projInfo.hpd;
+            const navisionTag   = projInfo.navision ? ` <span class="project-navision">(${projInfo.navision})</span>` : '';
+            const projAmount    = isFixed ? (projInfo.fixedAmount || 0) : p.amount;
             const projectRow = document.createElement('tr');
             projectRow.className = 'group-header-row group-level-2';
             projectRow.dataset.groupId    = projectId;
             projectRow.dataset.parentGroup = clientId;
-            projectRow.innerHTML = `
-                <td style="padding-left:1.6rem"><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>${pk}</td>
-                <td class="number-col"></td>
-                ${monthlyCells(pMap, p.hours, p.amount, isDays, hoursPerDay)}`;
-            projectRow.addEventListener('click', () => {
-                const collapsed = projectRow.classList.toggle('collapsed');
-                setDescendantsDisplay(projectId, collapsed ? 'none' : '', summaryBody);
-            });
+            if (totalsOnly) {
+                projectRow.innerHTML = `
+                    <td style="padding-left:1.6rem">${pk}${navisionTag}</td>
+                    <td class="number-col"></td>
+                    ${monthlyCells(pMap, p.hours, projAmount, isDays, hoursPerDay, isFixed)}`;
+            } else {
+                projectRow.innerHTML = `
+                    <td style="padding-left:1.6rem"><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>${pk}${navisionTag}</td>
+                    <td class="number-col"></td>
+                    ${monthlyCells(pMap, p.hours, projAmount, isDays, hoursPerDay, isFixed)}`;
+                projectRow.addEventListener('click', () => {
+                    const collapsed = projectRow.classList.toggle('collapsed');
+                    setDescendantsDisplay(projectId, collapsed ? 'none' : '', summaryBody);
+                });
+            }
             summaryBody.appendChild(projectRow);
+
+            if (totalsOnly) return;
 
             p.userOrder.sort((a, b) => p.users[b].hours - p.users[a].hours);
             p.userOrder.forEach(urk => {
@@ -319,8 +360,8 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
                 userRow.dataset.parentGroup = projectId;
                 userRow.innerHTML = `
                     <td style="padding-left:3.2rem">${u.user}</td>
-                    <td class="number-col">${fmt2(u.rate)} €/h</td>
-                    ${monthlyCells(uMap, u.hours, u.amount, isDays, hoursPerDay)}`;
+                    <td class="number-col">${isFixed ? '-' : fmt2(u.rate) + ' €/h'}</td>
+                    ${monthlyCells(uMap, u.hours, isFixed ? null : u.amount, isDays, hoursPerDay, isFixed)}`;
                 summaryBody.appendChild(userRow);
             });
         });

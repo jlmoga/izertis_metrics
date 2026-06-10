@@ -3,19 +3,22 @@
         {
             "customer_id": "",
             "customer_name": "",
+            "customer_validation_intro": "",
+            "customer_validation_observations": "",
+            "list_mails_validation": "",
+            "list_mails_OMO": "",
             "projects": [
                 {
                     "project_id": "",
                     "project_description": "",
-                    "cost_calculation": "hours|days",
+                    "cost_calculation": "hours|days|fixed",
+                    "cost_fixed": 0,
                     "hours_per_day": 8,
                     "project_navision_code": "",
                     "is_time_materials": true,
                     "ok_required": true,
-                    "list_mails_validation": "",
                     "validation_intro": "",
                     "validation_observations": "",
-                    "OMO_list_mails": "",
                     "OMO_intro": "",
                     "OMO_observations": ""
                 }

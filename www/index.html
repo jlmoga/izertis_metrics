@@ -10,6 +10,7 @@
     <link href="https://www.calaixagil.com/css/bespoke-stencil.css" rel="stylesheet">
     <script src="https://unpkg.com/phosphor-icons"></script><!-- Icones Phosphor per a l'estètica moderna -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
@@ -368,6 +369,9 @@
                         <input type="checkbox" id="group-start-collapsed">
                         <span data-i18n="groupStartCollapsed">Tot col·lapsat</span>
                     </label>
+                    <button id="btn-export-xlsx" class="btn-secondary btn-print" style="margin-left:auto">
+                        <i class="ph ph-file-xls"></i> <span data-i18n="btnExportXlsx">Exportar XLSX</span>
+                    </button>
                 </div>
 
                 <div class="table-container" id="imp-table-container">
@@ -463,7 +467,10 @@
                     <div class="results-header">
                         <div class="header-main">
                             <h2 data-i18n="btnGoAbsencies">Quadre d'Absències</h2>
-                            <button id="btn-print-abs" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
+                            <div style="display:flex;gap:0.5rem">
+                                <button id="btn-export-abs-xlsx" class="btn-secondary btn-print"><i class="ph ph-file-xls"></i> <span data-i18n="btnExportXlsx">Exportar XLSX</span></button>
+                                <button id="btn-print-abs" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
+                            </div>
                         </div>
                         <div class="stats-cards">
                             <div class="stat-card">
@@ -623,13 +630,34 @@
                                 <button id="fact-btn-validacio" class="fact-mode-btn fact-mode-btn--active" data-i18n="factModeValidacio">Validació</button>
                                 <button id="fact-btn-ordres" class="fact-mode-btn" data-i18n="factModeOrdres">Ordres de facturació</button>
                             </div>
-                            <div class="fact-filter-group fact-filter-group--right">
-                                <label for="fact-client-lang" data-i18n="factLblCommLang">Idioma de comunicació</label>
-                                <select id="fact-client-lang">
-                                    <option value="ca" data-i18n="optCatalan">Català</option>
-                                    <option value="es" data-i18n="optSpanish">Castellà</option>
-                                    <option value="en" data-i18n="optEnglish">Anglès</option>
-                                </select>
+                            <!-- Controls compartits: idioma + mail -->
+                            <div style="display:flex;align-items:flex-end;gap:0.5rem;margin-left:auto">
+                                <div class="fact-filter-group fact-filter-group--right" style="margin-left:0">
+                                    <label for="fact-client-lang" data-i18n="factLblCommLang">Idioma de comunicació</label>
+                                    <select id="fact-client-lang">
+                                        <option value="ca" data-i18n="optCatalan">Català</option>
+                                        <option value="es" data-i18n="optSpanish">Castellà</option>
+                                        <option value="en" data-i18n="optEnglish">Anglès</option>
+                                    </select>
+                                </div>
+                                <button id="fact-btn-mail-validacio" class="btn-secondary btn-print fact-validacio-only"><i class="ph ph-envelope"></i> <span data-i18n="btnMailValidacio">Preparar mail</span></button>
+                                <button id="fact-btn-mail-omo" class="btn-secondary btn-print fact-omo-only hidden"><i class="ph ph-envelope"></i> <span data-i18n="btnMailValidacio">Preparar mail</span></button>
+                            </div>
+                            <!-- Grup impressió Validació -->
+                            <div class="fact-print-group fact-validacio-only">
+                                <label class="fact-check-label">
+                                    <input type="checkbox" id="fact-check-send-text">
+                                    <span data-i18n="factCheckSendText">Text per enviar</span>
+                                </label>
+                                <button id="fact-btn-print-validacio" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
+                            </div>
+                            <!-- Grup impressió OMO -->
+                            <div class="fact-print-group fact-omo-only hidden">
+                                <label class="fact-check-label">
+                                    <input type="checkbox" id="fact-check-omo-send-text">
+                                    <span data-i18n="factCheckSendText">Text per enviar</span>
+                                </label>
+                                <button id="fact-btn-print-omo" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
                             </div>
                         </div>
                         <div class="fact-content-scroll">
@@ -649,18 +677,32 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="table-container">
-                                        <table id="summaryTable">
-                                            <thead></thead>
-                                            <tbody id="summaryBody"></tbody>
-                                        </table>
-                                    </div>
+                                    <div id="fact-validation-meta-before"></div>
+                                    <div id="fact-validation-send-text"></div>
+                                    <div id="fact-billing-tables"></div>
+                                    <div id="fact-validation-meta-after"></div>
                                 </div>
                             </div>
                             <div id="fact-panel-ordres" class="fact-panel hidden">
-                                <div class="fact-panel-header">
-                                    <h2 data-i18n="factTitleOrdres">Ordre de facturació</h2>
-                                    <span id="fact-ordres-title" class="fact-panel-meta"></span>
+                                <div class="fact-results">
+                                    <div class="fact-panel-header">
+                                        <h2 data-i18n="factTitleOrdres">Ordre de facturació</h2>
+                                        <span id="fact-ordres-title" class="fact-panel-meta"></span>
+                                        <div class="fact-stats-group">
+                                            <div class="stat-card">
+                                                <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
+                                                <span class="stat-value" id="fact-omo-total-hours">0.00</span>
+                                            </div>
+                                            <div class="stat-card total-earnings">
+                                                <span class="stat-title" data-i18n="statAmount">Import facturable</span>
+                                                <span class="stat-value" id="fact-omo-total-amount">0.00 €</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="fact-omo-meta-before"></div>
+                                    <div id="fact-omo-send-text"></div>
+                                    <div id="fact-omo-tables"></div>
+                                    <div id="fact-omo-meta-after"></div>
                                 </div>
                             </div>
                             <section class="filters-section" id="fact-filters-section">

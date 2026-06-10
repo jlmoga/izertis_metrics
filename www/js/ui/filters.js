@@ -8,7 +8,7 @@ import { parseDateToTime, formatCurrency } from '../utils.js';
 import { sortData, sortAbsData } from './sort.js';
 import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable } from './table.js';
 import { updateChart, updateAbsCharts } from './charts.js';
-import { renderOvertimeTable } from './overtime.js';
+import { renderOvertimeTable, getConflicts } from './overtime.js';
 import { updateHomeDashboard } from './home.js';
 
 // --- DOM refs imputacions ---
@@ -415,6 +415,105 @@ export function setupGroupingHandlers() {
             if (state.currentGroup.length > 0) applyFilters();
         });
     }
+}
+
+export function setupExportXlsx() {
+    const btn = document.getElementById('btn-export-xlsx');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        const data = state.filteredData;
+        if (!data || data.length === 0) return;
+
+        const yes = t('factValidationYes');
+        const no  = t('factValidationNo');
+        const headers = [
+            t('xlsxColDate'), t('xlsxColUser'), t('xlsxColClient'),
+            t('xlsxColProject'), t('xlsxColTask'), t('xlsxColBillable'), t('xlsxColHours')
+        ];
+        const rows = data.map(r => [
+            r.date    || '',
+            r.user    || '',
+            r.client  || '',
+            r.project || '',
+            r.task    || '',
+            r.isBillable ? yes : no,
+            r.hours   ?? 0
+        ]);
+
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+        // Amplades de columna orientatives
+        ws['!cols'] = [
+            { wch: 12 }, { wch: 22 }, { wch: 22 },
+            { wch: 30 }, { wch: 30 }, { wch: 12 }, { wch: 10 }
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Imputacions');
+
+        const now = new Date();
+        const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+        XLSX.writeFile(wb, `imputacions_${stamp}.xlsx`);
+    });
+}
+
+export function setupExportAbsXlsx() {
+    const btn = document.getElementById('btn-export-abs-xlsx');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        const wb = XLSX.utils.book_new();
+
+        // --- Full 1: Absències ---
+        const absData = state.filteredAbsData;
+        const absHeaders = [
+            t('xlsxAbsUser'), t('xlsxAbsApprover'), t('xlsxAbsType'), t('xlsxAbsStatus'),
+            t('xlsxAbsDateStart'), t('xlsxAbsDateEnd'), t('xlsxAbsDays'), t('xlsxAbsHours')
+        ];
+        const absRows = (absData || []).map(r => [
+            r.user       || '',
+            r.approver   || '',
+            r.type       || '',
+            r.status     || '',
+            r.dateStart  || '',
+            r.dateEnd    || '',
+            parseFloat(r.days)  || 0,
+            parseFloat(r.hours) || 0
+        ]);
+        const wsAbs = XLSX.utils.aoa_to_sheet([absHeaders, ...absRows]);
+        wsAbs['!cols'] = [
+            { wch: 22 }, { wch: 22 }, { wch: 20 }, { wch: 16 },
+            { wch: 12 }, { wch: 12 }, { wch: 8 },  { wch: 8 }
+        ];
+        XLSX.utils.book_append_sheet(wb, wsAbs, t('xlsxSheetAbs'));
+
+        // --- Full 2: Excessos de jornada ---
+        const selectedUsers = Array.from(
+            document.getElementById('filter-abs-users')?.selectedOptions || []
+        ).map(o => o.value);
+        const startRaw = document.getElementById('filter-abs-date-start')?.value;
+        const endRaw   = document.getElementById('filter-abs-date-end')?.value;
+        const startTs  = startRaw ? parseDateToTime(startRaw) : null;
+        const endTs    = endRaw   ? parseDateToTime(endRaw)   : null;
+
+        const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs);
+        const ovHeaders = [
+            t('xlsxOvDate'), t('xlsxOvUser'),
+            t('xlsxOvImpHours'), t('xlsxOvAbsHours'), t('xlsxOvTotal')
+        ];
+        const ovRows = conflicts.map(c => [
+            c.date, c.user,
+            parseFloat(c.impHours.toFixed(2)),
+            parseFloat(c.absHours.toFixed(2)),
+            parseFloat(c.totalCompute.toFixed(2))
+        ]);
+        const wsOv = XLSX.utils.aoa_to_sheet([ovHeaders, ...ovRows]);
+        wsOv['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
+        XLSX.utils.book_append_sheet(wb, wsOv, t('xlsxSheetOvertime'));
+
+        const now = new Date();
+        const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+        XLSX.writeFile(wb, `absencies_${stamp}.xlsx`);
+    });
 }
 
 export function setupAbsGroupingHandlers() {

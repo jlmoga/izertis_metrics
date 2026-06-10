@@ -22,7 +22,7 @@ import { setupSidebarMode } from './ui/sidebar.js';
 import { setupAppLauncher } from './ui/appLauncher.js';
 import { setupCollapsibleSections } from './ui/collapsible.js';
 import { setupUploadHandlers } from './ui/upload.js';
-import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, initDefaultDates } from './ui/filters.js';
+import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupExportXlsx, setupExportAbsXlsx, initDefaultDates } from './ui/filters.js';
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
 import { updateChart } from './ui/charts.js';
@@ -97,6 +97,8 @@ setupAbsFilterHandlers();
 setupFilterToggles();
 setupGroupingHandlers();
 setupAbsGroupingHandlers();
+setupExportXlsx();
+setupExportAbsXlsx();
 
 // 7. Impressió
 const btnPrintImp = document.getElementById('btn-print-imp');
