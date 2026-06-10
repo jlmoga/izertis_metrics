@@ -109,6 +109,9 @@ function renderStackedChart(canvasId, rows, expandedClient = null, colorMap = nu
     const sorted = Object.entries(clientAmounts).sort((a, b) => b[1] - a[1]);
     if (sorted.length === 0) return;
 
+    const total = sorted.reduce((s, [, v]) => s + v, 0);
+    const totalLabel = total.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
     const datasets = [];
     sorted.forEach(([client, amount], i) => {
         const baseColor = (colorMap && colorMap[client]) || CLIENT_COLORS[i % CLIENT_COLORS.length];
@@ -133,8 +136,9 @@ function renderStackedChart(canvasId, rows, expandedClient = null, colorMap = nu
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { right: 110 } },
             scales: {
-                x: { stacked: true, display: false, grid: { display: false } },
+                x: { stacked: true, display: false, grid: { display: false }, min: 0, max: total },
                 y: { stacked: true, display: false, grid: { display: false } },
             },
             plugins: {
@@ -152,6 +156,22 @@ function renderStackedChart(canvasId, rows, expandedClient = null, colorMap = nu
                 },
             },
         },
+        plugins: [{
+            id: 'stackedTotalLabel',
+            afterDraw(chart) {
+                const { ctx, chartArea } = chart;
+                const y = (chartArea.top + chartArea.bottom) / 2;
+                const x = chart.canvas.width - 4;
+                const style = getComputedStyle(document.documentElement);
+                ctx.save();
+                ctx.font = '600 13px ' + (style.fontFamily || 'system-ui, sans-serif');
+                ctx.fillStyle = style.getPropertyValue('--text-secondary').trim() || '#888';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(totalLabel, x, y);
+                ctx.restore();
+            },
+        }],
     });
 }
 
