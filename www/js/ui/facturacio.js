@@ -834,16 +834,16 @@ function renderOMOMeta(rows, config, clientId) {
     const customerName  = customerEntry?.customer_name || clientId;
     const visibleProjectIds = [...new Set(rows.map(r => r.project).filter(Boolean))];
 
-    const allMails = [];
+    const customerMailsOMO = customerEntry?.list_mails_OMO?.trim() || '';
+    const uniqueMails = customerMailsOMO
+        ? [...new Set(customerMailsOMO.split(',').map(s => s.trim()).filter(Boolean))]
+        : [];
     const navisionCodes = [];
     visibleProjectIds.forEach(pid => {
         const projConf = customerEntry?.projects?.find(p => norm(p.project_id) === norm(pid));
-        const m = projConf?.list_mails_OMO?.trim();
-        if (m) allMails.push(...m.split(',').map(s => s.trim()).filter(Boolean));
         const nav = projConf?.project_navision_code?.trim();
         if (nav) navisionCodes.push(nav);
     });
-    const uniqueMails = [...new Set(allMails)];
 
     let infoHtml = '';
     infoHtml += `<p class="fact-meta-line"><strong>${t('factLblClient')}:</strong> ${esc(customerName)}</p>`;
@@ -994,13 +994,8 @@ async function mailOMO() {
         const selectedProjects = projectSelect ? Array.from(projectSelect.selectedOptions).map(o => o.value) : [];
         const visibleProjects  = selectedProjects.length > 0 ? selectedProjects
             : [...new Set(state.currentData.filter(r => (r.client || '?') === client).map(r => r.project).filter(Boolean))];
-        const allMails = [];
-        visibleProjects.forEach(pid => {
-            const projConf = customerEntry?.projects?.find(p => norm(p.project_id) === norm(pid));
-            const m = projConf?.list_mails_OMO?.trim();
-            if (m) allMails.push(...m.split(',').map(s => s.trim()).filter(Boolean));
-        });
-        to = [...new Set(allMails)].join(',');
+        const customerMailsOMO = customerEntry?.list_mails_OMO?.trim() || '';
+        to = [...new Set(customerMailsOMO.split(',').map(s => s.trim()).filter(Boolean))].join(',');
     }
 
     const mailClient = localStorage.getItem('moga_mail_client') || 'desktop';

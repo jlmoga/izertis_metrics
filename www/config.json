@@ -42,7 +42,7 @@
             "customer_id": "IbercajaTech",
             "customer_name": "Ibercaja Tech Solutions",
             "customer_validation_intro": "Buenos días,\nAdjunto los datos para la facturación correspondiente al periodo en curso.\nQuedo a la espera de vuestro OK para emitir la facturación.",
-            "customer_validation_observations": "Quedamos a vuestra disposición para cualquier comentario o aclaración",
+            "customer_validation_observations": "Quedamos a vuestra disposición para cualquier comentario o aclaración.",
             "list_mails_validation": "Nuria Perez Castro (nperezc@techserv.ibercaja.es), Chukwudi Udochukwo (cuuzoma@techserv.ibercaja.es), Abraham Tempesti (neabraham@techserv.ibercaja.es), Joaquin Revilla (jrevilla@techserv.ibercaja.es), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
             "list_mails_OMO": "OMO Software, (omo.software@izertis.com), Gema Perez (gema.perez@izertis.com), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
             "projects": [
@@ -77,24 +77,72 @@
             ]
         },
         {
-            "customer_id": "ID del client",
-            "customer_name": "Nom del client",
+            "customer_id": "Pichincha",
+            "customer_name": "PCH - Banco Pichincha",
+            "customer_validation_intro": "Buenos días,\nAdjunto los datos para la facturación correspondiente al periodo en curso.\nQuedo a la espera de vuestro OK para emitir la facturación.",
+            "customer_validation_observations": "Quedamos a vuestra disposición para cualquier comentario o aclaración.",
+            "list_mails_validation": "Antonio Villar Catena (antonio.villar@bancopichincha.es), Oscar Duro Ruiz (oscar.duro@bancopichincha.es), Juan Elorrieta Garcia (jelorrieta@izertis.com), Alfonso Gutierrez Gonzalez (a.ggonzalez@izertis.com)",
+            "list_mails_OMO": "OMO Software, (omo.software@izertis.com), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
+            "projects": [
+                {
+                    "project_id": "SE-AM-PIN-Pichincha Soporte arquitectura desarrollo H1 2026",
+                    "project_description": "Soporte a arquitectura y desarrollo",
+                    "cost_calculation": "hours",
+                    "cost_fixed": 0,
+                    "hours_per_day": 0,
+                    "project_navision_code": "PRO2501208",
+                    "is_time_materials": true,
+                    "ok_required": true,
+                    "validation_intro": "Banco Pichincha - Oferta - 2024-0927-6501 - Soporte a Arquitectura y desarrollo 2024 Q4",
+                    "validation_observations": "",
+                    "OMO_intro": "Órdenes de facturación",
+                    "OMO_observations": "Lista distribución facturas: OMO Software, (omo.software@izertis.com), Josep Lluís Monte (jmonte@izertis.com), Javier Vera (javier.vera@izertis.com), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)"
+                }
+            ]
+        },
+        {
+            "customer_id": "Volkswagen",
+            "customer_name": "VWFS - Volkswagen Financial Services",
+            "customer_validation_intro": "Buenos días,\nAdjunto los datos para la facturación correspondiente al periodo en curso.\nQuedo a la espera de vuestro OK para emitir la facturación.",
+            "customer_validation_observations": "Quedamos a vuestra disposición para cualquier comentario o aclaración.",
+            "list_mails_validation": "",
+            "list_mails_OMO": "OMO Software, (omo.software@izertis.com), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)",
+            "projects": [
+                {
+                    "project_id": "SE-AM-VOLK-Desarrollo (DA) 2026",
+                    "project_description": "Servicio de soporte VWFS",
+                    "cost_calculation": "hours",
+                    "cost_fixed": 0,
+                    "hours_per_day": 0,
+                    "project_navision_code": "PRO2200735",
+                    "is_time_materials": true,
+                    "ok_required": false,
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_intro": "Órdenes de facturación:\n\nA continuación, indico los datos para facturar contra el proyecto, tarea por las horas dedicadas. Se debe indicar en el cuerpo de la factura los peticionarios que especificamos en cada una de ellas en el campo 'Contacto envío'. Incluir también en el cuerpo de la factura el campo 'Contrato Proveedor'\nSi os falta algún dato, o detectáis cualquier error contactadme antes de enviarlas por favor.\n\nSe deben generar las facturas con el siguiente detalle. Los datos de cada Empresa a la que se emiten las facturas son los siguientes:\n\nVOLKSWAGEN RENTING, S.A.\nAt. Eloy Vitienes Pérez Eloy.Vitienes@vwfs.com. Carlos Salvador González carlos.salvador@vwfs.com\nAvda. de Bruselas, 34\n28108 Alcobendas - Madrid\nCIF: A80185051\n\nVOLKSWAGEN BANK GmbH, SUCURSAL EN ESPAÑA\nAt: Eloy Vitienes Pérez Eloy.Vitienes@vwfs.com. Carlos Salvador González carlos.salvador@vwfs.com\nAvda. de Bruselas, 34\n28108 Alcobendas - Madrid\nCIF: W0042741I\n\nVOLKSWAGEN INSURANCE SERVICE\nAt: Eloy Vitienes Pérez Eloy.Vitienes@vwfs.com. Carlos Salvador González carlos.salvador@vwfs.com\nAvda. Baix LLobregat, N 8, 1ª Planta\n08820 El Prat de Llobregat\nCIF: B28007615",
+                    "OMO_observations": "Lista distribución facturas: OMO Software, (omo.software@izertis.com), Josep Lluís Monte (jmonte@izertis.com), Javier Vera (javier.vera@izertis.com), Juan Elorrieta (jelorrieta@izertis.com), Alfonso Gutierrez (a.ggonzalez@izertis.com)"
+                }
+            ]
+        },
+        {
+            "customer_id": "",
+            "customer_name": "",
             "customer_validation_intro": "",
             "customer_validation_observations": "",
+            "list_mails_validation": "",
             "list_mails_OMO": "",
             "projects": [
                 {
-                    "project_id": "Nom del projecte",
+                    "project_id": "",
                     "project_description": "",
-                    "cost_calculation": "hours|days",
+                    "cost_calculation": "hours|days|fixed",
+                    "cost_fixed": 0,
                     "hours_per_day": 8,
                     "project_navision_code": "",
                     "is_time_materials": true,
                     "ok_required": true,
-                    "list_mails_validation": "",
                     "validation_intro": "",
                     "validation_observations": "",
-                    "OMO_list_mails": "",
                     "OMO_intro": "",
                     "OMO_observations": ""
                 }

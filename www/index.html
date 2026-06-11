@@ -84,6 +84,10 @@
                 <span data-i18n="btnGoFacturacio">Facturació</span>
             </button>
             <div class="sidebar-spacer"></div>
+            <button class="sidebar-item" id="nav-params">
+                <i class="ph ph-sliders"></i>
+                <span data-i18n="btnParams">Paràmetres</span>
+            </button>
             <div class="sidebar-mode-footer">
                 <button class="sidebar-mode-btn active" data-mode="links" data-i18n-title="sidebarModeLinks" title="Visió d'enllaços"><i class="ph ph-list"></i></button>
                 <button class="sidebar-mode-btn" data-mode="icons" data-i18n-title="sidebarModeIcons" title="Visió d'icones"><i class="ph ph-dots-nine"></i></button>
@@ -753,6 +757,13 @@
                             </section>
                         </div>
                     </div>
+                </div>
+            </section>
+            <!-- Paràmetres -->
+            <section id="params-screen" class="hidden">
+                <div class="params-layout">
+                    <div class="params-customers-panel" id="params-customers-list"></div>
+                    <div class="params-detail-panel" id="params-detail"></div>
                 </div>
             </section>
         </main>
