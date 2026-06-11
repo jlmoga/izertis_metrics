@@ -1,14 +1,22 @@
+MILLORES TECNOLÒGIQUES
+---------------------------
 1. Incorporació de l'app a Microsoft Azure Active Directory + Autenticació OAuth 2.0 via Microsoft Graph API
-1.1. Càrrega d'arxius de dades de Microsoft Sharepoint
-1.2. Accés a mail de facturació sense haver de copiar el contingut
-1.3. BD Sharepoint per la gestió de config.json
+   1.1. Càrrega d'arxius de dades de Microsoft Sharepoint
+   1.2. Accés a mail de facturació sense haver de copiar el contingut
+   1.3. BD Sharepoint per la gestió de config.json
 
-2. D'on traiem la jornada laboral d'un tècnic per calcular al 100% d'exactitud els conflictes de jornada
-3. Absències de Yasmina. Yasmina no consta a cap client en MyuHours, i es marquen les absències amb "?". L'app no pot identificar el client
+MILLORES SOBRE MyHours
+------------------------
+1. D'on traiem la jornada laboral d'un tècnic per calcular al 100% d'exactitud els conflictes de jornada
+2. Absències de Yasmina. Yasmina no consta a cap client en MyuHours, i es marquen les absències amb "?". L'app no pot identificar el client
 
-4. Caixa Enginyers: 
-4.1. Guardies imputades en un altre projecte (BME-F2)
-4.2. Per a tasques en "descompte" per al servei extern, crear un projecte o una tasca específica
+3. Caixa Enginyers: 
+    3.1. Guardies imputades en un altre projecte (BME-F2)
+    3.2. Per a tasques en "descompte" per al servei extern, crear un projecte o una tasca específica
+
+MILLORES ORGANITZATIVES
+-------------------------
+1. Per poder tenir la facturació de Ibercaja completament integrada, els equips de QA i Data haurien d'imputar a MyHours
 
 Annexos
 --------------
