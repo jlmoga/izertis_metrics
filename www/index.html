@@ -28,7 +28,7 @@
             <button id="btn-app-launcher" class="btn-icon btn-waffle" aria-label="Aplicacions" aria-expanded="false"><i class="ph ph-squares-four"></i></button>
             <button id="btn-sidebar-restore" class="btn-icon" data-i18n-title="sidebarModeLinks" title="Mostrar menú" style="display:none;"><i class="ph ph-list"></i></button>
             <button id="btn-back-home" class="btn-icon hidden" data-i18n-aria="ariaBack" aria-label="Tornar"><i class="ph ph-arrow-left"></i></button>
-            <i class="ph ph-table"></i>
+            <i id="header-icon" class="ph ph-house"></i>
             <h1 data-i18n="homeTitle" class="moga-title">Izertis Metrics</h1>
             <div class="spacer" style="flex: 1;"></div>
             <button class="btn-icon" data-i18n-aria="ariaReadme" aria-label="Documentació" onclick="window.open('../', '_blank')"><i class="ph ph-info"></i></button>
@@ -765,6 +765,10 @@
                     <div class="params-customers-panel" id="params-customers-list"></div>
                     <div class="params-detail-panel" id="params-detail"></div>
                 </div>
+                <footer class="params-footer">
+                    <i class="ph ph-lock"></i>
+                    <span data-i18n="paramsEditDisclaimer">Per poder editar la configuració de clients i projectes, cal que Izertis Metrics s'integri a l'entorn Azure corporatiu d'Izertis.</span>
+                </footer>
             </section>
         </main>
     </div>

@@ -19,6 +19,11 @@ export function setupNavigation() {
     const resultsSection = document.getElementById('results-section');
     const absResultsSection = document.getElementById('absencies-results-section');
     const headerTitle = document.querySelector('header h1');
+    const headerIcon  = document.getElementById('header-icon');
+
+    function setHeaderIcon(iconClass) {
+        if (headerIcon) headerIcon.className = `ph ${iconClass}`;
+    }
 
     const navHome = document.getElementById('nav-home');
     const navImputacions = document.getElementById('nav-imputacions');
@@ -49,6 +54,7 @@ export function setupNavigation() {
         if (paramsScreen) paramsScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'btnParams');
+        setHeaderIcon('ph-sliders');
         applyTranslations();
         setActive('nav-params');
         setupParams();
@@ -59,6 +65,7 @@ export function setupNavigation() {
         facturacioScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'titleFacturacio');
+        setHeaderIcon('ph-invoice');
         applyTranslations();
         setActive('nav-facturacio');
         renderFacturacio();
@@ -69,6 +76,7 @@ export function setupNavigation() {
         imputacionsScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'appTitle');
+        setHeaderIcon('ph-table');
         applyTranslations();
         setActive('nav-imputacions');
 
@@ -86,6 +94,7 @@ export function setupNavigation() {
         absenciesScreen.classList.remove('hidden');
         btnBackHome.classList.remove('hidden');
         headerTitle.setAttribute('data-i18n', 'btnGoAbsencies');
+        setHeaderIcon('ph-calendar-blank');
         applyTranslations();
         setActive('nav-absencies');
 
@@ -103,6 +112,7 @@ export function setupNavigation() {
         homeScreen.classList.remove('hidden');
         btnBackHome.classList.add('hidden');
         headerTitle.setAttribute('data-i18n', 'homeTitle');
+        setHeaderIcon('ph-house');
         applyTranslations();
         setActive('nav-home');
         await updateHomeDashboard();
