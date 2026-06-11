@@ -229,6 +229,15 @@ function htmlToPlainText(html) {
         .trim();
 }
 
+async function copyHtmlToClipboard(html) {
+    try {
+        await navigator.clipboard.write([new ClipboardItem({
+            'text/html':  new Blob([html], { type: 'text/html' }),
+            'text/plain': new Blob([htmlToPlainText(html)], { type: 'text/plain' })
+        })]);
+    } catch { /* si el navegador no ho permet, no passa res */ }
+}
+
 async function mailValidacio() {
     const titleEl    = document.getElementById('fact-table-title');
     const sendTextEl = document.getElementById('fact-validation-send-text');
@@ -236,10 +245,10 @@ async function mailValidacio() {
     const afterEl    = document.getElementById('fact-validation-meta-after');
     if (!billingEl) return;
 
-    const prefix  = tForLang(factClientLang, 'factTitleValidacio').replace(/\.$/, '');
-    const subject = `${prefix} — ${titleEl?.textContent?.trim() || ''}`;
+    const prefix   = tForLang(factClientLang, 'factTitleValidacio').replace(/\.$/, '');
+    const subject  = `${prefix} — ${titleEl?.textContent?.trim() || ''}`;
     const bodyHtml = (sendTextEl?.innerHTML || '') + billingEl.innerHTML + (afterEl?.innerHTML || '');
-    const body = htmlToPlainText(bodyHtml);
+    const body     = htmlToPlainText(bodyHtml);
 
     // Destinataris: llegim config per obtenir list_mails_validation del client actiu
     const clientSelect = document.getElementById('fact-filter-clients');
@@ -251,6 +260,8 @@ async function mailValidacio() {
         const customerEntry = config.customers?.find(c => norm(c.customer_id) === norm(client));
         to = customerEntry?.list_mails_validation?.trim() || '';
     }
+
+    await copyHtmlToClipboard(bodyHtml);
 
     const mailClient = localStorage.getItem('moga_mail_client') || 'desktop';
     if (mailClient === 'web') {
@@ -969,6 +980,8 @@ async function mailOMO() {
     const subject  = `${tForLang(factClientLang, 'factTitleOrdres')} — ${titleEl?.textContent?.trim() || ''}`;
     const bodyHtml = (sendTextEl?.innerHTML || '') + billingEl.innerHTML + (afterEl?.innerHTML || '');
     const body     = htmlToPlainText(bodyHtml);
+
+    await copyHtmlToClipboard(bodyHtml);
 
     const clientSelect  = document.getElementById('fact-filter-clients');
     const projectSelect = document.getElementById('fact-filter-projects');
