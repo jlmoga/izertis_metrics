@@ -251,8 +251,13 @@ async function mailValidacio() {
         to = customerEntry?.list_mails_validation?.trim() || '';
     }
 
-    const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
+    const mailClient = localStorage.getItem('moga_mail_client') || 'desktop';
+    if (mailClient === 'web') {
+        const url = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(url, '_blank');
+    } else {
+        window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
 }
 
 function printValidacio() {
@@ -985,5 +990,11 @@ async function mailOMO() {
         to = [...new Set(allMails)].join(',');
     }
 
-    window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailClient = localStorage.getItem('moga_mail_client') || 'desktop';
+    if (mailClient === 'web') {
+        const url = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(url, '_blank');
+    } else {
+        window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
 }

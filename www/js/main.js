@@ -64,6 +64,15 @@ if (themeSelect) {
     });
 }
 
+// Client de correu
+const mailClientSelect = document.getElementById('mail-client-select');
+if (mailClientSelect) {
+    mailClientSelect.value = localStorage.getItem('moga_mail_client') || 'desktop';
+    mailClientSelect.addEventListener('change', (e) => {
+        localStorage.setItem('moga_mail_client', e.target.value);
+    });
+}
+
 // Canvi d'idioma
 if (langSelect) {
     langSelect.addEventListener('change', async (e) => {

@@ -331,13 +331,13 @@
             <div id="imputacions-screen" class="hidden">
                 <section class="upload-section" id="upload-imputacions">
                     <div class="upload-box" id="upload-box-imputacions">
-                        <i class="ph ph-folder-open upload-icon"></i>
-                        <h2><span data-i18n="selectFolderTitle">Selecciona la carpeta</span> <span class="highlight" data-i18n="lblImputacions">imputacions</span></h2>
-                        <p data-i18n="selectFolderDescImp">Tria la carpeta que conté els arxius d'imputacions.</p>
+                        <i class="ph ph-files upload-icon"></i>
+                        <h2><span data-i18n="selectFolderTitle">Selecciona els arxius de</span> <span class="highlight" data-i18n="lblImputacions">imputacions</span></h2>
+                        <p data-i18n="selectFolderDescImp">Tria els arxius que contenen les imputacions.</p>
                         <label for="folderInputImp" class="custom-file-upload" data-i18n="btnChooseFolder">
-                            Tria carpeta d'Excels
+                            Tria arxius d'Excels
                         </label>
-                        <input type="file" id="folderInputImp" webkitdirectory directory multiple accept=".xlsx">
+                        <input type="file" id="folderInputImp" multiple accept=".xlsx">
                     </div>
                 </section>
 
@@ -455,13 +455,13 @@
             <div id="absencies-screen" class="hidden">
                 <section class="upload-section" id="upload-absencies">
                     <div class="upload-box" id="upload-box-absencies">
-                        <i class="ph ph-folder-open upload-icon"></i>
-                        <h2><span data-i18n="selectFolderTitle">Selecciona la carpeta</span> <span class="highlight" data-i18n="lblAbsencies">absències</span></h2>
-                        <p data-i18n="selectFolderDescAbs">Tria la carpeta que conté els arxius d'absències.</p>
+                        <i class="ph ph-files upload-icon"></i>
+                        <h2><span data-i18n="selectFolderTitle">Selecciona els arxius de</span> <span class="highlight" data-i18n="lblAbsencies">absències</span></h2>
+                        <p data-i18n="selectFolderDescAbs">Tria els arxius que contenen les absències.</p>
                         <label for="folderInputAbs" class="custom-file-upload" data-i18n="btnChooseFolder">
-                            Tria carpeta d'Excels
+                            Tria arxius d'Excels
                         </label>
-                        <input type="file" id="folderInputAbs" webkitdirectory directory multiple accept=".xlsx">
+                        <input type="file" id="folderInputAbs" multiple accept=".xlsx">
                     </div>
                 </section>
 
@@ -776,6 +776,13 @@
                     <select id="theme-select">
                         <option value="theme-light" data-i18n="themeLight">Clar</option>
                         <option value="theme-dark" data-i18n="themeDark">Fosc</option>
+                    </select>
+                </div>
+                <div class="setting-group" style="margin-top: 1.5rem;">
+                    <label for="mail-client-select" data-i18n="settingsMailClient">Client de correu:</label>
+                    <select id="mail-client-select">
+                        <option value="desktop" data-i18n="optMailDesktop">Outlook Escriptori</option>
+                        <option value="web" data-i18n="optMailWeb">Outlook Web</option>
                     </select>
                 </div>
                 <div class="setting-group" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
