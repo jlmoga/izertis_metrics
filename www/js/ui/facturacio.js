@@ -229,6 +229,31 @@ function htmlToPlainText(html) {
         .trim();
 }
 
+function showMailToast() {
+    const existing = document.getElementById('mail-html-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'mail-html-toast';
+    toast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--accent-color,#0078d4);color:#fff;padding:0.75rem 1.25rem;border-radius:4px;font-size:0.9rem;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);max-width:90vw;text-align:center;';
+    toast.textContent = 'El cos del correu s\'ha copiat al porta-retalls. Enganxa\'l (Ctrl+V) al cos del missatge.';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 6000);
+}
+
+async function copyHtmlToClipboard(html) {
+    try {
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                'text/html': new Blob([html], { type: 'text/html' }),
+                'text/plain': new Blob([htmlToPlainText(html)], { type: 'text/plain' })
+            })
+        ]);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 async function mailValidacio() {
     const titleEl    = document.getElementById('fact-table-title');
     const sendTextEl = document.getElementById('fact-validation-send-text');
@@ -236,9 +261,9 @@ async function mailValidacio() {
     const afterEl    = document.getElementById('fact-validation-meta-after');
     if (!billingEl) return;
 
-    const subject = titleEl?.textContent?.trim() || '';
-    const bodyHtml = (sendTextEl?.innerHTML || '') + (billingEl.innerHTML) + (afterEl?.innerHTML || '');
-    const body = htmlToPlainText(bodyHtml);
+    const prefix  = tForLang(factClientLang, 'factTitleValidacio').replace(/\.$/, '');
+    const subject = `${prefix} — ${titleEl?.textContent?.trim() || ''}`;
+    const bodyHtml = (sendTextEl?.innerHTML || '') + billingEl.innerHTML + (afterEl?.innerHTML || '');
 
     // Destinataris: llegim config per obtenir list_mails_validation del client actiu
     const clientSelect = document.getElementById('fact-filter-clients');
@@ -251,13 +276,14 @@ async function mailValidacio() {
         to = customerEntry?.list_mails_validation?.trim() || '';
     }
 
+    await copyHtmlToClipboard(bodyHtml);
     const mailClient = localStorage.getItem('moga_mail_client') || 'desktop';
     if (mailClient === 'web') {
-        const url = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(url, '_blank');
+        window.open(`https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}`, '_blank');
     } else {
-        window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}`;
     }
+    showMailToast();
 }
 
 function printValidacio() {
@@ -968,7 +994,6 @@ async function mailOMO() {
 
     const subject  = `${tForLang(factClientLang, 'factTitleOrdres')} — ${titleEl?.textContent?.trim() || ''}`;
     const bodyHtml = (sendTextEl?.innerHTML || '') + billingEl.innerHTML + (afterEl?.innerHTML || '');
-    const body     = htmlToPlainText(bodyHtml);
 
     const clientSelect  = document.getElementById('fact-filter-clients');
     const projectSelect = document.getElementById('fact-filter-projects');
@@ -990,11 +1015,12 @@ async function mailOMO() {
         to = [...new Set(allMails)].join(',');
     }
 
+    await copyHtmlToClipboard(bodyHtml);
     const mailClient = localStorage.getItem('moga_mail_client') || 'desktop';
     if (mailClient === 'web') {
-        const url = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(url, '_blank');
+        window.open(`https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}`, '_blank');
     } else {
-        window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}`;
     }
+    showMailToast();
 }
