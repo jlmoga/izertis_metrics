@@ -161,7 +161,7 @@
 /* --- Graella de columnes del dashboard -------------------------------------- */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 2fr 1.5fr 1.5fr;
     gap: 1.5rem;
     text-align: left;
 }
@@ -341,7 +341,7 @@
 /* --- Gràfics d'evolució (dos columnes) ------------------------------------- */
 .evolucio-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 2fr 1.5fr 1.5fr;
     gap: 1.5rem;
     margin-top: 0.5rem;
 }
