@@ -35,6 +35,12 @@ export function formatCurrency(value) {
     return new Intl.NumberFormat(localeTag, { style: 'currency', currency: 'EUR' }).format(value);
 }
 
+export function isRejectedStatus(status) {
+    if (!status) return false;
+    const s = status.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return s.includes('rebutj') || s.includes('rebuig') || s.includes('rechaz') || s.includes('denegat') || s.includes('denegado') || s.includes('reject');
+}
+
 export function normalizeName(name) {
     if (!name) return '';
     return name.toString()

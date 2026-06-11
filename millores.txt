@@ -1,0 +1,28 @@
+1. Incorporació de l'app a Microsoft Azure Active Directory + Autenticació OAuth 2.0 via Microsoft Graph API
+1.1. Càrrega d'arxius de dades de Microsoft Sharepoint
+1.2. Accés a mail de facturació sense haver de copiar el contingut
+1.3. BD Sharepoint per la gestió de config.json
+
+2. D'on traiem la jornada laboral d'un tècnic per calcular al 100% d'exactitud els conflictes de jornada
+3. Absències de Yasmina. Yasmina no consta a cap client en MyuHours, i es marquen les absències amb "?". L'app no pot identificar el client
+
+4. Caixa Enginyers: 
+4.1. Guardies imputades en un altre projecte (BME-F2)
+4.2. Per a tasques en "descompte" per al servei extern, crear un projecte o una tasca específica
+
+Annexos
+--------------
+A1. Accions d'integració
+  - IT / Administrador Azure d'Izertis:
+    1. Registrar l'app a https://portal.azure.com → App registrations
+    2. Assignar els permisos de Graph API necessaris (vegeu més avall)
+    3. Obtenir el client_id i el tenant_id
+  - Desenvolupament:
+    1. Integrar MSAL.js (Microsoft Authentication Library) per al login corporatiu
+    2. Fer les crides a Microsoft Graph API
+
+    - Permissions necessàries per carregar dades de Sharepoint i accedir al mail:
+      - Mail.Read - Per llegir correus electrònics
+      - Mails.ReadBasic - Per llegir correus electrònics (bàsic)
+      - Files.Read - Per llegir arxius des de SharePoint
+      - Sites.Read.All - Per llegir informació de llocs i biblioteques de SharePoint

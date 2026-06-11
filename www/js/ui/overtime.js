@@ -4,7 +4,7 @@
 
 import { state } from '../state.js';
 import { t } from '../config/i18n.js';
-import { parseDateToTime, isDateInRange } from '../utils.js';
+import { parseDateToTime, isDateInRange, isRejectedStatus } from '../utils.js';
 
 const overtimeTableBody = document.getElementById('overtimeTableBody');
 const filterAbsUsers = document.getElementById('filter-abs-users');
@@ -30,7 +30,7 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
         const impHours = impMap[key];
         let dayAbsenceHours = 0;
 
-        absData.filter(a => a.user === user).forEach(abs => {
+        absData.filter(a => a.user === user && !isRejectedStatus(a.status)).forEach(abs => {
             if (isDateInRange(dateStr, abs.dateStart, abs.dateEnd)) {
                 const dailyHours = (parseFloat(abs.days) > 1)
                     ? (parseFloat(abs.hours) / parseFloat(abs.days))
@@ -39,9 +39,9 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
             }
         });
 
-        if (dayAbsenceHours > 0) {
-            const totalCompute = impHours + dayAbsenceHours;
-            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 8.5 });
+        const totalCompute = impHours + dayAbsenceHours;
+        if (dayAbsenceHours > 0 && totalCompute > 10) {
+            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 10 });
         }
     });
     return conflictsList;

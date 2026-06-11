@@ -280,6 +280,16 @@
     margin: 0.2rem 0;
 }
 
+.fact-no-validation-warning {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--danger-color, #d13438);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+}
+
 .fact-print-group {
     display: flex;
     flex-direction: column;

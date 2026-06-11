@@ -4,7 +4,7 @@
 
 import { state } from '../state.js';
 import { t, tForLang } from '../config/i18n.js';
-import { formatCurrency, isDateInRange } from '../utils.js';
+import { formatCurrency, isDateInRange, isRejectedStatus } from '../utils.js';
 
 // Set precalculat de claus user|dateStart|dateEnd per a files d'absència amb conflicte
 let absConflictKeys = new Set();
@@ -12,17 +12,24 @@ let absConflictKeys = new Set();
 function buildAbsConflictKeys(absData) {
     absConflictKeys = new Set();
     if (!state.currentData.length) return;
-    const impDates = {};
+    const impMap = {};
     state.currentData.forEach(r => {
         if (!r.user || !r.date) return;
-        if (!impDates[r.user]) impDates[r.user] = [];
-        impDates[r.user].push(r.date);
+        const key = `${r.user}|${r.date}`;
+        impMap[key] = (impMap[key] || 0) + (parseFloat(r.hours) || 0);
     });
     absData.forEach(row => {
-        const dates = impDates[row.user];
-        if (dates && dates.some(d => isDateInRange(d, row.dateStart, row.dateEnd))) {
-            absConflictKeys.add(`${row.user}|${row.dateStart}|${row.dateEnd}`);
-        }
+        if (isRejectedStatus(row.status)) return;
+        const dailyAbsHours = (parseFloat(row.days) > 1)
+            ? (parseFloat(row.hours) / parseFloat(row.days))
+            : parseFloat(row.hours) || 0;
+        const hasConflict = Object.keys(impMap).some(key => {
+            const [user, date] = key.split('|');
+            return user === row.user
+                && isDateInRange(date, row.dateStart, row.dateEnd)
+                && (impMap[key] + dailyAbsHours) > 10;
+        });
+        if (hasConflict) absConflictKeys.add(`${row.user}|${row.dateStart}|${row.dateEnd}`);
     });
 }
 
@@ -388,12 +395,14 @@ function groupAbsRows(rows, groupBy) {
 }
 
 function renderAbsDataRow(row, parentGroupId) {
-    const isConflict = absConflictKeys.has(`${row.user}|${row.dateStart}|${row.dateEnd}`);
+    const rejected = isRejectedStatus(row.status);
+    const isConflict = !rejected && absConflictKeys.has(`${row.user}|${row.dateStart}|${row.dateEnd}`);
     const conflictIcon = isConflict
         ? `<i class="ph ph-warning-circle" style="color:var(--danger-color);margin-left:5px" title="${t('lblAbsConflictWarning')}"></i>`
         : '';
     const tr = document.createElement('tr');
-    if (isConflict) tr.classList.add('abs-conflict-row');
+    if (rejected) tr.classList.add('abs-rejected-row');
+    else if (isConflict) tr.classList.add('abs-conflict-row');
     if (parentGroupId) tr.dataset.parentGroup = parentGroupId;
     tr.innerHTML = `
         <td>${row.user || '-'}${conflictIcon}</td>

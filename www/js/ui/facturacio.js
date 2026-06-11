@@ -591,7 +591,7 @@ function renderValidationMeta(rows, config, clientId, lang) {
     beforeEl.innerHTML = `<div class="fact-validation-config-box">
         <p class="fact-validation-config-box-title">${t('factValidationConfigTitle')} ${esc(customerName)}</p>
         ${infoHtml}
-    </div>`;
+    </div>${!okRequired ? `<p class="fact-no-validation-warning"><i class="ph ph-warning"></i> ${t('factNoValidationWarning')}</p>` : ''}`;
 
     // Sense dades: no mostrem el bloc de text a enviar
     if (rows.length === 0) {
