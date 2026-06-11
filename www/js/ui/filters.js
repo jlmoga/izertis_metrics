@@ -41,31 +41,58 @@ const absTotalRequestsEl = document.getElementById('abs-total-requests');
 const absTotalDaysEl = document.getElementById('abs-total-days');
 const absPendingEl = document.getElementById('abs-pending');
 
-// Guard per evitar sincronitzacions recursives entre els dos filtres
-let syncingFilters = false;
-
 const toYMD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-// Copia dates i tècnics d'un conjunt de filtres a l'altre
-function syncDatesAndUsers(fromImp) {
-    if (fromImp) {
-        if (filterAbsDateStart) filterAbsDateStart.value = filterDateStart.value;
-        if (filterAbsDateEnd)   filterAbsDateEnd.value   = filterDateEnd.value;
-        const sel = Array.from(filterUsers.selectedOptions).map(o => o.value);
-        Array.from(filterAbsUsers.options).forEach(opt => { opt.selected = sel.includes(opt.value); });
+// Guard per evitar bucles de sincronització entre pestanyes
+let syncingFilters = false;
+
+// Propaga dates i client des d'imputacions o absències cap a les altres dues pestanyes.
+// Facturació accepta un únic client, per tant s'hi aplica sempre el primer seleccionat.
+function syncDatesAndClients(fromTab) {
+    const factStart    = document.getElementById('fact-filter-date-start');
+    const factEnd      = document.getElementById('fact-filter-date-end');
+    const factMonthNav = document.getElementById('fact-month-nav');
+    const factClients  = document.getElementById('fact-filter-clients');
+
+    if (fromTab === 'imp') {
+        const s = filterDateStart?.value ?? '';
+        const e = filterDateEnd?.value   ?? '';
+        if (filterAbsDateStart) filterAbsDateStart.value = s;
+        if (filterAbsDateEnd)   filterAbsDateEnd.value   = e;
+        if (factStart)          factStart.value           = s;
+        if (factEnd)            factEnd.value             = e;
+        if (absMonthNav)  absMonthNav.value  = impMonthNav?.value ?? '';
+        if (factMonthNav) factMonthNav.value = impMonthNav?.value ?? '';
+        const selClients = Array.from(filterClients?.selectedOptions ?? []).map(o => o.value).filter(v => v !== 'ALL');
+        if (filterAbsClients) {
+            Array.from(filterAbsClients.options).forEach(o => {
+                o.selected = selClients.length > 0 ? selClients.includes(o.value) : o.value === 'ALL';
+            });
+        }
+        if (factClients && selClients.length > 0) {
+            Array.from(factClients.options).forEach(o => { o.selected = o.value === selClients[0]; });
+        }
     } else {
-        if (filterDateStart) filterDateStart.value = filterAbsDateStart.value;
-        if (filterDateEnd)   filterDateEnd.value   = filterAbsDateEnd.value;
-        const sel = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
-        Array.from(filterUsers.options).forEach(opt => { opt.selected = sel.includes(opt.value); });
+        const s = filterAbsDateStart?.value ?? '';
+        const e = filterAbsDateEnd?.value   ?? '';
+        if (filterDateStart) filterDateStart.value = s;
+        if (filterDateEnd)   filterDateEnd.value   = e;
+        if (factStart)       factStart.value        = s;
+        if (factEnd)         factEnd.value          = e;
+        if (impMonthNav)  impMonthNav.value  = absMonthNav?.value ?? '';
+        if (factMonthNav) factMonthNav.value = absMonthNav?.value ?? '';
+        const selClients = filterAbsClients
+            ? Array.from(filterAbsClients.selectedOptions).map(o => o.value).filter(v => v !== 'ALL')
+            : [];
+        if (filterClients) {
+            Array.from(filterClients.options).forEach(o => {
+                o.selected = selClients.length > 0 ? selClients.includes(o.value) : o.value === 'ALL';
+            });
+        }
+        if (factClients && selClients.length > 0) {
+            Array.from(factClients.options).forEach(o => { o.selected = o.value === selClients[0]; });
+        }
     }
-    // Propagar dates a facturació i demanar re-render
-    const src = fromImp ? { s: filterDateStart.value, e: filterDateEnd.value }
-                        : { s: filterAbsDateStart.value, e: filterAbsDateEnd.value };
-    const factStart = document.getElementById('fact-filter-date-start');
-    const factEnd   = document.getElementById('fact-filter-date-end');
-    if (factStart) factStart.value = src.s;
-    if (factEnd)   factEnd.value   = src.e;
     document.dispatchEvent(new CustomEvent('fact:render'));
 }
 
@@ -142,7 +169,7 @@ export function applyFilters() {
 
     if (!syncingFilters && state.absData.length > 0) {
         syncingFilters = true;
-        syncDatesAndUsers(true);
+        syncDatesAndClients('imp');
         applyAbsFilters();
         syncingFilters = false;
     }
@@ -223,7 +250,7 @@ export function applyAbsFilters() {
 
     if (!syncingFilters && state.currentData.length > 0) {
         syncingFilters = true;
-        syncDatesAndUsers(false);
+        syncDatesAndClients('abs');
         applyFilters();
         syncingFilters = false;
     }
@@ -235,6 +262,9 @@ export function syncFromBilling(startVal, endVal, clientName) {
     if (startVal !== null) {
         if (filterDateStart)    filterDateStart.value    = startVal;
         if (filterAbsDateStart) filterAbsDateStart.value = startVal;
+        const mv = startVal ? startVal.substring(0, 7) : '';
+        if (impMonthNav) impMonthNav.value = mv;
+        if (absMonthNav) absMonthNav.value = mv;
     }
     if (endVal !== null) {
         if (filterDateEnd)    filterDateEnd.value    = endVal;
