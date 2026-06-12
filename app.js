@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnClose: "Tancar",
             disclaimerMaxMonths: "* Es mostren/permeten màxim 6 mesos de dades alhora.",
             btnPrint: "Imprimir Informe",
-            titleOvertime: "Excés de Jornada (Conflictes)",
+            titleOvertime: "Conflictes de jornada",
             colOverImputation: "IMPUTACIÓ (h)",
             colOverAbsence: "ABSÈNCIA (h)",
             colOverTotal: "CÒMPUT DEL DIA (h)",

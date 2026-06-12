@@ -99,7 +99,7 @@ const translations = {
         xlsxAbsDays: "Dies", xlsxAbsHours: "Hores",
         xlsxOvDate: "Data", xlsxOvUser: "Tècnic", xlsxOvImpHours: "H. imputades",
         xlsxOvAbsHours: "H. absència", xlsxOvTotal: "Total",
-        titleOvertime: "Excés de Jornada (Conflictes)",
+        titleOvertime: "Conflictes de jornada",
         colOverImputation: "IMPUTACIÓ (h)",
         colOverAbsence: "ABSÈNCIA (h)",
         colOverTotal: "CÒMPUT DEL DIA (h)",
