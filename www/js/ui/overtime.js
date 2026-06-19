@@ -40,6 +40,7 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
         const [user, dateStr] = key.split('|');
         const impHours = impMap[key];
         let dayAbsenceHours = 0;
+        const absSources = [];
 
         absData.filter(a => a.user === user && !isRejectedStatus(a.status)).forEach(abs => {
             if (isDateInRange(dateStr, abs.dateStart, abs.dateEnd)) {
@@ -47,12 +48,17 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
                     ? (parseFloat(abs.hours) / parseFloat(abs.days))
                     : parseFloat(abs.hours);
                 dayAbsenceHours += dailyHours;
+                // Període de l'absència que origina el conflicte (per identificar-la sense ID)
+                const src = (abs.dateEnd && abs.dateEnd !== abs.dateStart)
+                    ? `${abs.dateStart} → ${abs.dateEnd}`
+                    : (abs.dateStart || '');
+                if (src && !absSources.includes(src)) absSources.push(src);
             }
         });
 
         const totalCompute = impHours + dayAbsenceHours;
         if (dayAbsenceHours > 0 && totalCompute > 10) {
-            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 10 });
+            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 10, absSource: absSources.join('; ') });
         }
     });
     return conflictsList;
@@ -63,7 +69,7 @@ export function renderOvertimeTable() {
     overtimeTableBody.innerHTML = '';
 
     if (!state.currentData.length || !state.absData.length) {
-        overtimeTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgOvertimeNeedsBoth')}</td></tr>`;
+        overtimeTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgOvertimeNeedsBoth')}</td></tr>`;
         return;
     }
 
@@ -79,7 +85,7 @@ export function renderOvertimeTable() {
     const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers);
 
     if (conflicts.length === 0) {
-        overtimeTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoConflictsInPeriod')}</td></tr>`;
+        overtimeTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoConflictsInPeriod')}</td></tr>`;
         return;
     }
 
@@ -97,6 +103,7 @@ export function renderOvertimeTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${c.date}</td>
+            <td>${c.absSource || '-'}</td>
             <td style="font-weight:600;">${c.user}</td>
             <td class="number-col">${c.impHours.toFixed(2)}h</td>
             <td class="number-col">${c.absHours.toFixed(2)}h</td>

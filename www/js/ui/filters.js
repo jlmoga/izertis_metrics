@@ -199,9 +199,13 @@ export function applyAbsFilters() {
         if (selectedStatus.length > 0 && !selectedStatus.includes(row.status)) return false;
         if (selectedAbsClients.length > 0 && !selectedAbsClients.includes(getAbsClient(row))) return false;
         if (startDate || endDate) {
-            const rowTime = parseDateToTime(row.dateStart);
-            if (startDate && rowTime < startDate) return false;
-            if (endDate && rowTime > endDate) return false;
+            // Filtra per SOLAPAMENT amb el rang (no només pel dia d'inici), de manera que
+            // les absències multi-dia que comencen abans del rang però hi solapen també es
+            // mostren. Així el desglós és coherent amb la detecció de conflictes de jornada.
+            const rowStart = parseDateToTime(row.dateStart);
+            const rowEnd   = parseDateToTime(row.dateEnd) || rowStart;
+            if (startDate && rowEnd < startDate) return false;
+            if (endDate && rowStart > endDate) return false;
         }
         return true;
     });
@@ -516,17 +520,17 @@ export function setupExportAbsXlsx() {
         const allowedUsers = getClientAllowedUsers();
         const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs, allowedUsers);
         const ovHeaders = [
-            t('xlsxOvDate'), t('xlsxOvUser'),
+            t('xlsxOvDate'), t('xlsxOvAbsOrigin'), t('xlsxOvUser'),
             t('xlsxOvImpHours'), t('xlsxOvAbsHours'), t('xlsxOvTotal')
         ];
         const ovRows = conflicts.map(c => [
-            c.date, c.user,
+            c.date, c.absSource || '', c.user,
             parseFloat(c.impHours.toFixed(2)),
             parseFloat(c.absHours.toFixed(2)),
             parseFloat(c.totalCompute.toFixed(2))
         ]);
         const wsOv = XLSX.utils.aoa_to_sheet([ovHeaders, ...ovRows]);
-        wsOv['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
+        wsOv['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
         XLSX.utils.book_append_sheet(wb, wsOv, t('xlsxSheetOvertime'));
 
         const now = new Date();
