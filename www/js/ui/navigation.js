@@ -101,9 +101,11 @@ export function setupNavigation() {
         if (state.absData.length === 0) {
             document.getElementById('upload-absencies').classList.remove('hidden');
             absResultsSection.classList.add('hidden');
+            document.getElementById('filters-absencies').classList.add('hidden');
         } else {
             document.getElementById('upload-absencies').classList.add('hidden');
             absResultsSection.classList.remove('hidden');
+            document.getElementById('filters-absencies').classList.remove('hidden');
         }
     }
 

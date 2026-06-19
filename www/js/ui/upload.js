@@ -55,6 +55,7 @@ export async function handleAbsenciesFiles(files) {
     await updateHomeDashboard();
     document.getElementById('upload-absencies').classList.add('hidden');
     document.getElementById('absencies-results-section').classList.remove('hidden');
+    document.getElementById('filters-absencies').classList.remove('hidden');
 }
 
 export function setupUploadHandlers() {
