@@ -195,12 +195,12 @@
     box-shadow: 0 0 0 1px var(--accent-color);
 }
 
-/* --- Filtres sempre al fons del contenidor scrollable ----------------------- */
+/* --- Filtres fixos a dalt de tot de la pestanya (primera àrea visible) ------- */
 #fact-filters-section {
-    margin-top: auto;
+    flex-shrink: 0;
 }
 
-/* --- Àrea de scroll (panels + filtres al fons) ------------------------------ */
+/* --- Àrea de scroll (panells de validació / ordres) ------------------------- */
 .fact-content-scroll {
     flex: 1;
     display: flex;

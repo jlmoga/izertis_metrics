@@ -632,6 +632,47 @@
                         <p data-i18n="factNoImputations">Carrega les dades d'imputacions per accedir a la facturació</p>
                     </div>
                     <div id="fact-main" class="hidden">
+                        <section class="filters-section" id="fact-filters-section">
+                            <div class="filters-header">
+                                <h2><i class="ph ph-funnel"></i> <span data-i18n="factFiltersTitle">Filtres de facturació</span></h2>
+                                <div style="display: flex; gap: 0.8rem; align-items: center;">
+                                    <button id="fact-btn-clear-filters" class="btn-clear"><i class="ph ph-trash"></i> <span data-i18n="btnClearFilters">Netejar Filtres</span></button>
+                                    <button id="fact-btn-toggle-filters" class="btn-icon" data-i18n-title="tooltipToggleFilters" title="Minimitzar/Maximitzar filtres"><i class="ph ph-caret-up toggle-icon"></i></button>
+                                </div>
+                            </div>
+                            <div class="filters-container">
+                                <div class="filter-group dates-group">
+                                    <div class="date-input">
+                                        <label for="fact-filter-date-start" data-i18n="lblDateStart">Data Inici</label>
+                                        <input type="date" id="fact-filter-date-start">
+                                    </div>
+                                    <div class="date-input">
+                                        <label for="fact-filter-date-end" data-i18n="lblDateEnd">Data Fi</label>
+                                        <input type="date" id="fact-filter-date-end">
+                                    </div>
+                                    <div class="date-input month-nav-group">
+                                        <label data-i18n="lblMonthNav">Mes complet</label>
+                                        <div class="month-nav-controls">
+                                            <button class="month-nav-btn" id="fact-btn-month-prev" title="Mes anterior"><i class="ph ph-caret-left"></i></button>
+                                            <input type="month" class="month-nav-input" id="fact-month-nav">
+                                            <button class="month-nav-btn" id="fact-btn-month-next" title="Mes següent"><i class="ph ph-caret-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="fact-filter-clients" data-i18n="lblClients">Clients</label>
+                                    <select id="fact-filter-clients" size="4"></select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="fact-filter-projects" data-i18n="lblProjects">Projectes</label>
+                                    <select id="fact-filter-projects" multiple size="4"></select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="fact-filter-users" data-i18n="lblUsers">Tècnics</label>
+                                    <select id="fact-filter-users" multiple size="4"></select>
+                                </div>
+                            </div>
+                        </section>
                         <div class="results-header">
                             <div class="header-main">
                                 <h2 data-i18n="titleFacturacio">Facturació</h2>
@@ -732,47 +773,6 @@
                                     <div id="fact-omo-meta-after"></div>
                                 </div>
                             </div>
-                            <section class="filters-section" id="fact-filters-section">
-                                <div class="filters-header">
-                                    <h2><i class="ph ph-funnel"></i> <span data-i18n="factFiltersTitle">Filtres de facturació</span></h2>
-                                    <div style="display: flex; gap: 0.8rem; align-items: center;">
-                                        <button id="fact-btn-clear-filters" class="btn-clear"><i class="ph ph-trash"></i> <span data-i18n="btnClearFilters">Netejar Filtres</span></button>
-                                        <button id="fact-btn-toggle-filters" class="btn-icon" data-i18n-title="tooltipToggleFilters" title="Minimitzar/Maximitzar filtres"><i class="ph ph-caret-up toggle-icon"></i></button>
-                                    </div>
-                                </div>
-                                <div class="filters-container">
-                                    <div class="filter-group dates-group">
-                                        <div class="date-input">
-                                            <label for="fact-filter-date-start" data-i18n="lblDateStart">Data Inici</label>
-                                            <input type="date" id="fact-filter-date-start">
-                                        </div>
-                                        <div class="date-input">
-                                            <label for="fact-filter-date-end" data-i18n="lblDateEnd">Data Fi</label>
-                                            <input type="date" id="fact-filter-date-end">
-                                        </div>
-                                        <div class="date-input month-nav-group">
-                                            <label data-i18n="lblMonthNav">Mes complet</label>
-                                            <div class="month-nav-controls">
-                                                <button class="month-nav-btn" id="fact-btn-month-prev" title="Mes anterior"><i class="ph ph-caret-left"></i></button>
-                                                <input type="month" class="month-nav-input" id="fact-month-nav">
-                                                <button class="month-nav-btn" id="fact-btn-month-next" title="Mes següent"><i class="ph ph-caret-right"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="filter-group">
-                                        <label for="fact-filter-clients" data-i18n="lblClients">Clients</label>
-                                        <select id="fact-filter-clients" size="4"></select>
-                                    </div>
-                                    <div class="filter-group">
-                                        <label for="fact-filter-projects" data-i18n="lblProjects">Projectes</label>
-                                        <select id="fact-filter-projects" multiple size="4"></select>
-                                    </div>
-                                    <div class="filter-group">
-                                        <label for="fact-filter-users" data-i18n="lblUsers">Tècnics</label>
-                                        <select id="fact-filter-users" multiple size="4"></select>
-                                    </div>
-                                </div>
-                            </section>
                         </div>
                     </div>
                 </div>
