@@ -259,9 +259,6 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
     data.forEach(r => {
         const ck  = r.client  || '-';
         const pk  = r.project || '-';
-        const uk  = r.user    || '-';
-        const rt  = r.rate    || 0;
-        const urk = `${uk}\x00${rt}`;
 
         if (!clientMap[ck]) {
             clientMap[ck] = { hours: 0, amount: 0, rows: [], projects: {}, projectOrder: [] };
@@ -273,20 +270,12 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
 
         const cp = clientMap[ck].projects;
         if (!cp[pk]) {
-            cp[pk] = { hours: 0, amount: 0, rows: [], users: {}, userOrder: [] };
+            cp[pk] = { hours: 0, amount: 0, rows: [] };
             clientMap[ck].projectOrder.push(pk);
         }
         cp[pk].hours  += r.hours || 0;
         cp[pk].amount += r._importedCalculated || 0;
         cp[pk].rows.push(r);
-
-        if (!cp[pk].users[urk]) {
-            cp[pk].users[urk] = { user: uk, rate: rt, hours: 0, amount: 0, rows: [] };
-            cp[pk].userOrder.push(urk);
-        }
-        cp[pk].users[urk].hours  += r.hours || 0;
-        cp[pk].users[urk].amount += r._importedCalculated || 0;
-        cp[pk].users[urk].rows.push(r);
     });
 
     clientOrder.sort((a, b) => clientMap[b].hours - clientMap[a].hours);
@@ -359,18 +348,63 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
 
             if (totalsOnly) return;
 
-            p.userOrder.sort((a, b) => p.users[b].hours - p.users[a].hours);
-            p.userOrder.forEach(urk => {
-                const u       = p.users[urk];
-                const uMap    = aggregate(u.rows);
-                const userRow = document.createElement('tr');
-                userRow.dataset.parentGroup = projectId;
-                userRow.innerHTML = `
-                    <td style="padding-left:3.2rem">${u.user}</td>
-                    <td class="number-col">${isFixed ? '-' : fmt2(u.rate) + ' €/h'}</td>
-                    ${monthlyCells(uMap, u.hours, isFixed ? null : u.amount, isDays, hoursPerDay, isFixed)}`;
-                summaryBody.appendChild(userRow);
-            });
+            // Renderitza les files de tècnic (agrupades per tècnic+tarifa) sota un grup pare
+            const renderUsers = (rows, parentId, indent) => {
+                const users = {}, order = [];
+                rows.forEach(r => {
+                    const uk = r.user || '-', rt = r.rate || 0, urk = `${uk}\x00${rt}`;
+                    if (!users[urk]) { users[urk] = { user: uk, rate: rt, hours: 0, amount: 0, rows: [] }; order.push(urk); }
+                    users[urk].hours  += r.hours || 0;
+                    users[urk].amount += r._importedCalculated || 0;
+                    users[urk].rows.push(r);
+                });
+                order.sort((a, b) => users[b].hours - users[a].hours);
+                order.forEach(urk => {
+                    const u = users[urk];
+                    const userRow = document.createElement('tr');
+                    userRow.dataset.parentGroup = parentId;
+                    userRow.innerHTML = `
+                        <td style="padding-left:${indent}">${u.user}</td>
+                        <td class="number-col">${isFixed ? '-' : fmt2(u.rate) + ' €/h'}</td>
+                        ${monthlyCells(aggregate(u.rows), u.hours, isFixed ? null : u.amount, isDays, hoursPerDay, isFixed)}`;
+                    summaryBody.appendChild(userRow);
+                });
+            };
+
+            // Si el projecte té més d'una tasca informada al període, afegeix un nivell de
+            // desglós per tasca (projecte → tasca → tècnic); si no, tècnics directes.
+            const distinctTasks = new Set(p.rows.map(r => r.task).filter(Boolean));
+            if (distinctTasks.size > 1) {
+                const taskMap = {}, taskOrder = [];
+                p.rows.forEach(r => {
+                    const tk = r.task || '-';
+                    if (!taskMap[tk]) { taskMap[tk] = { hours: 0, amount: 0, rows: [] }; taskOrder.push(tk); }
+                    taskMap[tk].hours  += r.hours || 0;
+                    taskMap[tk].amount += r._importedCalculated || 0;
+                    taskMap[tk].rows.push(r);
+                });
+                taskOrder.sort((a, b) => taskMap[b].hours - taskMap[a].hours);
+                taskOrder.forEach(tk => {
+                    const tsk    = taskMap[tk];
+                    const taskId = `sum-${counter++}`;
+                    const taskRow = document.createElement('tr');
+                    taskRow.className = 'group-header-row group-level-3';
+                    taskRow.dataset.groupId     = taskId;
+                    taskRow.dataset.parentGroup = projectId;
+                    taskRow.innerHTML = `
+                        <td style="padding-left:3.2rem"><i class="ph ph-caret-up toggle-icon group-toggle-icon"></i>${tk}</td>
+                        <td class="number-col"></td>
+                        ${monthlyCells(aggregate(tsk.rows), tsk.hours, isFixed ? null : tsk.amount, isDays, hoursPerDay, isFixed)}`;
+                    taskRow.addEventListener('click', () => {
+                        const collapsed = taskRow.classList.toggle('collapsed');
+                        setDescendantsDisplay(taskId, collapsed ? 'none' : '', summaryBody);
+                    });
+                    summaryBody.appendChild(taskRow);
+                    renderUsers(tsk.rows, taskId, '4.8rem');
+                });
+            } else {
+                renderUsers(p.rows, projectId, '3.2rem');
+            }
         });
     });
 }
