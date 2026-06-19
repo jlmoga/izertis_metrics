@@ -41,6 +41,7 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
         const impHours = impMap[key];
         let dayAbsenceHours = 0;
         const absSources = [];
+        const absKeys = [];
 
         absData.filter(a => a.user === user && !isRejectedStatus(a.status)).forEach(abs => {
             if (isDateInRange(dateStr, abs.dateStart, abs.dateEnd)) {
@@ -53,15 +54,33 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
                     ? `${abs.dateStart} → ${abs.dateEnd}`
                     : (abs.dateStart || '');
                 if (src && !absSources.includes(src)) absSources.push(src);
+                // Clau de l'absència contribuent (per marcar-la en vermell al desglós)
+                const k = `${abs.user}|${abs.dateStart}|${abs.dateEnd}`;
+                if (!absKeys.includes(k)) absKeys.push(k);
             }
         });
 
         const totalCompute = impHours + dayAbsenceHours;
         if (dayAbsenceHours > 0 && totalCompute > 10) {
-            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 10, absSource: absSources.join('; ') });
+            conflictsList.push({ date: dateStr, user, impHours, absHours: dayAbsenceHours, totalCompute, diff: totalCompute - 10, absSource: absSources.join('; '), absKeys });
         }
     });
     return conflictsList;
+}
+
+// Conjunt de claus `user|dateStart|dateEnd` de les absències que originen algun conflicte,
+// calculat amb els MATEIXOS filtres que la taula de conflictes. El desglós d'absències l'usa
+// per marcar en vermell exactament les absències que provoquen els conflictes mostrats.
+export function getConflictAbsenceKeys() {
+    const selectedUsersRaw = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+    const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
+    const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
+    const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
+    const allowedUsers = getClientAllowedUsers();
+    const keys = new Set();
+    getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers)
+        .forEach(c => (c.absKeys || []).forEach(k => keys.add(k)));
+    return keys;
 }
 
 export function renderOvertimeTable() {

@@ -13,6 +13,29 @@ const nameKey = name => name
           .split(/\s+/).filter(Boolean).sort().join(' ')
     : '?';
 
+// Mostra un comptador de conflictes: "Sense conflictes" si 0, "{n} conflictes" altrament.
+// Quan n>0 la targeta és clicable i porta a la pestanya d'absències filtrada pel període.
+function setConflictCard(id, count, period) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const card = el.closest('.stat-card');
+    if (count === 0) {
+        el.setAttribute('data-i18n', 'factNoConflicts');
+        el.textContent = t('factNoConflicts');
+        if (card) { card.classList.remove('stat-card--clickable'); card.onclick = null; }
+    } else {
+        el.removeAttribute('data-i18n');
+        el.textContent = `${count} ${t('factConflictsSuffix')}`;
+        if (card) {
+            card.classList.add('stat-card--clickable');
+            card.onclick = () => {
+                document.dispatchEvent(new CustomEvent('absences:show-period', { detail: period }));
+                document.getElementById('nav-absencies')?.click();
+            };
+        }
+    }
+}
+
 const CLIENT_COLORS = [
     '#a8c8e8','#a8d5a2','#f2a7a7','#c4b0d8','#a0d8d8',
     '#f7d6a0','#a0cfd4','#f0b89a','#e8a8cc','#b8c4cc',
@@ -431,6 +454,12 @@ export async function updateHomeDashboard() {
     const renderKPIs = () => {
         const fmt = (n, sfx) => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + sfx;
         const el = id => document.getElementById(id);
+
+        // Períodes per als accessos directes des dels comptadors de conflictes
+        const toYMD = (y, m, d) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const periodYear = { start: toYMD(currYear, 0, 1),          end: toYMD(currYear, 11, 31) };
+        const periodCurr = { start: toYMD(currYear, currMonth, 1),  end: toYMD(currYear, currMonth, new Date(currYear, currMonth + 1, 0).getDate()) };
+        const periodPrev = { start: toYMD(prevYear, prevMonth, 1),  end: toYMD(prevYear, prevMonth, new Date(prevYear, prevMonth + 1, 0).getDate()) };
         const fYear   = yearData.filter(r => selectedClients.has(r.client || '?'));
         const fYearAbs = yearAbsData.filter(r => selectedClients.has(getUserClient(r.user)));
         const fCurr   = cData.filter(r => selectedClients.has(r.client || '?'));
@@ -441,17 +470,17 @@ export async function updateHomeDashboard() {
         if (el('home-total-hours'))    el('home-total-hours').textContent    = fmt(fYear.reduce((s,r) => s+(r.hours||0), 0), ' h');
         if (el('home-total-amount'))   el('home-total-amount').textContent   = fmt(fYear.reduce((s,r) => s+(r._importedCalculated||0), 0), ' €');
         if (el('home-total-abs-hours'))el('home-total-abs-hours').textContent= fmt(fYearAbs.reduce((s,r) => s+(r.hours||0), 0), ' h');
-        if (el('home-total-conflicts'))el('home-total-conflicts').textContent= getConflicts(fYear, fYearAbs).filter(c => Math.abs(c.diff) > 0.01).length;
+        setConflictCard('home-total-conflicts', getConflicts(fYear, fYearAbs).filter(c => Math.abs(c.diff) > 0.01).length, periodYear);
 
         if (el('home-curr-hours'))    el('home-curr-hours').textContent    = fmt(fCurr.reduce((s,r) => s+(r.hours||0), 0), ' h');
         if (el('home-curr-amount'))   el('home-curr-amount').textContent   = fmt(fCurr.reduce((s,r) => s+(r._importedCalculated||0), 0), ' €');
         if (el('home-curr-abs-hours'))el('home-curr-abs-hours').textContent= fmt(fCAbs.reduce((s,r) => s+(r.hours||0), 0), ' h');
-        if (el('home-curr-conflicts'))el('home-curr-conflicts').textContent= getConflicts(fCurr, state.absData).filter(c => Math.abs(c.diff) > 0.01).length;
+        setConflictCard('home-curr-conflicts', getConflicts(fCurr, state.absData).filter(c => Math.abs(c.diff) > 0.01).length, periodCurr);
 
         if (el('home-prev-hours'))    el('home-prev-hours').textContent    = fmt(fPrev.reduce((s,r) => s+(r.hours||0), 0), ' h');
         if (el('home-prev-amount'))   el('home-prev-amount').textContent   = fmt(fPrev.reduce((s,r) => s+(r._importedCalculated||0), 0), ' €');
         if (el('home-prev-abs-hours'))el('home-prev-abs-hours').textContent= fmt(fPAbs.reduce((s,r) => s+(r.hours||0), 0), ' h');
-        if (el('home-prev-conflicts'))el('home-prev-conflicts').textContent= getConflicts(fPrev, state.absData).filter(c => Math.abs(c.diff) > 0.01).length;
+        setConflictCard('home-prev-conflicts', getConflicts(fPrev, state.absData).filter(c => Math.abs(c.diff) > 0.01).length, periodPrev);
     };
 
     // --- Timestamps de càrrega ---

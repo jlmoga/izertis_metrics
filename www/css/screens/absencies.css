@@ -34,3 +34,17 @@
     flex: none;
     max-height: none;
 }
+
+/* El detall d'absències i la taula de conflictes poden ser molt llargs (vista anual):
+   el límit genèric de 3000px de .stats-row-body els tallava i no es veien totes les files.
+   Els alliberem del límit quan estan desplegats; la pàgina ja té scroll vertical propi.
+   (Es conserva max-height:0 en estat col·lapsat per poder amagar la secció.) */
+#section-abs-detail .stats-row-body,
+#section-overtime .stats-row-body {
+    max-height: none;
+}
+
+#section-abs-detail.collapsed .stats-row-body,
+#section-overtime.collapsed .stats-row-body {
+    max-height: 0;
+}

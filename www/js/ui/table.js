@@ -4,33 +4,16 @@
 
 import { state } from '../state.js';
 import { t, tForLang } from '../config/i18n.js';
-import { formatCurrency, isDateInRange, isRejectedStatus } from '../utils.js';
+import { formatCurrency, isRejectedStatus } from '../utils.js';
+import { getConflictAbsenceKeys } from './overtime.js';
 
-// Set precalculat de claus user|dateStart|dateEnd per a files d'absència amb conflicte
+// Set de claus user|dateStart|dateEnd de les absències que originen conflicte de jornada.
+// Es deriva de getConflicts (mateixa lògica que la taula de conflictes) perquè el marcatge
+// en vermell del desglós coincideixi exactament amb els conflictes mostrats.
 let absConflictKeys = new Set();
 
-function buildAbsConflictKeys(absData) {
-    absConflictKeys = new Set();
-    if (!state.currentData.length) return;
-    const impMap = {};
-    state.currentData.forEach(r => {
-        if (!r.user || !r.date) return;
-        const key = `${r.user}|${r.date}`;
-        impMap[key] = (impMap[key] || 0) + (parseFloat(r.hours) || 0);
-    });
-    absData.forEach(row => {
-        if (isRejectedStatus(row.status)) return;
-        const dailyAbsHours = (parseFloat(row.days) > 1)
-            ? (parseFloat(row.hours) / parseFloat(row.days))
-            : parseFloat(row.hours) || 0;
-        const hasConflict = Object.keys(impMap).some(key => {
-            const [user, date] = key.split('|');
-            return user === row.user
-                && isDateInRange(date, row.dateStart, row.dateEnd)
-                && (impMap[key] + dailyAbsHours) > 10;
-        });
-        if (hasConflict) absConflictKeys.add(`${row.user}|${row.dateStart}|${row.dateEnd}`);
-    });
+function buildAbsConflictKeys() {
+    absConflictKeys = getConflictAbsenceKeys();
 }
 
 const tableBody = document.getElementById('tableBody');
@@ -484,7 +467,7 @@ function renderAbsLevel(rows, groupByArray, level, tbody, parentGroupId, counter
 
 export function renderGroupedAbsTable(data, groupByArray, startCollapsed = false) {
     if (!absTableBody) return;
-    buildAbsConflictKeys(data);
+    buildAbsConflictKeys();
     absTableBody.innerHTML = '';
     renderAbsLevel(data, groupByArray, 1, absTableBody, null, { n: 0 });
     if (startCollapsed) {
@@ -494,7 +477,7 @@ export function renderGroupedAbsTable(data, groupByArray, startCollapsed = false
 }
 
 export function renderAbsTable(data) {
-    buildAbsConflictKeys(data);
+    buildAbsConflictKeys();
     absTableBody.innerHTML = '';
     data.forEach(row => absTableBody.appendChild(renderAbsDataRow(row, null)));
 }

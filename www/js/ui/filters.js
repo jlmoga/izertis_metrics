@@ -353,6 +353,19 @@ export function setupAbsFilterHandlers() {
         el.addEventListener('change', applyAbsFilters);
     });
 
+    // Accés directe des dels comptadors de conflictes del Home: fixa el període i neteja
+    // la resta de filtres d'absència perquè es vegin tots els conflictes d'aquell rang.
+    document.addEventListener('absences:show-period', (e) => {
+        const { start = '', end = '' } = e.detail || {};
+        if (filterAbsDateStart) filterAbsDateStart.value = start;
+        if (filterAbsDateEnd)   filterAbsDateEnd.value   = end;
+        if (absMonthNav) absMonthNav.value = (start && end && start.slice(0, 7) === end.slice(0, 7)) ? start.slice(0, 7) : '';
+        [filterAbsUsers, filterAbsStatus, filterAbsClients].filter(Boolean).forEach(sel => {
+            Array.from(sel.options).forEach(o => o.selected = false);
+        });
+        applyAbsFilters();
+    });
+
     if (absMonthNav) {
         absMonthNav.addEventListener('change', () => applyMonthToRange(absMonthNav, filterAbsDateStart, filterAbsDateEnd, applyAbsFilters));
         btnAbsMonthPrev.addEventListener('click', () => shiftMonth(absMonthNav, -1, filterAbsDateStart, filterAbsDateEnd, applyAbsFilters));
