@@ -50,3 +50,39 @@ export function normalizeName(name) {
         .replace(/[^A-Z0-9\s]/g, '')
         .trim();
 }
+
+// Clau de nom robusta a l'ordre dels cognoms (tokens ordenats alfab\u00e8ticament),
+// usada per casar t\u00e8cnics entre imputacions i abs\u00e8ncies.
+export function absNameKey(name) {
+    return name
+        ? name.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9\s]/g, '').trim()
+              .split(/\s+/).filter(Boolean).sort().join(' ')
+        : '?';
+}
+
+// Mapa t\u00e8cnic \u2192 client predominant (aquell on imputa m\u00e9s hores), a partir de les imputacions.
+export function buildUserClientMap(imputData) {
+    const userHours = {};
+    imputData.forEach(r => {
+        const u = absNameKey(r.user);
+        const c = r.client || '?';
+        if (!userHours[u]) userHours[u] = {};
+        userHours[u][c] = (userHours[u][c] || 0) + (r.hours || 0);
+    });
+    const map = {};
+    Object.entries(userHours).forEach(([u, clients]) => {
+        map[u] = Object.entries(clients).sort((a, b) => b[1] - a[1])[0][0];
+    });
+    return map;
+}
+
+// Conjunt de t\u00e8cnics (nom normalitzat) d'absData el client predominant dels quals
+// (segons les imputacions) est\u00e0 entre els clients indicats.
+export function usersForClients(imputData, absData, clients) {
+    const map = buildUserClientMap(imputData);
+    const allowed = new Set();
+    absData.forEach(row => {
+        if (clients.includes(map[absNameKey(row.user)] || '?')) allowed.add(row.user);
+    });
+    return allowed;
+}

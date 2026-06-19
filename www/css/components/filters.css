@@ -125,6 +125,11 @@
     gap: 1.25rem;
 }
 
+/* Imputacions té un filtre addicional (Tasques) → 5 columnes */
+#filters-section .filters-container {
+    grid-template-columns: 31fr 23fr 23fr 23fr 23fr;
+}
+
 .filter-group {
     min-width: 0;
     display: flex;

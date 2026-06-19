@@ -451,6 +451,10 @@
                         <select id="filter-projects" multiple size="4"></select>
                     </div>
                     <div class="filter-group">
+                        <label for="filter-tasks" data-i18n="lblTasks">Tasques</label>
+                        <select id="filter-tasks" multiple size="4"></select>
+                    </div>
+                    <div class="filter-group">
                         <label for="filter-users" data-i18n="lblUsers">Tècnics</label>
                         <select id="filter-users" multiple size="4"></select>
                     </div>
@@ -673,18 +677,25 @@
                             <div id="fact-panel-validacio" class="fact-panel">
                                 <div class="fact-results">
                                     <div class="fact-panel-header">
-                                        <h2 data-i18n="factTitleValidacio">Validació de la facturació.</h2>
-                                        <span id="fact-table-title" class="fact-panel-meta"></span>
-                                        <div class="fact-stats-group">
-                                            <div class="stat-card">
-                                                <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
-                                                <span class="stat-value" id="fact-total-hours">0.00</span>
-                                            </div>
-                                            <div class="stat-card total-earnings">
-                                                <span class="stat-title" data-i18n="statAmount">Import Facturable Estimat</span>
-                                                <span class="stat-value" id="total-amount">0.00 €</span>
+                                        <div class="fact-panel-header-row">
+                                            <h2 data-i18n="factTitleValidacio">Validació de la facturació.</h2>
+                                            <span id="fact-table-title" class="fact-panel-meta"></span>
+                                            <div class="fact-stats-group">
+                                                <div class="stat-card">
+                                                    <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
+                                                    <span class="stat-value" id="fact-total-hours">0.00</span>
+                                                </div>
+                                                <div class="stat-card total-earnings">
+                                                    <span class="stat-title" data-i18n="statAmount">Import Facturable Estimat</span>
+                                                    <span class="stat-value" id="total-amount">0.00 €</span>
+                                                </div>
+                                                <div class="stat-card">
+                                                    <span class="stat-title" data-i18n="factConflictsTitle">Conflictes de jornada</span>
+                                                    <span class="stat-value" id="fact-total-conflicts" data-i18n="factNoConflicts">Sense conflictes</span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <p class="fact-mail-disclaimer fact-conflicts-disclaimer" data-i18n="factConflictsDisclaimer">La detecció de conflictes utilitza un llindar global de 10h diàries, ja que l'aplicació no disposa de l'horari individual de cada tècnic. Els dies amb còmput d'imputació + absència inferior a 10h no es mostren com a conflicte.</p>
                                     </div>
                                     <div id="fact-validation-meta-before"></div>
                                     <div id="fact-validation-send-text"></div>
@@ -695,18 +706,25 @@
                             <div id="fact-panel-ordres" class="fact-panel hidden">
                                 <div class="fact-results">
                                     <div class="fact-panel-header">
-                                        <h2 data-i18n="factTitleOrdres">Ordre de facturació</h2>
-                                        <span id="fact-ordres-title" class="fact-panel-meta"></span>
-                                        <div class="fact-stats-group">
-                                            <div class="stat-card">
-                                                <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
-                                                <span class="stat-value" id="fact-omo-total-hours">0.00</span>
-                                            </div>
-                                            <div class="stat-card total-earnings">
-                                                <span class="stat-title" data-i18n="statAmount">Import facturable</span>
-                                                <span class="stat-value" id="fact-omo-total-amount">0.00 €</span>
+                                        <div class="fact-panel-header-row">
+                                            <h2 data-i18n="factTitleOrdres">Ordre de facturació</h2>
+                                            <span id="fact-ordres-title" class="fact-panel-meta"></span>
+                                            <div class="fact-stats-group">
+                                                <div class="stat-card">
+                                                    <span class="stat-title" data-i18n="statTotalHours">Total Hores Imputades</span>
+                                                    <span class="stat-value" id="fact-omo-total-hours">0.00</span>
+                                                </div>
+                                                <div class="stat-card total-earnings">
+                                                    <span class="stat-title" data-i18n="statAmount">Import facturable</span>
+                                                    <span class="stat-value" id="fact-omo-total-amount">0.00 €</span>
+                                                </div>
+                                                <div class="stat-card">
+                                                    <span class="stat-title" data-i18n="factConflictsTitle">Conflictes de jornada</span>
+                                                    <span class="stat-value" id="fact-omo-total-conflicts" data-i18n="factNoConflicts">Sense conflictes</span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <p class="fact-mail-disclaimer fact-conflicts-disclaimer" data-i18n="factConflictsDisclaimer">La detecció de conflictes utilitza un llindar global de 10h diàries, ja que l'aplicació no disposa de l'horari individual de cada tècnic. Els dies amb còmput d'imputació + absència inferior a 10h no es mostren com a conflicte.</p>
                                     </div>
                                     <div id="fact-omo-meta-before"></div>
                                     <div id="fact-omo-send-text"></div>

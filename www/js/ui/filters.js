@@ -4,11 +4,11 @@
 
 import { state } from '../state.js';
 import { t } from '../config/i18n.js';
-import { parseDateToTime, formatCurrency } from '../utils.js';
+import { parseDateToTime, formatCurrency, absNameKey, buildUserClientMap } from '../utils.js';
 import { sortData, sortAbsData } from './sort.js';
 import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable } from './table.js';
 import { updateChart, updateAbsCharts } from './charts.js';
-import { renderOvertimeTable, getConflicts } from './overtime.js';
+import { renderOvertimeTable, getConflicts, getClientAllowedUsers } from './overtime.js';
 import { updateHomeDashboard } from './home.js';
 
 // --- DOM refs imputacions ---
@@ -16,6 +16,7 @@ const filterDateStart = document.getElementById('filter-date-start');
 const filterDateEnd = document.getElementById('filter-date-end');
 const filterClients = document.getElementById('filter-clients');
 const filterProjects = document.getElementById('filter-projects');
+const filterTasks = document.getElementById('filter-tasks');
 const filterUsers = document.getElementById('filter-users');
 const filtersSection = document.getElementById('filters-section');
 const totalRowsEl = document.getElementById('total-rows');
@@ -124,6 +125,8 @@ export function applyFilters() {
     const selectedClients = selectedClientsRaw.includes('ALL') ? [] : selectedClientsRaw;
     const selectedProjectsRaw = Array.from(filterProjects.selectedOptions).map(o => o.value);
     const selectedProjects = selectedProjectsRaw.includes('ALL') ? [] : selectedProjectsRaw;
+    const selectedTasksRaw = Array.from(filterTasks.selectedOptions).map(o => o.value);
+    const selectedTasks = selectedTasksRaw.includes('ALL') ? [] : selectedTasksRaw;
     const selectedUsersRaw = Array.from(filterUsers.selectedOptions).map(o => o.value);
     const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
 
@@ -137,6 +140,7 @@ export function applyFilters() {
         if (!rowMatchesDate(row)) return false;
         if (selectedClients.length > 0 && !selectedClients.includes(row.client)) return false;
         if (selectedProjects.length > 0 && !selectedProjects.includes(row.project)) return false;
+        if (selectedTasks.length > 0 && !selectedTasks.includes(row.task)) return false;
         if (selectedUsers.length > 0 && !selectedUsers.includes(row.user)) return false;
         return true;
     });
@@ -146,12 +150,14 @@ export function applyFilters() {
         if (!rowMatchesDate(row)) return false;
         if (ignore !== 'client' && selectedClients.length > 0 && !selectedClients.includes(row.client)) return false;
         if (ignore !== 'project' && selectedProjects.length > 0 && !selectedProjects.includes(row.project)) return false;
+        if (ignore !== 'task' && selectedTasks.length > 0 && !selectedTasks.includes(row.task)) return false;
         if (ignore !== 'user' && selectedUsers.length > 0 && !selectedUsers.includes(row.user)) return false;
         return true;
     });
 
     rebuildSelect(filterClients, [...new Set(getOptionsFor('client').map(r => r.client).filter(Boolean))].sort(), selectedClients);
     rebuildSelect(filterProjects, [...new Set(getOptionsFor('project').map(r => r.project).filter(Boolean))].sort(), selectedProjects);
+    rebuildSelect(filterTasks, [...new Set(getOptionsFor('task').map(r => r.task).filter(Boolean))].sort(), selectedTasks);
     rebuildSelect(filterUsers, [...new Set(getOptionsFor('user').map(r => r.user).filter(Boolean))].sort(), selectedUsers);
 
     totalRowsEl.textContent = state.filteredData.length;
@@ -175,26 +181,6 @@ export function applyFilters() {
     }
 }
 
-const absNameKey = name => name
-    ? name.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9\s]/g, '').trim()
-          .split(/\s+/).filter(Boolean).sort().join(' ')
-    : '?';
-
-const buildAbsUserClientMap = () => {
-    const userHours = {};
-    state.currentData.forEach(r => {
-        const u = absNameKey(r.user);
-        const c = r.client || '?';
-        if (!userHours[u]) userHours[u] = {};
-        userHours[u][c] = (userHours[u][c] || 0) + (r.hours || 0);
-    });
-    const map = {};
-    Object.entries(userHours).forEach(([u, clients]) => {
-        map[u] = Object.entries(clients).sort((a, b) => b[1] - a[1])[0][0];
-    });
-    return map;
-};
-
 export function applyAbsFilters() {
     const selectedUsersRaw = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
     const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
@@ -205,7 +191,7 @@ export function applyAbsFilters() {
     const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
     const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
 
-    const userClientMap = buildAbsUserClientMap();
+    const userClientMap = buildUserClientMap(state.currentData);
     const getAbsClient = row => userClientMap[absNameKey(row.user)] || '?';
 
     state.filteredAbsData = state.absData.filter(row => {
@@ -334,7 +320,7 @@ export function initDefaultDates() {
 }
 
 export function setupFilterHandlers() {
-    [filterDateStart, filterDateEnd, filterClients, filterProjects, filterUsers].forEach(el => {
+    [filterDateStart, filterDateEnd, filterClients, filterProjects, filterTasks, filterUsers].forEach(el => {
         el.addEventListener('change', applyFilters);
     });
 
@@ -351,6 +337,7 @@ export function setupFilterHandlers() {
             filterDateEnd.value = '';
             Array.from(filterClients.options).forEach(opt => opt.selected = false);
             Array.from(filterProjects.options).forEach(opt => opt.selected = false);
+            Array.from(filterTasks.options).forEach(opt => opt.selected = false);
             Array.from(filterUsers.options).forEach(opt => opt.selected = false);
             applyFilters();
         });
@@ -517,15 +504,17 @@ export function setupExportAbsXlsx() {
         XLSX.utils.book_append_sheet(wb, wsAbs, t('xlsxSheetAbs'));
 
         // --- Full 2: Excessos de jornada ---
-        const selectedUsers = Array.from(
+        const selectedUsersRaw = Array.from(
             document.getElementById('filter-abs-users')?.selectedOptions || []
         ).map(o => o.value);
+        const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
         const startRaw = document.getElementById('filter-abs-date-start')?.value;
         const endRaw   = document.getElementById('filter-abs-date-end')?.value;
         const startTs  = startRaw ? parseDateToTime(startRaw) : null;
         const endTs    = endRaw   ? parseDateToTime(endRaw)   : null;
 
-        const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs);
+        const allowedUsers = getClientAllowedUsers();
+        const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs, allowedUsers);
         const ovHeaders = [
             t('xlsxOvDate'), t('xlsxOvUser'),
             t('xlsxOvImpHours'), t('xlsxOvAbsHours'), t('xlsxOvTotal')

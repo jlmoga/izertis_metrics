@@ -4,18 +4,29 @@
 
 import { state } from '../state.js';
 import { t } from '../config/i18n.js';
-import { parseDateToTime, isDateInRange, isRejectedStatus } from '../utils.js';
+import { parseDateToTime, isDateInRange, isRejectedStatus, usersForClients } from '../utils.js';
 
 const overtimeTableBody = document.getElementById('overtimeTableBody');
 const filterAbsUsers = document.getElementById('filter-abs-users');
+const filterAbsClients = document.getElementById('filter-abs-clients');
 const filterAbsDateStart = document.getElementById('filter-abs-date-start');
 const filterAbsDateEnd = document.getElementById('filter-abs-date-end');
 
-export function getConflicts(data, absData, userFilter = [], start = null, end = null) {
+// Conjunt de tècnics (nom normalitzat) el client predominant dels quals està entre els
+// clients seleccionats al filtre d'absències. Retorna null si no hi ha filtre de client actiu.
+export function getClientAllowedUsers() {
+    const selRaw = filterAbsClients ? Array.from(filterAbsClients.selectedOptions).map(o => o.value) : [];
+    const sel = selRaw.includes('ALL') ? [] : selRaw;
+    if (sel.length === 0) return null;
+    return usersForClients(state.currentData, state.absData, sel);
+}
+
+export function getConflicts(data, absData, userFilter = [], start = null, end = null, allowedUsers = null) {
     if (!data || !absData || data.length === 0 || absData.length === 0) return [];
 
     const impMap = {};
     data.forEach(row => {
+        if (allowedUsers && !allowedUsers.has(row.user)) return;
         if (userFilter.length > 0 && !userFilter.includes(row.user)) return;
         const time = parseDateToTime(row.date);
         if (start && time < start) return;
@@ -56,11 +67,16 @@ export function renderOvertimeTable() {
         return;
     }
 
-    const selectedUsers = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+    const selectedUsersRaw = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+    const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
     const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
     const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
 
-    const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate);
+    // S'usa el conjunt complet d'absències (no el filtrat per data) perquè getConflicts
+    // detecta solapaments amb isDateInRange i així no perd absències multi-dia que comencen
+    // abans del rang. El filtre de client es respecta restringint els tècnics permesos.
+    const allowedUsers = getClientAllowedUsers();
+    const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers);
 
     if (conflicts.length === 0) {
         overtimeTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoConflictsInPeriod')}</td></tr>`;

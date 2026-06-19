@@ -78,6 +78,11 @@
     font-style: italic;
 }
 
+/* Disclaimer reduït de conflictes, sota l'indicador de la capçalera de facturació */
+.fact-conflicts-disclaimer {
+    margin-top: 0.75rem;
+}
+
 .fact-mode-toggle {
     display: flex;
     border: 1px solid var(--border-color);
@@ -220,11 +225,16 @@
 .fact-panel-header {
     flex-shrink: 0;
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
     margin-bottom: 1rem;
     padding-bottom: 0.6rem;
     border-bottom: 2px solid var(--accent-color);
+}
+
+.fact-panel-header-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .fact-stats-group {

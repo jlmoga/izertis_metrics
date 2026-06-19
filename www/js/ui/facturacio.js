@@ -4,9 +4,10 @@
 
 import { state } from '../state.js';
 import { t, tForLang, currentLang } from '../config/i18n.js';
-import { parseDateToDateObj, parseDateToTime } from '../utils.js';
+import { parseDateToDateObj, parseDateToTime, usersForClients } from '../utils.js';
 import { syncFromBilling } from './filters.js';
 import { renderBillingSummary } from './table.js';
+import { getConflicts } from './overtime.js';
 
 let factClientLang = localStorage.getItem('moga_fact_lang') || currentLang;
 let syncingFact = false;
@@ -196,6 +197,21 @@ export function setupFacturacio() {
     // Preparar mail OMO
     const btnMailOMO = document.getElementById('fact-btn-mail-omo');
     if (btnMailOMO) btnMailOMO.addEventListener('click', mailOMO);
+
+    // Quadre de conflictes clicable → pestanya d'absències amb els mateixos filtres
+    ['fact-total-conflicts', 'fact-omo-total-conflicts'].forEach(id => {
+        const card = document.getElementById(id)?.closest('.stat-card');
+        if (!card) return;
+        card.addEventListener('click', () => {
+            if (!card.classList.contains('stat-card--clickable')) return;
+            const ds = document.getElementById('fact-filter-date-start')?.value ?? '';
+            const de = document.getElementById('fact-filter-date-end')?.value ?? '';
+            const cs = document.getElementById('fact-filter-clients');
+            const client = cs?.options[cs.selectedIndex]?.value || null;
+            syncFromBilling(ds, de, client);
+            document.getElementById('nav-absencies')?.click();
+        });
+    });
 
     // Minimitzar / maximitzar
     const btnToggle      = document.getElementById('fact-btn-toggle-filters');
@@ -400,6 +416,29 @@ function rebuildUsers(byClient, selectedProjects, userSelect) {
     ).join('');
 }
 
+// Compta i mostra els conflictes de jornada del client i període seleccionats.
+// Usa la mateixa lògica que la pestanya d'Absències: els tècnics es vinculen al client
+// pel seu client predominant (no per la imputació concreta del dia), de manera que el
+// recompte coincideix amb el que es veu a la taula de conflictes d'absències.
+function updateConflictsCard(el, client, startTs, endTs) {
+    if (!el) return;
+    let count = 0;
+    if (client && state.absData.length > 0) {
+        const allowedUsers = usersForClients(state.currentData, state.absData, [client]);
+        count = getConflicts(state.currentData, state.absData, [], startTs, endTs, allowedUsers).length;
+    }
+    const card = el.closest('.stat-card');
+    if (count === 0) {
+        el.setAttribute('data-i18n', 'factNoConflicts');
+        el.textContent = t('factNoConflicts');
+        if (card) card.classList.remove('stat-card--clickable');
+    } else {
+        el.removeAttribute('data-i18n');
+        el.textContent = `${count} ${t('factConflictsSuffix')}`;
+        if (card) card.classList.add('stat-card--clickable');
+    }
+}
+
 async function renderFactTable() {
     const dateStartEl   = document.getElementById('fact-filter-date-start');
     const dateEndEl     = document.getElementById('fact-filter-date-end');
@@ -418,11 +457,13 @@ async function renderFactTable() {
 
     const totalHoursEl  = document.getElementById('fact-total-hours');
     const totalAmountEl = document.getElementById('total-amount');
+    const conflictsEl   = document.getElementById('fact-total-conflicts');
 
     if (!client) {
         billingTablesEl.innerHTML = '';
         if (totalHoursEl)  totalHoursEl.textContent  = '0.00';
         if (totalAmountEl) totalAmountEl.textContent = '0.00 €';
+        updateConflictsCard(conflictsEl, '', startTs, endTs);
         return;
     }
 
@@ -440,6 +481,7 @@ async function renderFactTable() {
 
     const totalHours = rows.reduce((s, r) => s + (r.hours || 0), 0);
     if (totalHoursEl) totalHoursEl.textContent = totalHours.toFixed(2);
+    updateConflictsCard(conflictsEl, client, startTs, endTs);
 
     const config          = await loadConfig();
     const norm            = s => s?.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '') ?? '';
@@ -699,11 +741,13 @@ async function renderOrdresTable() {
 
     const totalHoursEl  = document.getElementById('fact-omo-total-hours');
     const totalAmountEl = document.getElementById('fact-omo-total-amount');
+    const conflictsEl   = document.getElementById('fact-omo-total-conflicts');
 
     if (!client) {
         omoTablesEl.innerHTML = '';
         if (totalHoursEl)  totalHoursEl.textContent  = '0.00';
         if (totalAmountEl) totalAmountEl.textContent = '0.00 €';
+        updateConflictsCard(conflictsEl, '', startTs, endTs);
         return;
     }
 
@@ -721,6 +765,7 @@ async function renderOrdresTable() {
 
     const totalHours = rows.reduce((s, r) => s + (r.hours || 0), 0);
     if (totalHoursEl) totalHoursEl.textContent = totalHours.toFixed(2);
+    updateConflictsCard(conflictsEl, client, startTs, endTs);
 
     const config          = await loadConfig();
     const norm            = s => s?.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '') ?? '';

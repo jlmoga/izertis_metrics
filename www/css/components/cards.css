@@ -28,6 +28,18 @@
     border-top-color: var(--danger-color);
 }
 
+/* Targeta clicable (ex: conflictes que redirigeixen a la pestanya d'absències) */
+.stat-card--clickable {
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.stat-card--clickable:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color), var(--glass-shadow);
+    transform: translateY(-1px);
+}
+
 .stat-title {
     color: var(--text-secondary);
     font-size: 0.72rem;
