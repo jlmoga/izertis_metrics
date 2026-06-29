@@ -52,18 +52,38 @@
     min-height: 0;
 }
 
-/* --- Barra de filtres ------------------------------------------------------- */
 .fact-toolbar {
     flex-shrink: 0;
     position: relative;
     display: flex;
-    align-items: flex-end;
-    gap: 1.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 0.9rem 1.25rem;
     box-shadow: var(--glass-shadow);
+}
+
+.fact-toolbar-top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.fact-toolbar-bottom {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.fact-action-buttons {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-left: auto;
 }
 
 .fact-mail-disclaimer {
@@ -300,27 +320,7 @@
     margin: 0 0 0.75rem;
 }
 
-.fact-print-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.35rem;
-}
 
-.fact-check-label {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.fact-check-label input[type="checkbox"] {
-    cursor: pointer;
-    accent-color: var(--accent-color);
-}
 
 .project-navision {
     font-size: 0.8em;
@@ -371,3 +371,45 @@
     background: var(--card-bg);
 }
 
+.fact-toggle-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.fact-btn-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+.fact-btn-toggle:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.fact-btn-toggle:has(input:checked) {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    font-weight: 600;
+}
+
+.fact-btn-toggle input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}

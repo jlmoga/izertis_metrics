@@ -183,7 +183,8 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
         const isTotal = i === monthKeys.length;
         r2 += `<th class="number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}">${tl('summaryColHours')}</th>`;
         if (hasDays) r2 += `<th class="number-col summary-sub-header${isTotal ? ' summary-total-sub' : ''}">${tl('factColDays')}</th>`;
-        r2 += `<th class="number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end">${tl('summaryColAmount')}</th>`;
+        const amtLabel = isTotal ? tl('summaryColTotalAmount') : tl('summaryColAmount');
+        r2 += `<th class="number-col highlight-col summary-sub-header${isTotal ? ' summary-total-sub' : ''} month-group-end">${amtLabel}</th>`;
     }
     thead.innerHTML = `<tr>${r1}</tr><tr>${r2}</tr>`;
 

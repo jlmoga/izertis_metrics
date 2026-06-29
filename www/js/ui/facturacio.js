@@ -240,6 +240,15 @@ export function setupFacturacio() {
     const checkOmoSendText = document.getElementById('fact-check-omo-send-text');
     if (checkOmoSendText) checkOmoSendText.addEventListener('change', () => updateSendTextOnlyUI(true));
 
+    const checkOmoDetail = document.getElementById('fact-check-omo-detail');
+    if (checkOmoDetail) checkOmoDetail.addEventListener('change', renderOrdresTable);
+
+    const checkShowTotals = document.getElementById('fact-check-show-totals');
+    if (checkShowTotals) checkShowTotals.addEventListener('change', renderFactTable);
+
+    const checkOmoShowTotals = document.getElementById('fact-check-omo-show-totals');
+    if (checkOmoShowTotals) checkOmoShowTotals.addEventListener('change', renderOrdresTable);
+
     // Inicialització de la interfície pels checks de text
     syncToolbarTexts();
 }
@@ -588,24 +597,27 @@ async function renderFactTable() {
         });
     }
 
-    // Separador i títol de totals
-    const mkBlankOuter = () => { const p = document.createElement('p'); p.className = 'fact-meta-line'; p.innerHTML = '&nbsp;'; return p; };
-    billingTablesEl.appendChild(mkBlankOuter());
-    billingTablesEl.appendChild(mkBlankOuter());
-    const totalsLabelEl = document.createElement('p');
-    totalsLabelEl.className = 'fact-meta-line';
-    totalsLabelEl.innerHTML = `<strong>${tForLang(factClientLang, 'factTotalsLabel')}</strong>`;
-    billingTablesEl.appendChild(totalsLabelEl);
+    const showTotals = document.getElementById('fact-check-show-totals')?.checked ?? true;
+    if (showTotals) {
+        // Separador i títol de totals
+        const mkBlankOuter = () => { const p = document.createElement('p'); p.className = 'fact-meta-line'; p.innerHTML = '&nbsp;'; return p; };
+        billingTablesEl.appendChild(mkBlankOuter());
+        billingTablesEl.appendChild(mkBlankOuter());
+        const totalsLabelEl = document.createElement('p');
+        totalsLabelEl.className = 'fact-meta-line';
+        totalsLabelEl.innerHTML = `<strong>${tForLang(factClientLang, 'factTotalsLabel')}</strong>`;
+        billingTablesEl.appendChild(totalsLabelEl);
 
-    // Taula de totals del client
-    const totalWrapper = document.createElement('div');
-    totalWrapper.className = 'table-container fact-project-table';
-    const totalTable = document.createElement('table');
-    totalTable.appendChild(document.createElement('thead'));
-    totalTable.appendChild(document.createElement('tbody'));
-    totalWrapper.appendChild(totalTable);
-    billingTablesEl.appendChild(totalWrapper);
-    renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, true);
+        // Taula de totals del client
+        const totalWrapper = document.createElement('div');
+        totalWrapper.className = 'table-container fact-project-table';
+        const totalTable = document.createElement('table');
+        totalTable.appendChild(document.createElement('thead'));
+        totalTable.appendChild(document.createElement('tbody'));
+        totalWrapper.appendChild(totalTable);
+        billingTablesEl.appendChild(totalWrapper);
+        renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, true);
+    }
 
     renderValidationMeta(rows, config, client, factClientLang);
 }
@@ -856,7 +868,8 @@ async function renderOrdresTable() {
             table.appendChild(document.createElement('tbody'));
             wrapper.appendChild(table);
             omoTablesEl.appendChild(wrapper);
-            renderBillingSummary(projectRows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, table);
+            const showDetail = document.getElementById('fact-check-omo-detail')?.checked ?? true;
+            renderBillingSummary(projectRows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, table, !showDetail);
 
             const obsText = projConf?.OMO_observations?.trim();
             if (obsText) {
@@ -868,22 +881,25 @@ async function renderOrdresTable() {
         });
     }
 
-    const mkBlankOuter = () => { const p = document.createElement('p'); p.className = 'fact-meta-line'; p.innerHTML = '&nbsp;'; return p; };
-    omoTablesEl.appendChild(mkBlankOuter());
-    omoTablesEl.appendChild(mkBlankOuter());
-    const totalsLabelEl = document.createElement('p');
-    totalsLabelEl.className = 'fact-meta-line';
-    totalsLabelEl.innerHTML = `<strong>${tForLang(factClientLang, 'factTotalsLabel')}</strong>`;
-    omoTablesEl.appendChild(totalsLabelEl);
+    const showTotals = document.getElementById('fact-check-omo-show-totals')?.checked ?? true;
+    if (showTotals) {
+        const mkBlankOuter = () => { const p = document.createElement('p'); p.className = 'fact-meta-line'; p.innerHTML = '&nbsp;'; return p; };
+        omoTablesEl.appendChild(mkBlankOuter());
+        omoTablesEl.appendChild(mkBlankOuter());
+        const totalsLabelEl = document.createElement('p');
+        totalsLabelEl.className = 'fact-meta-line';
+        totalsLabelEl.innerHTML = `<strong>${tForLang(factClientLang, 'factTotalsLabel')}</strong>`;
+        omoTablesEl.appendChild(totalsLabelEl);
 
-    const totalWrapper = document.createElement('div');
-    totalWrapper.className = 'table-container fact-project-table';
-    const totalTable = document.createElement('table');
-    totalTable.appendChild(document.createElement('thead'));
-    totalTable.appendChild(document.createElement('tbody'));
-    totalWrapper.appendChild(totalTable);
-    omoTablesEl.appendChild(totalWrapper);
-    renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, true);
+        const totalWrapper = document.createElement('div');
+        totalWrapper.className = 'table-container fact-project-table';
+        const totalTable = document.createElement('table');
+        totalTable.appendChild(document.createElement('thead'));
+        totalTable.appendChild(document.createElement('tbody'));
+        totalWrapper.appendChild(totalTable);
+        omoTablesEl.appendChild(totalWrapper);
+        renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, true);
+    }
 
     renderOMOMeta(rows, config, client);
 }
