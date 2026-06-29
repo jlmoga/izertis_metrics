@@ -3,8 +3,8 @@
         {
             "customer_id": "Caja Ingenieros",
             "customer_name": "Caixa d'enginyers",
-            "customer_validation_intro": "Bon dia, adjuntem informació per la facturació del periode en curs.",
-            "customer_validation_observations": "Quedem a la vostra disposició per a qualsevol dubte o aclariment.",
+            "customer_validation_intro": "",
+            "customer_validation_observations": "",
             "list_mails_validation": "",
             "list_mails_OMO": "OMO Software (omo.software@izertis.com), Alfonso (a.ggonzalez@izertis.com), David Bargalló (dbargallo@izertis.com)",
             "projects": [
@@ -17,9 +17,9 @@
                     "project_navision_code": "PRO2501294",
                     "is_time_materials": false,
                     "ok_required": false,
-                    "validation_intro": "Call center y atención a usuarios. Tarificación fija. Dedicación sólooo a nivel informativo",
-                    "validation_observations": "Proporción a la Adenda V Anexo IV del C.M.\nCENTRO COSTE: 7024\nSolicitante O.C: Alex Rodriguez.",
-                    "OMO_intro": "PRO2501294 – Tarea 01 – Para emitir factura:",
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_intro": "PRO2501294-01 – Factura:",
                     "OMO_observations": "Proporción a la Adenda V Anexo IV del C.M.\nCENTRO COSTE: 7024\nSolicitante O.C: Alex Rodriguez."
                 },
                 {
@@ -31,9 +31,9 @@
                     "project_navision_code": "PRO2501303",
                     "is_time_materials": true,
                     "ok_required": false,
-                    "validation_intro": "Proyecto 70249975 – Soporte operación externo. Trabajos realizados en el mes",
-                    "validation_observations": "Proyecto 70249975 – Soporte operación externo\nCENTRO COSTE: SAU – Centro: tecnología\nPartida: 07.09.02.07\nSolicitante O.C: Alex Rodríguez",
-                    "OMO_intro": "PRO2501303 – Tarea 02 - Para emitir factura:",
+                    "validation_intro": "",
+                    "validation_observations": "",
+                    "OMO_intro": "PRO2501303-02 - Factura:",
                     "OMO_observations": "Proyecto 70249975 – Soporte operación externo\nCENTRO COSTE: SAU – Centro: tecnología\nPartida: 07.09.02.07\nSolicitante O.C: Alex Rodríguez"
                 }
             ]
@@ -125,26 +125,26 @@
             ]
         },
         {
-            "customer_id": "",
-            "customer_name": "",
-            "customer_validation_intro": "",
-            "customer_validation_observations": "",
-            "list_mails_validation": "",
-            "list_mails_OMO": "",
+            "customer_id": "ID en Izertis para el cliente",
+            "customer_name": "Nombre oficial del cliente",
+            "customer_validation_intro": "Introducción del mail enviado a cliente para validación de la facturación",
+            "customer_validation_observations": "Observaciones al final del mail enviado a cliente para validación de la facturación",
+            "list_mails_validation": "Lista de destinatarios del mail de validación, separados por coma",
+            "list_mails_OMO": "Lista de destinatarios del mail de facturación, separados por coma",
             "projects": [
                 {
-                    "project_id": "",
-                    "project_description": "",
+                    "project_id": "ID del proyecto en Izertis",
+                    "project_description": "Descripción del proyecto",
                     "cost_calculation": "hours|days|fixed",
                     "cost_fixed": 0,
                     "hours_per_day": 8,
-                    "project_navision_code": "",
+                    "project_navision_code": "Código Navision para el proyecto",
                     "is_time_materials": true,
                     "ok_required": true,
-                    "validation_intro": "",
-                    "validation_observations": "",
-                    "OMO_intro": "",
-                    "OMO_observations": ""
+                    "validation_intro": "Texto introductorio a la sección de desglose económico para validación de la facturación",
+                    "validation_observations": "Texto final del desglose económico para validación de la facturación",
+                    "OMO_intro": "Texto introductorio del desglose económico del proyecto para mail de facturación a OMO",
+                    "OMO_observations": "Texto final del desglose económico del proyecto para mail de facturación a OMO"
                 }
             ]
         }
