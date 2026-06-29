@@ -320,7 +320,7 @@ function printValidacio() {
   .fact-content-scroll { overflow: visible; }
 </style>
 </head>
-<body class="${theme}">
+<body class="${theme} print-report">
 <p class="fact-meta-line" style="font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--accent-color);">${title}</p>
 ${metaHtml}
 ${billingEl.innerHTML}
@@ -1000,7 +1000,7 @@ function printOMO() {
   .fact-content-scroll { overflow: visible; }
 </style>
 </head>
-<body class="${theme}">
+<body class="${theme} print-report">
 <p class="fact-meta-line" style="font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;padding-bottom:0.5rem;border-bottom:2px solid var(--accent-color);">${title}</p>
 ${metaHtml}
 ${billingEl.innerHTML}

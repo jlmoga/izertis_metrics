@@ -47,8 +47,8 @@ body.theme-dark ::-webkit-scrollbar-thumb:hover {
 
 /* --- Impressió -------------------------------------------------------------- */
 @media print {
-    body * { visibility: hidden; }
-    body::after {
+    body:not(.print-report) * { visibility: hidden; }
+    body:not(.print-report)::after {
         content: "Si us plau, utilitza els botons d'impressió de l'aplicació per generar un informe correcte.";
         visibility: visible;
         position: absolute;
