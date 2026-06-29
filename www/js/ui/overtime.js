@@ -7,6 +7,7 @@ import { t } from '../config/i18n.js';
 import { parseDateToTime, isDateInRange, isRejectedStatus, usersForClients } from '../utils.js';
 
 const overtimeTableBody = document.getElementById('overtimeTableBody');
+const overtimeTableFoot = document.getElementById('overtimeTableFoot');
 const filterAbsUsers = document.getElementById('filter-abs-users');
 const filterAbsClients = document.getElementById('filter-abs-clients');
 const filterAbsDateStart = document.getElementById('filter-abs-date-start');
@@ -86,6 +87,7 @@ export function getConflictAbsenceKeys() {
 export function renderOvertimeTable() {
     if (!overtimeTableBody) return;
     overtimeTableBody.innerHTML = '';
+    if (overtimeTableFoot) overtimeTableFoot.innerHTML = '';
 
     if (!state.currentData.length || !state.absData.length) {
         overtimeTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgOvertimeNeedsBoth')}</td></tr>`;
@@ -118,7 +120,13 @@ export function renderOvertimeTable() {
         return 0;
     });
 
+    let totalImpHours = 0;
+    let totalAbsHours = 0;
+
     conflicts.forEach(c => {
+        totalImpHours += c.impHours;
+        totalAbsHours += c.absHours;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${c.date}</td>
@@ -130,6 +138,20 @@ export function renderOvertimeTable() {
         `;
         overtimeTableBody.appendChild(tr);
     });
+
+    if (overtimeTableFoot) {
+        const trFoot = document.createElement('tr');
+        trFoot.style.fontWeight = 'bold';
+        trFoot.style.borderTop = '2px solid var(--border-color)';
+        trFoot.style.background = 'var(--table-header-bg)';
+        trFoot.innerHTML = `
+            <td colspan="3" style="text-align:right; font-weight:600; padding: 0.65rem 1rem;">Total:</td>
+            <td class="number-col" style="font-weight:700; padding: 0.65rem 1rem;">${totalImpHours.toFixed(2)}h</td>
+            <td class="number-col" style="font-weight:700; padding: 0.65rem 1rem;">${totalAbsHours.toFixed(2)}h</td>
+            <td style="padding: 0.65rem 1rem;"></td>
+        `;
+        overtimeTableFoot.appendChild(trFoot);
+    }
 }
 
 export function setupOvertimeSortHandlers() {

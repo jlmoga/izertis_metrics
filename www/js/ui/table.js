@@ -18,6 +18,7 @@ function buildAbsConflictKeys() {
 
 const tableBody = document.getElementById('tableBody');
 const absTableBody = document.getElementById('absTableBody');
+const absTableFoot = document.getElementById('absTableFoot');
 
 export function renderTable(data) {
     tableBody.innerHTML = '';
@@ -465,10 +466,36 @@ function renderAbsLevel(rows, groupByArray, level, tbody, parentGroupId, counter
     });
 }
 
+function renderAbsFoot(data) {
+    if (!absTableFoot) return;
+    absTableFoot.innerHTML = '';
+    if (!data || data.length === 0) return;
+
+    let totalDays = 0;
+    let totalHours = 0;
+    data.forEach(row => {
+        totalDays += parseFloat(row.days) || 0;
+        totalHours += row.hours || 0;
+    });
+
+    const trFoot = document.createElement('tr');
+    trFoot.style.fontWeight = 'bold';
+    trFoot.style.borderTop = '2px solid var(--border-color)';
+    trFoot.style.background = 'var(--table-header-bg)';
+    trFoot.innerHTML = `
+        <td colspan="5" style="text-align:right; font-weight:600; padding: 0.65rem 1rem;">Total:</td>
+        <td class="number-col" style="font-weight:700; padding: 0.65rem 1rem;">${Number.isInteger(totalDays) ? totalDays : totalDays.toFixed(2)}</td>
+        <td class="number-col" style="font-weight:700; padding: 0.65rem 1rem;">${totalHours.toFixed(2)}h</td>
+        <td style="padding: 0.65rem 1rem;"></td>
+    `;
+    absTableFoot.appendChild(trFoot);
+}
+
 export function renderGroupedAbsTable(data, groupByArray, startCollapsed = false) {
     if (!absTableBody) return;
     buildAbsConflictKeys();
     absTableBody.innerHTML = '';
+    renderAbsFoot(data);
     renderAbsLevel(data, groupByArray, 1, absTableBody, null, { n: 0 });
     if (startCollapsed) {
         absTableBody.querySelectorAll('.group-header-row').forEach(h => h.classList.add('collapsed'));
@@ -479,5 +506,6 @@ export function renderGroupedAbsTable(data, groupByArray, startCollapsed = false
 export function renderAbsTable(data) {
     buildAbsConflictKeys();
     absTableBody.innerHTML = '';
+    renderAbsFoot(data);
     data.forEach(row => absTableBody.appendChild(renderAbsDataRow(row, null)));
 }
