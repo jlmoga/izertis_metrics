@@ -698,22 +698,25 @@
                                 </div>
                                 <button id="fact-btn-mail-validacio" class="btn-secondary btn-print fact-validacio-only"><i class="ph ph-envelope"></i> <span data-i18n="btnMailValidacio">Preparar mail</span></button>
                                 <button id="fact-btn-mail-omo" class="btn-secondary btn-print fact-omo-only hidden"><i class="ph ph-envelope"></i> <span data-i18n="btnMailValidacio">Preparar mail</span></button>
-                            </div>
-                            <!-- Grup impressió Validació -->
-                            <div class="fact-print-group fact-validacio-only">
-                                <label class="fact-check-label">
-                                    <input type="checkbox" id="fact-check-send-text">
-                                    <span data-i18n="factCheckSendText">Text per enviar</span>
-                                </label>
-                                <button id="fact-btn-print-validacio" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
-                            </div>
-                            <!-- Grup impressió OMO -->
-                            <div class="fact-print-group fact-omo-only hidden">
-                                <label class="fact-check-label">
-                                    <input type="checkbox" id="fact-check-omo-send-text">
-                                    <span data-i18n="factCheckSendText">Text per enviar</span>
-                                </label>
-                                <button id="fact-btn-print-omo" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
+                                <button id="fact-btn-copy-validacio" class="btn-secondary btn-print fact-validacio-only"><i class="ph ph-copy"></i> <span data-i18n="btnCopy">Copiar</span></button>
+                                <button id="fact-btn-copy-omo" class="btn-secondary btn-print fact-omo-only hidden"><i class="ph ph-copy"></i> <span data-i18n="btnCopy">Copiar</span></button>
+                                
+                                <!-- Grup impressió Validació -->
+                                <div class="fact-print-group fact-validacio-only">
+                                    <label class="fact-check-label">
+                                        <input type="checkbox" id="fact-check-send-text">
+                                        <span data-i18n="factCheckSendText">Text per enviar</span>
+                                    </label>
+                                    <button id="fact-btn-print-validacio" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
+                                </div>
+                                <!-- Grup impressió OMO -->
+                                <div class="fact-print-group fact-omo-only hidden">
+                                    <label class="fact-check-label">
+                                        <input type="checkbox" id="fact-check-omo-send-text">
+                                        <span data-i18n="factCheckSendText">Text per enviar</span>
+                                    </label>
+                                    <button id="fact-btn-print-omo" class="btn-secondary btn-print"><i class="ph ph-printer"></i> <span data-i18n="btnPrint">Imprimir Informe</span></button>
+                                </div>
                             </div>
                         </div>
                         <p class="fact-mail-disclaimer" data-i18n="factMailDisclaimer">Mentre Izertis Metrics no estigui incorporat a l'entorn corporatiu, el cos del correu s'enviarà en mode text. Si vols presentar les taules de facturació en mode HTML, les hauràs de copiar manualment al correu.</p>
@@ -742,9 +745,11 @@
                                         <p class="fact-mail-disclaimer fact-conflicts-disclaimer" data-i18n="factConflictsDisclaimer">La detecció de conflictes utilitza un llindar global de 10h diàries, ja que l'aplicació no disposa de l'horari individual de cada tècnic. Els dies amb còmput d'imputació + absència inferior a 10h no es mostren com a conflicte.</p>
                                     </div>
                                     <div id="fact-validation-meta-before"></div>
-                                    <div id="fact-validation-send-text"></div>
-                                    <div id="fact-billing-tables"></div>
-                                    <div id="fact-validation-meta-after"></div>
+                                    <div class="fact-send-area-container">
+                                        <div id="fact-validation-send-text"></div>
+                                        <div id="fact-billing-tables"></div>
+                                        <div id="fact-validation-meta-after"></div>
+                                    </div>
                                 </div>
                             </div>
                             <div id="fact-panel-ordres" class="fact-panel hidden">
@@ -771,9 +776,11 @@
                                         <p class="fact-mail-disclaimer fact-conflicts-disclaimer" data-i18n="factConflictsDisclaimer">La detecció de conflictes utilitza un llindar global de 10h diàries, ja que l'aplicació no disposa de l'horari individual de cada tècnic. Els dies amb còmput d'imputació + absència inferior a 10h no es mostren com a conflicte.</p>
                                     </div>
                                     <div id="fact-omo-meta-before"></div>
-                                    <div id="fact-omo-send-text"></div>
-                                    <div id="fact-omo-tables"></div>
-                                    <div id="fact-omo-meta-after"></div>
+                                    <div class="fact-send-area-container">
+                                        <div id="fact-omo-send-text"></div>
+                                        <div id="fact-omo-tables"></div>
+                                        <div id="fact-omo-meta-after"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -58,6 +58,7 @@ export function setupFacturacio() {
             factClientLang = clientLangSelect.value;
             localStorage.setItem('moga_fact_lang', factClientLang);
             renderFactTable(); renderOrdresTable();
+            syncToolbarTexts();
         });
     }
 
@@ -223,6 +224,24 @@ export function setupFacturacio() {
             localStorage.setItem('fact_filters_minimized', minimized);
         });
     }
+
+    // Copiar validació
+    const btnCopyVal = document.getElementById('fact-btn-copy-validacio');
+    if (btnCopyVal) btnCopyVal.addEventListener('click', copyValidacio);
+
+    // Copiar OMO
+    const btnCopyOMO = document.getElementById('fact-btn-copy-omo');
+    if (btnCopyOMO) btnCopyOMO.addEventListener('click', copyOMO);
+
+    // Escolta de canvis a Text per enviar
+    const checkSendText = document.getElementById('fact-check-send-text');
+    if (checkSendText) checkSendText.addEventListener('change', () => updateSendTextOnlyUI(false));
+
+    const checkOmoSendText = document.getElementById('fact-check-omo-send-text');
+    if (checkOmoSendText) checkOmoSendText.addEventListener('change', () => updateSendTextOnlyUI(true));
+
+    // Inicialització de la interfície pels checks de text
+    syncToolbarTexts();
 }
 
 function htmlToPlainText(html) {
@@ -300,9 +319,12 @@ function printValidacio() {
     const title = titleEl?.textContent?.trim() || '';
     const theme = document.body.className;
 
+    const headerEl     = document.querySelector('#fact-panel-validacio .fact-panel-header');
+    const headerHtml   = sendTextOnly ? '' : (headerEl?.outerHTML || '');
+
     const metaHtml = sendTextOnly
         ? (sendTextEl?.innerHTML || '')
-        : (beforeEl?.innerHTML || '') + (sendTextEl?.innerHTML || '');
+        : headerHtml + (beforeEl?.innerHTML || '') + (sendTextEl?.innerHTML || '');
 
     const html = `<!DOCTYPE html>
 <html lang="${document.documentElement.lang}">
@@ -980,9 +1002,12 @@ function printOMO() {
     const title = `${tForLang(factClientLang, 'factTitleOrdres')} — ${titleEl?.textContent?.trim() || ''}`;
     const theme = document.body.className;
 
+    const headerEl     = document.querySelector('#fact-panel-ordres .fact-panel-header');
+    const headerHtml   = sendTextOnly ? '' : (headerEl?.outerHTML || '');
+
     const metaHtml = sendTextOnly
         ? (sendTextEl?.innerHTML || '')
-        : (beforeEl?.innerHTML || '') + (sendTextEl?.innerHTML || '');
+        : headerHtml + (beforeEl?.innerHTML || '') + (sendTextEl?.innerHTML || '');
 
     const html = `<!DOCTYPE html>
 <html lang="${document.documentElement.lang}">
@@ -1049,4 +1074,131 @@ async function mailOMO() {
     } else {
         window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
+}
+
+async function copyValidacio() {
+    const btn = document.getElementById('fact-btn-copy-validacio');
+    const sendTextOnly = document.getElementById('fact-check-send-text')?.checked ?? false;
+    const beforeEl   = document.getElementById('fact-validation-meta-before');
+    const sendTextEl = document.getElementById('fact-validation-send-text');
+    const billingEl  = document.getElementById('fact-billing-tables');
+    const afterEl    = document.getElementById('fact-validation-meta-after');
+    const headerEl   = document.querySelector('#fact-panel-validacio .fact-panel-header');
+    
+    if (!billingEl) return;
+    
+    let html = '';
+    if (sendTextOnly) {
+        html = (sendTextEl?.innerHTML || '') + 
+               billingEl.innerHTML + 
+               (afterEl?.innerHTML || '');
+    } else {
+        html = (headerEl?.outerHTML || '') +
+               (beforeEl?.innerHTML || '') + 
+               (sendTextEl?.innerHTML || '') + 
+               billingEl.innerHTML + 
+               (afterEl?.innerHTML || '');
+    }
+    
+    await copyHtmlToClipboard(html);
+    showCopyFeedback(btn);
+}
+
+async function copyOMO() {
+    const btn = document.getElementById('fact-btn-copy-omo');
+    const sendTextOnly = document.getElementById('fact-check-omo-send-text')?.checked ?? false;
+    const beforeEl   = document.getElementById('fact-omo-meta-before');
+    const sendTextEl = document.getElementById('fact-omo-send-text');
+    const billingEl  = document.getElementById('fact-omo-tables');
+    const afterEl    = document.getElementById('fact-omo-meta-after');
+    const headerEl   = document.querySelector('#fact-panel-ordres .fact-panel-header');
+    
+    if (!billingEl) return;
+    
+    let html = '';
+    if (sendTextOnly) {
+        html = (sendTextEl?.innerHTML || '') + 
+               billingEl.innerHTML + 
+               (afterEl?.innerHTML || '');
+    } else {
+        html = (headerEl?.outerHTML || '') +
+               (beforeEl?.innerHTML || '') + 
+               (sendTextEl?.innerHTML || '') + 
+               billingEl.innerHTML + 
+               (afterEl?.innerHTML || '');
+    }
+    
+    await copyHtmlToClipboard(html);
+    showCopyFeedback(btn);
+}
+
+function showCopyFeedback(btn) {
+    if (!btn) return;
+    const icon = btn.querySelector('i');
+    const span = btn.querySelector('span');
+    
+    const prevIconClass = icon ? icon.className : '';
+    const prevText = span ? span.textContent : '';
+    
+    if (icon) icon.className = 'ph ph-check';
+    if (span) span.textContent = tForLang(factClientLang, 'msgCopied') || 'Copiat!';
+    btn.style.borderColor = 'var(--success-color)';
+    btn.style.color = 'var(--success-color)';
+    
+    setTimeout(() => {
+        if (icon) icon.className = prevIconClass;
+        if (span) span.textContent = prevText;
+        btn.style.borderColor = '';
+        btn.style.color = '';
+    }, 1500);
+}
+
+function updateSendTextOnlyUI(isOMO) {
+    const checkId = isOMO ? 'fact-check-omo-send-text' : 'fact-check-send-text';
+    const checkEl = document.getElementById(checkId);
+    const panelId = isOMO ? 'fact-panel-ordres' : 'fact-panel-validacio';
+    const panelEl = document.getElementById(panelId);
+    
+    const copyBtnId = isOMO ? 'fact-btn-copy-omo' : 'fact-btn-copy-validacio';
+    const copyBtn = document.getElementById(copyBtnId);
+    
+    const printBtnId = isOMO ? 'fact-btn-print-omo' : 'fact-btn-print-validacio';
+    const printBtn = document.getElementById(printBtnId);
+
+    if (!checkEl) return;
+    const active = checkEl.checked;
+    
+    if (panelEl) {
+        if (active) {
+            panelEl.classList.add('fact-send-text-only-active');
+        } else {
+            panelEl.classList.remove('fact-send-text-only-active');
+        }
+    }
+    
+    if (copyBtn) {
+        const icon = copyBtn.querySelector('i');
+        const span = copyBtn.querySelector('span');
+        if (active) {
+            if (icon) icon.className = 'ph ph-text-aa';
+            if (span) span.textContent = tForLang(factClientLang, 'btnCopyText') || 'Copiar text';
+        } else {
+            if (icon) icon.className = 'ph ph-copy';
+            if (span) span.textContent = tForLang(factClientLang, 'btnCopy') || 'Copiar';
+        }
+    }
+
+    if (printBtn) {
+        const span = printBtn.querySelector('span');
+        if (active) {
+            if (span) span.textContent = tForLang(factClientLang, 'btnPrintText') || 'Imprimir text';
+        } else {
+            if (span) span.textContent = tForLang(factClientLang, 'btnPrint') || 'Imprimir Informe';
+        }
+    }
+}
+
+function syncToolbarTexts() {
+    updateSendTextOnlyUI(false);
+    updateSendTextOnlyUI(true);
 }

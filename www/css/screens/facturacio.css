@@ -347,3 +347,27 @@
     white-space: pre-wrap;
 }
 
+/* Estil per al contenidor que agrupa tot el text/tables a enviar */
+.fact-send-area-container {
+    transition: border 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease, background 0.3s ease;
+    border: 2px dashed transparent;
+    border-radius: 6px;
+    padding: 0;
+}
+
+/* Identificació gràfica del mode "només text a enviar" (active=true) */
+.fact-send-text-only-active #fact-validation-meta-before,
+.fact-send-text-only-active #fact-omo-meta-before {
+    opacity: 0.25;
+    filter: grayscale(90%);
+    pointer-events: none;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.fact-send-text-only-active .fact-send-area-container {
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 15px rgba(0, 120, 212, 0.12);
+    padding: 1rem;
+    background: var(--card-bg);
+}
+
