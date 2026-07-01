@@ -462,11 +462,11 @@ function updateConflictsCard(el, client, startTs, endTs) {
     if (count === 0) {
         el.setAttribute('data-i18n', 'factNoConflicts');
         el.textContent = t('factNoConflicts');
-        if (card) card.classList.remove('stat-card--clickable');
+        if (card) card.classList.remove('stat-card--clickable', 'danger');
     } else {
         el.removeAttribute('data-i18n');
         el.textContent = `${count} ${t('factConflictsSuffix')}`;
-        if (card) card.classList.add('stat-card--clickable');
+        if (card) card.classList.add('stat-card--clickable', 'danger');
     }
 }
 

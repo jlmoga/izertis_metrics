@@ -4,7 +4,7 @@
 
 import { state } from '../state.js';
 import { t } from '../config/i18n.js';
-import { parseDateToTime, isDateInRange, isRejectedStatus, usersForClients } from '../utils.js';
+import { parseDateToTime, isRejectedStatus, usersForClients } from '../utils.js';
 
 const overtimeTableBody = document.getElementById('overtimeTableBody');
 const overtimeTableFoot = document.getElementById('overtimeTableFoot');
@@ -20,6 +20,25 @@ export function getClientAllowedUsers() {
     const sel = selRaw.includes('ALL') ? [] : selRaw;
     if (sel.length === 0) return null;
     return usersForClients(state.currentData, state.absData, sel);
+}
+
+// Fi efectiu (en temps) d'una absència. La data de finalització importada de vegades no
+// reflecteix la durada real (ve buida o igual a la d'inici), de manera que confiar-hi
+// deixaria fora dies coberts per l'absència. Per això prenem el màxim entre la dateEnd
+// desada i el fi derivat de `days` (dies LABORALS a partir de l'inici, saltant caps de setmana).
+function absenceEndTime(abs) {
+    const startTime = parseDateToTime(abs.dateStart);
+    if (!startTime) return 0;
+    const endParsed = parseDateToTime(abs.dateEnd);
+    const days = Math.max(1, Math.ceil(parseFloat(abs.days) || 1));
+    const d = new Date(startTime);
+    let counted = 1;
+    while (counted < days) {
+        d.setDate(d.getDate() + 1);
+        const dow = d.getDay();
+        if (dow !== 0 && dow !== 6) counted++;   // 0=diumenge, 6=dissabte
+    }
+    return Math.max(endParsed || 0, d.getTime());
 }
 
 export function getConflicts(data, absData, userFilter = [], start = null, end = null, allowedUsers = null) {
@@ -44,8 +63,11 @@ export function getConflicts(data, absData, userFilter = [], start = null, end =
         const absSources = [];
         const absKeys = [];
 
+        const targetTime = parseDateToTime(dateStr);
         absData.filter(a => a.user === user && !isRejectedStatus(a.status)).forEach(abs => {
-            if (isDateInRange(dateStr, abs.dateStart, abs.dateEnd)) {
+            const startTime = parseDateToTime(abs.dateStart);
+            const endTime   = absenceEndTime(abs);
+            if (startTime && targetTime >= startTime && targetTime <= endTime) {
                 const dailyHours = (parseFloat(abs.days) > 1)
                     ? (parseFloat(abs.hours) / parseFloat(abs.days))
                     : parseFloat(abs.hours);

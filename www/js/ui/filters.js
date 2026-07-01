@@ -210,16 +210,20 @@ export function applyAbsFilters() {
         return true;
     });
 
-    // Reconstruir selectors dinàmics
-    const rebuildDynamic = (selectEl, allData, field) => {
-        const currentSelected = Array.from(selectEl.selectedOptions).map(o => o.value);
-        const vals = [...new Set(allData.map(r => r[field]).filter(Boolean))].sort();
-        rebuildSelect(selectEl, vals, currentSelected);
-    };
-    rebuildDynamic(filterAbsUsers, state.absData, 'user');
-    rebuildDynamic(filterAbsStatus, state.absData, 'status');
+    // Reconstruir selectors dinàmics amb filtrat en cascada (com a imputacions):
+    // cada selector mostra les opcions compatibles amb la resta de filtres actius,
+    // ignorant la seva pròpia selecció. Així, en triar un client, la llista de
+    // tècnics (i d'estats) s'adapta a les absències d'aquell client.
+    const getAbsOptionsFor = (ignore) => state.absData.filter(row => {
+        if (ignore !== 'user'   && selectedUsers.length      > 0 && !selectedUsers.includes(row.user)) return false;
+        if (ignore !== 'status' && selectedStatus.length     > 0 && !selectedStatus.includes(row.status)) return false;
+        if (ignore !== 'client' && selectedAbsClients.length > 0 && !selectedAbsClients.includes(getAbsClient(row))) return false;
+        return true;
+    });
+    rebuildSelect(filterAbsUsers, [...new Set(getAbsOptionsFor('user').map(r => r.user).filter(Boolean))].sort(), selectedUsers);
+    rebuildSelect(filterAbsStatus, [...new Set(getAbsOptionsFor('status').map(r => r.status).filter(Boolean))].sort(), selectedStatus);
     if (filterAbsClients) {
-        const allAbsClients = [...new Set(state.absData.map(r => getAbsClient(r)))].sort();
+        const allAbsClients = [...new Set(getAbsOptionsFor('client').map(r => getAbsClient(r)))].sort();
         rebuildSelect(filterAbsClients, allAbsClients, selectedAbsClients);
     }
 
