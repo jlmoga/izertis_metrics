@@ -40,6 +40,38 @@ export function generatePrintReport(type) {
           }];
 
     const locale = currentLang === 'es' ? 'es-ES' : currentLang === 'en' ? 'en-GB' : 'ca-ES';
+
+    // Filtres aplicats a la vista (apareixen sota el títol, abans dels quadres de valors).
+    const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const fmtDate = (v) => {
+        if (!v) return '';
+        const [y, m, d] = v.split('-');
+        return (y && m && d) ? new Date(+y, +m - 1, +d).toLocaleDateString(locale) : v;
+    };
+    const selVals = (id) => {
+        const sel = document.getElementById(id);
+        if (!sel) return t('optAll');
+        const vals = Array.from(sel.selectedOptions).map(o => o.value).filter(v => v !== 'ALL');
+        return vals.length ? vals.join(', ') : t('optAll');
+    };
+    const dStart = fmtDate(document.getElementById(isAbs ? 'filter-abs-date-start' : 'filter-date-start')?.value);
+    const dEnd   = fmtDate(document.getElementById(isAbs ? 'filter-abs-date-end'   : 'filter-date-end')?.value);
+    const period = (dStart || dEnd) ? `${dStart || '…'} – ${dEnd || '…'}` : t('optAll');
+    const filters = isAbs
+        ? [
+            { label: t('printPeriod'),  value: period },
+            { label: t('lblClients'),   value: selVals('filter-abs-clients') },
+            { label: t('lblUsers'),     value: selVals('filter-abs-users') },
+            { label: t('lblAbsStatus'), value: selVals('filter-abs-status') }
+          ]
+        : [
+            { label: t('printPeriod'),  value: period },
+            { label: t('lblClients'),   value: selVals('filter-clients') },
+            { label: t('lblProjects'),  value: selVals('filter-projects') },
+            { label: t('lblTasks'),     value: selVals('filter-tasks') },
+            { label: t('lblUsers'),     value: selVals('filter-users') }
+          ];
+
     const colsLayout = charts.length > 2 ? 'repeat(3, 1fr)' : '1fr 1fr';
     const colsGap    = charts.length > 2 ? '15px' : '30px';
     const tableSize  = isAbs ? '9pt' : '8pt';
@@ -55,6 +87,12 @@ export function generatePrintReport(type) {
 body { font-family: 'Inter', sans-serif; padding: 40px; color: #1a1a1a; line-height: 1.6; background: #fff; }
 .header { border-bottom: 3px solid #346B84; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
 h1 { margin: 0; color: #346B84; font-size: 24pt; font-weight: 700; }
+.filters-summary { margin-bottom: 30px; padding: 16px 20px; border: 1px solid #eee; border-radius: 12px; background: #f8f9fa; }
+.filters-summary-title { font-size: 9pt; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700; }
+.filters-summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 30px; }
+.filter-item { font-size: 10pt; }
+.filter-item .filter-label { color: #666; font-weight: 600; }
+.filter-item .filter-value { color: #1a1a1a; }
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
 .stat-card { border: 1px solid #eee; padding: 20px; border-radius: 12px; background: #fff; }
 .stat-title { font-size: 9pt; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -88,6 +126,12 @@ tr:nth-child(even) { background: #fafafa; }
 <div class="header">
     <h1>${title}</h1>
     <div style="font-size:10pt;color:#999;">${new Date().toLocaleDateString(locale)}</div>
+</div>
+<div class="filters-summary">
+    <div class="filters-summary-title">${t('printFilters')}</div>
+    <div class="filters-summary-grid">
+        ${filters.map(f => `<div class="filter-item"><span class="filter-label">${esc(f.label)}:</span> <span class="filter-value">${esc(f.value)}</span></div>`).join('')}
+    </div>
 </div>
 <div class="stats-grid">
     ${Object.values(stats).map(s => `<div class="stat-card"><div class="stat-title">${s.label}</div><div class="stat-value">${s.value}</div></div>`).join('')}
