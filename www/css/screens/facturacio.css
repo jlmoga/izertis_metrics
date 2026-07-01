@@ -406,10 +406,35 @@
     font-weight: 600;
 }
 
-.fact-btn-toggle input[type="checkbox"] {
+.fact-btn-toggle input[type="checkbox"],
+.fact-btn-toggle input[type="radio"] {
     position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
     pointer-events: none;
+}
+
+.fact-detail-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Selectors de mode de detall: carbassa tènue per diferenciar-los de la resta de toggles */
+.fact-detail-mode .fact-btn-toggle {
+    background: rgba(230, 126, 34, 0.10);
+    border-color: rgba(230, 126, 34, 0.45);
+    color: #c15b12;
+}
+
+.fact-detail-mode .fact-btn-toggle:hover {
+    border-color: #e67e22;
+    color: #e67e22;
+}
+
+.fact-detail-mode .fact-btn-toggle:has(input:checked) {
+    background: #e67e22;
+    border-color: #e67e22;
+    color: #fff;
 }

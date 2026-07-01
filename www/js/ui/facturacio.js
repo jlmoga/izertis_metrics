@@ -240,8 +240,8 @@ export function setupFacturacio() {
     const checkOmoSendText = document.getElementById('fact-check-omo-send-text');
     if (checkOmoSendText) checkOmoSendText.addEventListener('change', () => updateSendTextOnlyUI(true));
 
-    const checkOmoDetail = document.getElementById('fact-check-omo-detail');
-    if (checkOmoDetail) checkOmoDetail.addEventListener('change', renderOrdresTable);
+    document.querySelectorAll('input[name="fact-omo-detail-mode"]')
+        .forEach(radio => radio.addEventListener('change', renderOrdresTable));
 
     const checkShowTotals = document.getElementById('fact-check-show-totals');
     if (checkShowTotals) checkShowTotals.addEventListener('change', renderFactTable);
@@ -616,7 +616,7 @@ async function renderFactTable() {
         totalTable.appendChild(document.createElement('tbody'));
         totalWrapper.appendChild(totalTable);
         billingTablesEl.appendChild(totalWrapper);
-        renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, true);
+        renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, 'totals');
     }
 
     renderValidationMeta(rows, config, client, factClientLang);
@@ -868,8 +868,8 @@ async function renderOrdresTable() {
             table.appendChild(document.createElement('tbody'));
             wrapper.appendChild(table);
             omoTablesEl.appendChild(wrapper);
-            const showDetail = document.getElementById('fact-check-omo-detail')?.checked ?? true;
-            renderBillingSummary(projectRows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, table, !showDetail);
+            const detailMode = document.querySelector('input[name="fact-omo-detail-mode"]:checked')?.value ?? 'tecnic';
+            renderBillingSummary(projectRows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, table, detailMode);
 
             const obsText = projConf?.OMO_observations?.trim();
             if (obsText) {
@@ -898,7 +898,7 @@ async function renderOrdresTable() {
         totalTable.appendChild(document.createElement('tbody'));
         totalWrapper.appendChild(totalTable);
         omoTablesEl.appendChild(totalWrapper);
-        renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, true);
+        renderBillingSummary(rows, tForLang(factClientLang, 'factColRate'), factClientLang, projectCostCalc, customerName, totalTable, 'totals');
     }
 
     renderOMOMeta(rows, config, client);

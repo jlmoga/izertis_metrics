@@ -699,10 +699,20 @@
                                         <input type="checkbox" id="fact-check-omo-show-totals" checked>
                                         <span data-i18n="factCheckShowTotals">Totals en aquest període de facturació</span>
                                     </label>
-                                    <label class="fact-btn-toggle">
-                                        <input type="checkbox" id="fact-check-omo-detail" checked>
-                                        <span data-i18n="factCheckDetail">Detall</span>
-                                    </label>
+                                    <div class="fact-detail-mode" role="radiogroup">
+                                        <label class="fact-btn-toggle">
+                                            <input type="radio" name="fact-omo-detail-mode" value="totals">
+                                            <span data-i18n="factDetailModeTotals">Sense detall</span>
+                                        </label>
+                                        <label class="fact-btn-toggle">
+                                            <input type="radio" name="fact-omo-detail-mode" value="tecnic" checked>
+                                            <span data-i18n="factDetailModeTech">Detall per tècnic</span>
+                                        </label>
+                                        <label class="fact-btn-toggle">
+                                            <input type="radio" name="fact-omo-detail-mode" value="tarifa">
+                                            <span data-i18n="factDetailModeRate">Detall per tarifa</span>
+                                        </label>
+                                    </div>
                                     <label class="fact-btn-toggle">
                                         <input type="checkbox" id="fact-check-omo-send-text">
                                         <span data-i18n="factCheckSendText">Text per enviar</span>

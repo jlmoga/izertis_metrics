@@ -146,10 +146,13 @@ export function renderGroupedTable(data, groupByArray, startCollapsed = false) {
 }
 
 
-export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {}, customerName = null, tableEl = null, totalsOnly = false) {
+export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {}, customerName = null, tableEl = null, detailMode = 'tecnic') {
     const summaryTable = tableEl ?? document.getElementById('summaryTable');
     const summaryBody  = summaryTable?.querySelector('tbody');
     if (!summaryTable || !summaryBody) return;
+
+    // Modes de detall: 'tecnic' (per tècnic+tarifa), 'tarifa' (només per tarifa), 'totals' (només projecte)
+    const totalsOnly = detailMode === 'totals';
 
     const tl    = (key) => tForLang(lang, key);
     const fmt2  = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -424,6 +427,38 @@ export function renderBillingSummary(data, rateHeader, lang, projectCostCalc = {
                     summaryBody.appendChild(userRow);
                 });
             };
+
+            // Renderitza les files agrupades només per tarifa (sense noms de tècnic):
+            // se sumen tots els registres que comparteixen la mateixa tarifa.
+            const renderRates = (rows, parentId, indent) => {
+                const rates = {}, order = [];
+                rows.forEach(r => {
+                    const rt = r.rate || 0;
+                    if (!rates[rt]) { rates[rt] = { rate: rt, hours: 0, amount: 0, rows: [] }; order.push(rt); }
+                    rates[rt].hours  += r.hours || 0;
+                    rates[rt].amount += r._importedCalculated || 0;
+                    rates[rt].rows.push(r);
+                });
+                order.sort((a, b) => rates[b].hours - rates[a].hours);
+                order.forEach(rt => {
+                    const g     = rates[rt];
+                    const gDays = isDays ? (g.hours / hoursPerDay) : 0;
+                    const label = isFixed ? tl('factRateFixedLabel') : fmt2(g.rate) + ' €/h';
+                    const rateRow = document.createElement('tr');
+                    rateRow.dataset.parentGroup = parentId;
+                    rateRow.innerHTML = `
+                        <td style="padding-left:${indent}">${label}</td>
+                        <td class="number-col">${isFixed ? '-' : fmt2(g.rate) + ' €/h'}</td>
+                        ${monthlyCells(aggregate(g.rows, projectCostCalc), g.hours, isFixed ? null : g.amount, gDays, isFixed)}`;
+                    summaryBody.appendChild(rateRow);
+                });
+            };
+
+            // Mode 'tarifa': agrupa directament per tarifa sota el projecte (sense nivell de tasca).
+            if (detailMode === 'tarifa') {
+                renderRates(p.rows, projectId, '3.2rem');
+                return;
+            }
 
             // Si el projecte té més d'una tasca informada al període, afegeix un nivell de
             // desglós per tasca (projecte → tasca → tècnic); si no, tècnics directes.
