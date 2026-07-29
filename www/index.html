@@ -498,7 +498,7 @@
                             </div>
                         </div>
                     </div>
-                    <p class="fact-mail-disclaimer" data-i18n="absConflictDisclaimer">Els tècnics poden tenir horaris variables: jornada fixa de 8h diàries; o bé 8,5h de dilluns a dijous i 6h els divendres. Si fan horari estacional, treballen 8,75h de dilluns a dijous i 6h els divendres la resta de l'any, i 7h diàries durant juliol i agost. Com que l'aplicació no disposa d'informació d'horari individualitzada per tècnic, la detecció de conflictes utilitza un llindar global de 10h diàries (el cas més exigent, 8,75h, més un marge de 2h). Els dies amb còmput d'imputació + absència inferior a 10h no es mostren com a conflicte.</p>
+                    <p class="fact-mail-disclaimer" data-i18n="absConflictDisclaimer">Els tècnics poden tenir horaris variables: jornada fixa de 8h diàries; o bé 8,5h de dilluns a dijous i 6h els divendres. Si fan horari estacional, treballen 8,75h de dilluns a dijous i 6h els divendres la resta de l'any, i 7h diàries durant juliol i agost. Com que l'aplicació no disposa d'informació d'horari individualitzada per tècnic, la detecció de conflictes utilitza un llindar global de 10h diàries (el cas més exigent, 8,75h, més un marge de 2h). Els dies amb còmput d'imputació + absència inferior a 10h no es mostren com a conflicte. Addicionalment, es marquen com a "falta d'imputació" els dies laborables (dilluns a divendres) en què un tècnic no té ni imputacions ni absències, o bé el còmput d'imputació + absència no arriba a 6h.</p>
 
                     <div class="abs-dashboard-grid">
                         <section class="charts-section" id="abs-charts-section">
@@ -564,10 +564,23 @@
                             <span class="stats-row-toggle"><i class="ph ph-caret-up"></i></span>
                         </div>
                         <div class="stats-row-body">
+                            <div class="overtime-legend">
+                                <label class="overtime-legend-item">
+                                    <input type="checkbox" id="overtime-filter-overwork" checked>
+                                    <span class="badge badge-danger" data-i18n="overtimeTypeOverwork">CONFLICTE JORNADA</span>
+                                    <span data-i18n="overtimeLegendOverworkDesc">la suma d'imputació + absència d'un dia supera les 10 hores.</span>
+                                </label>
+                                <label class="overtime-legend-item">
+                                    <input type="checkbox" id="overtime-filter-missing" checked>
+                                    <span class="badge badge-warning" data-i18n="overtimeTypeMissingImputation">FALTA D'IMPUTACIÓ</span>
+                                    <span data-i18n="overtimeLegendMissingDesc">un dia laborable (dl-dv) sense imputació ni absència, o amb un còmput d'imputació + absència inferior a 6 hores (només es té en compte si el tècnic ha tingut alguna activitat dins el període filtrat).</span>
+                                </label>
+                            </div>
                             <div class="table-container" style="margin-bottom: 3rem;">
                                 <table id="overtimeTable">
                                     <thead>
                                         <tr>
+                                            <th data-i18n="colOverType">TIPUS CONFLICTE</th>
                                             <th class="sortable" data-sort-overtime="date"><span data-i18n="colDate">DATA</span> <i class="ph ph-caret-up sort-icon"></i></th>
                                             <th data-i18n="colOverAbsOrigin">ORIGEN ABSÈNCIA</th>
                                             <th class="sortable" data-sort-overtime="user"><span data-i18n="colUser">TÈCNIC</span> <i class="ph ph-caret-up sort-icon"></i></th>

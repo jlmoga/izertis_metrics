@@ -26,7 +26,7 @@ import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandl
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
 import { updateChart } from './ui/charts.js';
-import { renderOvertimeTable, setupOvertimeSortHandlers } from './ui/overtime.js';
+import { renderOvertimeTable, setupOvertimeSortHandlers, setupOvertimeTypeFilterHandlers } from './ui/overtime.js';
 import { updateHomeDashboard, setupEvoExport } from './ui/home.js';
 import { generatePrintReport } from './ui/print.js';
 import { setupFacturacio } from './ui/facturacio.js';
@@ -101,6 +101,7 @@ initDefaultDates();
 setupImpSortHandlers();
 setupAbsSortHandlers();
 setupOvertimeSortHandlers();
+setupOvertimeTypeFilterHandlers();
 setupFilterHandlers();
 setupAbsFilterHandlers();
 setupFilterToggles();

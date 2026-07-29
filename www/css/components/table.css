@@ -246,6 +246,7 @@ body.theme-light .month-group-end       { border-right-color: rgba(0, 120, 212, 
     font-size: 0.72rem;
     font-weight: 600;
     display: inline-block;
+    white-space: nowrap;
 }
 
 .badge-yes {
@@ -260,6 +261,18 @@ body.theme-light .month-group-end       { border-right-color: rgba(0, 120, 212, 
     border: 1px solid #f5b7ba;
 }
 
+.badge-danger {
+    background: #fde7e9;
+    color: #d13438;
+    border: 1px solid #f5b7ba;
+}
+
+.badge-warning {
+    background: #fff4ce;
+    color: #8a6d00;
+    border: 1px solid #f2d98c;
+}
+
 body.theme-dark .badge-yes {
     background: rgba(107, 183, 0, 0.15);
     color: #6bb700;
@@ -270,4 +283,40 @@ body.theme-dark .badge-no {
     background: rgba(241, 112, 123, 0.15);
     color: #f1707b;
     border-color: rgba(241, 112, 123, 0.3);
+}
+
+body.theme-dark .badge-danger {
+    background: rgba(241, 112, 123, 0.15);
+    color: #f1707b;
+    border-color: rgba(241, 112, 123, 0.3);
+}
+
+body.theme-dark .badge-warning {
+    background: rgba(255, 185, 0, 0.15);
+    color: #ffb900;
+    border-color: rgba(255, 185, 0, 0.3);
+}
+
+/* --- Llegenda de tipus de conflicte (abans de la taula de conflictes) ------- */
+.overtime-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1.5rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.85rem;
+}
+
+.overtime-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.overtime-legend-item input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--accent-color);
 }

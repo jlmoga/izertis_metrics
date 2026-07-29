@@ -8,7 +8,7 @@ import { parseDateToTime, formatCurrency, absNameKey, buildUserClientMap } from 
 import { sortData, sortAbsData } from './sort.js';
 import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable } from './table.js';
 import { updateChart, updateAbsCharts } from './charts.js';
-import { renderOvertimeTable, getConflicts, getClientAllowedUsers } from './overtime.js';
+import { renderOvertimeTable, getConflicts, getMissingImputationConflicts, getClientAllowedUsers } from './overtime.js';
 import { updateHomeDashboard } from './home.js';
 
 // --- DOM refs imputacions ---
@@ -535,19 +535,23 @@ export function setupExportAbsXlsx() {
         const endTs    = endRaw   ? parseDateToTime(endRaw)   : null;
 
         const allowedUsers = getClientAllowedUsers();
-        const conflicts = getConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs, allowedUsers);
+        const conflicts = [
+            ...getConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs, allowedUsers),
+            ...getMissingImputationConflicts(state.currentData, state.absData, selectedUsers, startTs, endTs, allowedUsers)
+        ];
         const ovHeaders = [
-            t('xlsxOvDate'), t('xlsxOvAbsOrigin'), t('xlsxOvUser'),
+            t('colOverType'), t('xlsxOvDate'), t('xlsxOvAbsOrigin'), t('xlsxOvUser'),
             t('xlsxOvImpHours'), t('xlsxOvAbsHours'), t('xlsxOvTotal')
         ];
         const ovRows = conflicts.map(c => [
+            c.type === 'missingImputation' ? t('overtimeTypeMissingImputation') : t('overtimeTypeOverwork'),
             c.date, c.absSource || '', c.user,
             parseFloat(c.impHours.toFixed(2)),
             parseFloat(c.absHours.toFixed(2)),
             parseFloat(c.totalCompute.toFixed(2))
         ]);
         const wsOv = XLSX.utils.aoa_to_sheet([ovHeaders, ...ovRows]);
-        wsOv['!cols'] = [{ wch: 12 }, { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
+        wsOv['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
         XLSX.utils.book_append_sheet(wb, wsOv, t('xlsxSheetOvertime'));
 
         const now = new Date();
