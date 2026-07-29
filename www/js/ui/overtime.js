@@ -191,6 +191,49 @@ export function getConflictAbsenceKeys() {
     return keys;
 }
 
+// Recompte total de conflictes per tipus, amb els MATEIXOS filtres actius que la taula
+// (independent dels checkboxes de mostrar/amagar de la llegenda, que només afecten la taula).
+export function getConflictTypeCounts() {
+    if (!state.currentData.length || !state.absData.length) return { overwork: 0, missingImputation: 0 };
+
+    const selectedUsersRaw = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+    const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
+    const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
+    const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
+    const allowedUsers = getClientAllowedUsers();
+
+    return {
+        overwork: getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers).length,
+        missingImputation: getMissingImputationConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers).length
+    };
+}
+
+// Tècnics amb més conflictes (suma dels dos tipus), amb els MATEIXOS filtres actius que la
+// taula. Retorna, com a màxim, `limit` tècnics ordenats de més a menys conflictes.
+export function getConflictCountsByUser(limit = 10) {
+    if (!state.currentData.length || !state.absData.length) return [];
+
+    const selectedUsersRaw = Array.from(filterAbsUsers.selectedOptions).map(o => o.value);
+    const selectedUsers = selectedUsersRaw.includes('ALL') ? [] : selectedUsersRaw;
+    const startDate = filterAbsDateStart.value ? parseDateToTime(filterAbsDateStart.value) : null;
+    const endDate = filterAbsDateEnd.value ? parseDateToTime(filterAbsDateEnd.value) : null;
+    const allowedUsers = getClientAllowedUsers();
+
+    const counts = {};
+    const bump = (user, key) => {
+        if (!counts[user]) counts[user] = { user, overwork: 0, missingImputation: 0 };
+        counts[user][key]++;
+    };
+    getConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers)
+        .forEach(c => bump(c.user, 'overwork'));
+    getMissingImputationConflicts(state.currentData, state.absData, selectedUsers, startDate, endDate, allowedUsers)
+        .forEach(c => bump(c.user, 'missingImputation'));
+
+    return Object.values(counts)
+        .sort((a, b) => (b.overwork + b.missingImputation) - (a.overwork + a.missingImputation))
+        .slice(0, limit);
+}
+
 export function renderOvertimeTable() {
     if (!overtimeTableBody) return;
     overtimeTableBody.innerHTML = '';

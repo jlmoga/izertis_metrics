@@ -16,4 +16,6 @@ export const state = {
     trendHoursChart: null,
     absStatusChart: null,
     absTypeChart: null,
+    overtimeTypeChart: null,
+    overtimeUserChart: null,
 };

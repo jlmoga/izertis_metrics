@@ -7,7 +7,7 @@ import { t } from '../config/i18n.js';
 import { parseDateToTime, formatCurrency, absNameKey, buildUserClientMap } from '../utils.js';
 import { sortData, sortAbsData } from './sort.js';
 import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable } from './table.js';
-import { updateChart, updateAbsCharts } from './charts.js';
+import { updateChart, updateAbsCharts, updateOvertimeTypeChart, updateOvertimeByUserChart } from './charts.js';
 import { renderOvertimeTable, getConflicts, getMissingImputationConflicts, getClientAllowedUsers } from './overtime.js';
 import { updateHomeDashboard } from './home.js';
 
@@ -172,6 +172,8 @@ export function applyFilters() {
     }
     updateChart(state.filteredData);
     renderOvertimeTable();
+    updateOvertimeTypeChart();
+    updateOvertimeByUserChart();
 
     if (!syncingFilters && state.absData.length > 0) {
         syncingFilters = true;
@@ -240,6 +242,8 @@ export function applyAbsFilters() {
     }
     updateAbsCharts(state.filteredAbsData);
     renderOvertimeTable();
+    updateOvertimeTypeChart();
+    updateOvertimeByUserChart();
     updateHomeDashboard();
 
     if (!syncingFilters && state.currentData.length > 0) {

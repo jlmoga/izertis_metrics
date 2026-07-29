@@ -5,6 +5,7 @@
 import { state } from '../state.js';
 import { t, currentLang } from '../config/i18n.js';
 import { parseDateToTime } from '../utils.js';
+import { getConflictTypeCounts, getConflictCountsByUser } from './overtime.js';
 
 export function updateChart(data) {
     let billable = 0;
@@ -103,7 +104,7 @@ export function updateChart(data) {
 
 }
 
-export function createAbsBarChart(ctx, labels, values, total, title) {
+export function createAbsBarChart(ctx, labels, values, total, title, colors) {
     const isLight = document.body.classList.contains('theme-light');
     const dColor = isLight ? '#202020' : '#F8F8F8';
     const dGridLines = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)';
@@ -112,7 +113,7 @@ export function createAbsBarChart(ctx, labels, values, total, title) {
         type: 'bar',
         data: {
             labels,
-            datasets: [{ label: title, data: values, backgroundColor: ['#73EDFF', '#FF7675', '#55EFC4', '#FAB1A0', '#A29BFE', '#FDCB6E'], borderRadius: 6, borderWidth: 0 }]
+            datasets: [{ label: title, data: values, backgroundColor: colors || ['#73EDFF', '#FF7675', '#55EFC4', '#FAB1A0', '#A29BFE', '#FDCB6E'], borderRadius: 6, borderWidth: 0 }]
         },
         options: {
             indexAxis: 'y', responsive: true, maintainAspectRatio: false,
@@ -155,4 +156,65 @@ export function updateAbsCharts(data) {
             Object.keys(countsType), Object.values(countsType), data.length, t('chartAbsTypeTitle')
         );
     }
+}
+
+// Recompte total de conflictes de jornada per tipus (Conflicte jornada / Falta d'imputació)
+// per al període i filtres actius. Independent del filtratge de la taula de conflictes.
+export function updateOvertimeTypeChart() {
+    const canvas = document.getElementById('overtimeTypeChart');
+    if (!canvas) return;
+
+    if (state.overtimeTypeChart) { state.overtimeTypeChart.destroy(); state.overtimeTypeChart = null; }
+
+    const counts = getConflictTypeCounts();
+    const total = counts.overwork + counts.missingImputation;
+    if (total === 0) return;
+
+    state.overtimeTypeChart = createAbsBarChart(
+        canvas.getContext('2d'),
+        [t('overtimeTypeOverwork'), t('overtimeTypeMissingImputation')],
+        [counts.overwork, counts.missingImputation],
+        total,
+        t('chartOvertimeTypeTitle'),
+        ['#d13438', '#ffb900']
+    );
+}
+
+// Top 10 tècnics amb més conflictes (apilat per tipus), amb els filtres actius.
+export function updateOvertimeByUserChart() {
+    const canvas = document.getElementById('overtimeUserChart');
+    if (!canvas) return;
+
+    if (state.overtimeUserChart) { state.overtimeUserChart.destroy(); state.overtimeUserChart = null; }
+
+    const rows = getConflictCountsByUser(10);
+    if (rows.length === 0) return;
+
+    const isLight = document.body.classList.contains('theme-light');
+    const dColor = isLight ? '#202020' : '#F8F8F8';
+    const dGridLines = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)';
+
+    state.overtimeUserChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: rows.map(r => r.user),
+            datasets: [
+                { label: t('overtimeTypeOverwork'), data: rows.map(r => r.overwork), backgroundColor: '#d13438', borderRadius: 4, borderWidth: 0 },
+                { label: t('overtimeTypeMissingImputation'), data: rows.map(r => r.missingImputation), backgroundColor: '#ffb900', borderRadius: 4, borderWidth: 0 }
+            ]
+        },
+        options: {
+            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+            layout: { padding: { right: 30, left: 10, top: 10, bottom: 10 } },
+            scales: {
+                x: { stacked: true, beginAtZero: true, ticks: { precision: 0, color: dColor, font: { size: 9 } }, grid: { color: dGridLines } },
+                y: { stacked: true, grid: { display: false }, ticks: { color: dColor, font: { size: 9 } } }
+            },
+            plugins: {
+                legend: { display: true, position: 'bottom', labels: { color: dColor, font: { size: 9 }, boxWidth: 10 } },
+                title: { display: true, text: t('chartOvertimeByUserTitle'), color: dColor, font: { size: 15, weight: '600' }, padding: { bottom: 10 } },
+                tooltip: { mode: 'index', intersect: true }
+            }
+        }
+    });
 }

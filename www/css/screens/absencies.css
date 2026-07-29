@@ -10,16 +10,26 @@
     gap: 1rem;
 }
 
-/* --- Fila de gràfics (2 gràfics en horitzontal) ----------------------------- */
+/* --- Dues files de gràfics, dos gràfics per fila (a parts iguals) -----------
+   NOTA: s'usa una classe pròpia (no l'ID de la secció) perquè
+   `.charts-section.minimized .charts-body` (3 classes) continuï guanyant en
+   especificitat i pugui amagar el contingut en col·lapsar. ------------------- */
+.abs-charts-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .abs-charts-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     width: 100%;
 }
 
 .abs-charts-row .chart-box {
-    flex: 1;
-    height: 220px;
+    flex: 1 1 260px;
+    height: 260px;
 }
 
 /* --- Columna principal (taula d'absències) ---------------------------------- */

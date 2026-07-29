@@ -25,7 +25,7 @@ import { setupUploadHandlers } from './ui/upload.js';
 import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupExportXlsx, setupExportAbsXlsx, initDefaultDates } from './ui/filters.js';
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
-import { updateChart } from './ui/charts.js';
+import { updateChart, updateOvertimeTypeChart, updateOvertimeByUserChart } from './ui/charts.js';
 import { renderOvertimeTable, setupOvertimeSortHandlers, setupOvertimeTypeFilterHandlers } from './ui/overtime.js';
 import { updateHomeDashboard, setupEvoExport } from './ui/home.js';
 import { generatePrintReport } from './ui/print.js';
@@ -148,6 +148,8 @@ try {
 
     await updateHomeDashboard();
     renderOvertimeTable();
+    updateOvertimeTypeChart();
+    updateOvertimeByUserChart();
 
     setTimeout(() => {
         if (loadingOverlay) loadingOverlay.classList.add('hidden-modal');
