@@ -4,7 +4,7 @@
 
 import { state } from '../state.js';
 import { t, currentLang } from '../config/i18n.js';
-import { parseDateToTime } from '../utils.js';
+import { parseDateToTime, formatCurrency } from '../utils.js';
 import { getConflictTypeCounts, getConflictCountsByUser } from './overtime.js';
 
 export function updateChart(data) {
@@ -34,10 +34,11 @@ export function updateChart(data) {
     });
 
     const sortedKeys = Object.keys(monthlyData).sort();
-    const labelsMonthly = [], dataHoursMonthly = [];
+    const labelsMonthly = [], dataHoursMonthly = [], dataImportMonthly = [];
     sortedKeys.forEach(k => {
         labelsMonthly.push(monthlyData[k].label);
         dataHoursMonthly.push(monthlyData[k].totalHours.toFixed(2));
+        dataImportMonthly.push(monthlyData[k].totalImport.toFixed(2));
     });
 
     const isLight = document.body.classList.contains('theme-light');
@@ -98,6 +99,39 @@ export function updateChart(data) {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false }, title: { display: true, text: t('chartTitleEvolHours'), color: dColor, font: { size: 14 } } },
                 scales: { y: { beginAtZero: true, grid: { color: dGridLines }, ticks: { color: dColor } }, x: { grid: { color: dGridLines }, ticks: { color: dColor } } }
+            }
+        });
+    }
+
+    // --- Línia: evolució de l'import facturat ---
+    if (state.trendImportChart) {
+        state.trendImportChart.data.labels = labelsMonthly;
+        state.trendImportChart.data.datasets[0].data = dataImportMonthly;
+        state.trendImportChart.data.datasets[0].label = t('chartLabelTotalImport');
+        state.trendImportChart.options.plugins.title.text = t('chartTitleEvolImport');
+        state.trendImportChart.options.plugins.title.color = dColor;
+        state.trendImportChart.options.scales.x.ticks.color = dColor;
+        state.trendImportChart.options.scales.y.ticks.color = dColor;
+        state.trendImportChart.options.scales.x.grid.color = dGridLines;
+        state.trendImportChart.options.scales.y.grid.color = dGridLines;
+        state.trendImportChart.update();
+    } else {
+        const trendImportCanvas = document.getElementById('trendImportChart');
+        if (!trendImportCanvas) return;
+        state.trendImportChart = new Chart(trendImportCanvas.getContext('2d'), {
+            type: 'line',
+            data: { labels: labelsMonthly, datasets: [{ label: t('chartLabelTotalImport'), data: dataImportMonthly, borderColor: '#c9962c', backgroundColor: 'rgba(201,150,44,0.2)', fill: true, tension: 0.3 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: t('chartTitleEvolImport'), color: dColor, font: { size: 14 } },
+                    tooltip: { callbacks: { label: ctx => formatCurrency(ctx.parsed.y) } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: dGridLines }, ticks: { color: dColor, callback: v => formatCurrency(v) } },
+                    x: { grid: { color: dGridLines }, ticks: { color: dColor } }
+                }
             }
         });
     }

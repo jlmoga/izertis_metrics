@@ -14,6 +14,7 @@ export const state = {
     currentOvertimeSort: { column: 'date', direction: 'desc' },
     hoursChart: null,
     trendHoursChart: null,
+    trendImportChart: null,
     absStatusChart: null,
     absTypeChart: null,
     overtimeTypeChart: null,
