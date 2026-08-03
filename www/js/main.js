@@ -22,7 +22,7 @@ import { setupSidebarMode } from './ui/sidebar.js';
 import { setupAppLauncher } from './ui/appLauncher.js';
 import { setupCollapsibleSections } from './ui/collapsible.js';
 import { setupUploadHandlers } from './ui/upload.js';
-import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupExportXlsx, setupExportAbsXlsx, initDefaultDates } from './ui/filters.js';
+import { applyFilters, applyAbsFilters, setupFilterHandlers, setupAbsFilterHandlers, setupFilterToggles, setupGroupingHandlers, setupAbsGroupingHandlers, setupExportXlsx, setupExportAbsXlsx, initDefaultDates, ensureDateRangeCoversData } from './ui/filters.js';
 import { setupImpSortHandlers, setupAbsSortHandlers } from './ui/sort.js';
 import { renderTable } from './ui/table.js';
 import { updateChart, updateOvertimeTypeChart, updateOvertimeByUserChart } from './ui/charts.js';
@@ -133,6 +133,7 @@ try {
 
     if (savedAbsData && savedAbsData.length > 0) {
         state.absData = savedAbsData.map(r => ({ ...r, user: normalizeName(r.user) }));
+        ensureDateRangeCoversData('abs');
         applyAbsFilters();
         document.getElementById('upload-absencies').classList.add('hidden');
         document.getElementById('absencies-results-section').classList.remove('hidden');
@@ -141,6 +142,7 @@ try {
 
     if (savedData && savedData.length > 0) {
         state.currentData = savedData.map(r => ({ ...r, user: normalizeName(r.user) }));
+        ensureDateRangeCoversData('imp');
         applyFilters();
         document.getElementById('upload-imputacions').classList.add('hidden');
         document.getElementById('results-section').classList.remove('hidden');

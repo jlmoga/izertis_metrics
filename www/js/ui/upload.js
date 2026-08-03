@@ -6,7 +6,7 @@ import { state } from '../state.js';
 import { t } from '../config/i18n.js';
 import { saveToDB } from '../services/db.js';
 import { readFile, readAbsenceFile } from '../services/excel.js';
-import { applyFilters, applyAbsFilters } from './filters.js';
+import { applyFilters, applyAbsFilters, ensureDateRangeCoversData } from './filters.js';
 import { updateHomeDashboard } from './home.js';
 
 export async function handleImputacionsFiles(files) {
@@ -27,6 +27,7 @@ export async function handleImputacionsFiles(files) {
     await saveToDB('total_files', excelFiles.length);
     await saveToDB('imputacions_updated', new Date().getTime());
 
+    ensureDateRangeCoversData('imp');
     applyFilters();
     await updateHomeDashboard();
     document.getElementById('upload-imputacions').classList.add('hidden');
@@ -51,6 +52,7 @@ export async function handleAbsenciesFiles(files) {
     await saveToDB('absencies_updated', new Date().getTime());
     await saveToDB('total_abs_files', excelFiles.length);
 
+    ensureDateRangeCoversData('abs');
     applyAbsFilters();
     await updateHomeDashboard();
     document.getElementById('upload-absencies').classList.add('hidden');

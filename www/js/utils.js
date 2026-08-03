@@ -23,6 +23,20 @@ export function parseDateToDateObj(dStr) {
     return isNaN(d) ? null : d;
 }
 
+// Any i mes (1-12) del registre amb la data més recent d'un conjunt de dades, o null si
+// cap fila té una data vàlida. S'usa per ajustar el filtre de període quan les dades
+// carregades no arriben al mes en curs (per exemple, en restaurar una sessió antiga).
+export function latestMonthOf(data, dateField) {
+    let maxTime = 0;
+    (data || []).forEach(row => {
+        const time = parseDateToTime(row[dateField]);
+        if (time > maxTime) maxTime = time;
+    });
+    if (maxTime === 0) return null;
+    const d = new Date(maxTime);
+    return { year: d.getFullYear(), month: d.getMonth() + 1 };
+}
+
 export function isDateInRange(targetDateStr, startStr, endStr) {
     const target = parseDateToTime(targetDateStr);
     const start = parseDateToTime(startStr);

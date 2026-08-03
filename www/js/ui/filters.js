@@ -4,7 +4,7 @@
 
 import { state } from '../state.js';
 import { t } from '../config/i18n.js';
-import { parseDateToTime, formatCurrency, absNameKey, buildUserClientMap } from '../utils.js';
+import { parseDateToTime, formatCurrency, absNameKey, buildUserClientMap, latestMonthOf } from '../utils.js';
 import { sortData, sortAbsData } from './sort.js';
 import { renderTable, renderAbsTable, renderGroupedTable, renderGroupedAbsTable } from './table.js';
 import { updateChart, updateAbsCharts, updateOvertimeTypeChart, updateOvertimeByUserChart } from './charts.js';
@@ -112,6 +112,40 @@ function rebuildSelect(el, values, selectedValues) {
         if (selectedValues.includes(v)) opt.selected = true;
         el.appendChild(opt);
     });
+}
+
+// Comprova si el rang de dates actualment seleccionat conté alguna fila del dataset indicat;
+// si no en conté cap (p. ex. en restaurar una sessió antiga, o en carregar dades noves que
+// no arriben al mes en curs), l'ajusta al mes del registre més recent perquè la pestanya no
+// quedi buida només pel desajust entre el filtre per defecte i el període de les dades.
+function dateRangeHasData(data, dateField, startVal, endVal) {
+    if (!data || data.length === 0) return true;
+    const startTs = startVal ? parseDateToTime(startVal) : 0;
+    const endTs = endVal ? parseDateToTime(endVal) + (24 * 60 * 60 * 1000 - 1) : Infinity;
+    return data.some(row => {
+        const t = parseDateToTime(row[dateField]);
+        return t > 0 && t >= startTs && t <= endTs;
+    });
+}
+
+export function ensureDateRangeCoversData(kind) {
+    const isImp = kind === 'imp';
+    const data = isImp ? state.currentData : state.absData;
+    const dateField = isImp ? 'date' : 'dateStart';
+    const startInput = isImp ? filterDateStart : filterAbsDateStart;
+    const endInput = isImp ? filterDateEnd : filterAbsDateEnd;
+    const monthNav = isImp ? impMonthNav : absMonthNav;
+
+    if (dateRangeHasData(data, dateField, startInput.value, endInput.value)) return;
+
+    const latest = latestMonthOf(data, dateField);
+    if (!latest) return;
+
+    const start = new Date(latest.year, latest.month - 1, 1);
+    const end = new Date(latest.year, latest.month, 0);
+    startInput.value = toYMD(start);
+    endInput.value = toYMD(end);
+    if (monthNav) monthNav.value = `${latest.year}-${String(latest.month).padStart(2, '0')}`;
 }
 
 export function applyFilters() {

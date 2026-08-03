@@ -103,7 +103,8 @@ main {
     font-weight: 600;
 }
 
-.sidebar-item .ph {
+.sidebar-item .ph,
+.sidebar-item .material-symbols-outlined {
     font-size: 1.1rem;
     flex-shrink: 0;
 }

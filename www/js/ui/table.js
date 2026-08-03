@@ -22,6 +22,10 @@ const absTableFoot = document.getElementById('absTableFoot');
 
 export function renderTable(data) {
     tableBody.innerHTML = '';
+    if (!data || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoImpInPeriod')}</td></tr>`;
+        return;
+    }
     data.forEach(row => {
         const hasAbsence = state.absData.some(abs => abs.user === row.user && abs.dateStart === row.date);
         const isBillableBadge = row.isBillable
@@ -138,6 +142,10 @@ function renderLevel(rows, groupByArray, level, tbody, parentGroupId, counter) {
 export function renderGroupedTable(data, groupByArray, startCollapsed = false) {
     if (!tableBody) return;
     tableBody.innerHTML = '';
+    if (!data || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoImpInPeriod')}</td></tr>`;
+        return;
+    }
     renderLevel(data, groupByArray, 1, tableBody, null, { n: 0 });
     if (startCollapsed) {
         tableBody.querySelectorAll('.group-header-row').forEach(h => h.classList.add('collapsed'));
@@ -602,6 +610,10 @@ export function renderGroupedAbsTable(data, groupByArray, startCollapsed = false
     buildAbsConflictKeys();
     absTableBody.innerHTML = '';
     renderAbsFoot(data);
+    if (!data || data.length === 0) {
+        absTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoAbsInPeriod')}</td></tr>`;
+        return;
+    }
     renderAbsLevel(data, groupByArray, 1, absTableBody, null, { n: 0 });
     if (startCollapsed) {
         absTableBody.querySelectorAll('.group-header-row').forEach(h => h.classList.add('collapsed'));
@@ -613,5 +625,9 @@ export function renderAbsTable(data) {
     buildAbsConflictKeys();
     absTableBody.innerHTML = '';
     renderAbsFoot(data);
+    if (!data || data.length === 0) {
+        absTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem; color: var(--text-secondary);">${t('msgNoAbsInPeriod')}</td></tr>`;
+        return;
+    }
     data.forEach(row => absTableBody.appendChild(renderAbsDataRow(row, null)));
 }
