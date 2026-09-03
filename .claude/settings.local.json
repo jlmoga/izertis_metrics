@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(New-Item -ItemType Directory -Force \"Z:\\\\Projectes Antigravity\\\\Quadre de facturació Serveis de Banca Izertis\\\\js\\\\config\")",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType Directory -Force \"Z:\\\\Projectes Antigravity\\\\Quadre de facturació Serveis de Banca Izertis\\\\js\\\\services\")",
+      "Bash(New-Item -ItemType Directory -Force \"Z:\\\\Projectes Antigravity\\\\Quadre de facturació Serveis de Banca Izertis\\\\js\\\\ui\")",
+      "Bash(Write-Output \"Directoris creats\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/js/main.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/js/config/i18n.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/js/ui/filters.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/js/ui/charts.js)",
+      "Bash(xargs grep -liE \"absenc|conflict\")",
+      "Bash(node --check www/js/ui/overtime.js)",
+      "Bash(node --check www/js/ui/filters.js)",
+      "Bash(node --check www/js/config/i18n.js)",
+      "Bash(echo \"exit:$?\")",
+      "Read(//c/Users/jlmog/AppData/Local/Temp/claude/Z--Projectes-Antigravity-Izertis-Metrics/95e8813e-e81e-4cf2-8453-9bddd8ccad6d/scratchpad/testrun/**)",
+      "Bash(node test.mjs)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill *)",
+      "Bash(cp __TRACKED_VAR__/ui/overtime.js /c/Users/jlmog/AppData/Local/Temp/claude/Z--Projectes-Antigravity-Izertis-Metrics/95e8813e-e81e-4cf2-8453-9bddd8ccad6d/scratchpad/testrun/overtime.mjs)",
+      "Bash(cp __TRACKED_VAR__/state.js /c/Users/jlmog/AppData/Local/Temp/claude/Z--Projectes-Antigravity-Izertis-Metrics/95e8813e-e81e-4cf2-8453-9bddd8ccad6d/scratchpad/testrun/state.mjs)",
+      "Bash(cp __TRACKED_VAR__/utils.js /c/Users/jlmog/AppData/Local/Temp/claude/Z--Projectes-Antigravity-Izertis-Metrics/95e8813e-e81e-4cf2-8453-9bddd8ccad6d/scratchpad/testrun/utils.mjs)",
+      "Bash(cp __TRACKED_VAR__/config/i18n.js /c/Users/jlmog/AppData/Local/Temp/claude/Z--Projectes-Antigravity-Izertis-Metrics/95e8813e-e81e-4cf2-8453-9bddd8ccad6d/scratchpad/testrun/config/i18n.mjs)",
+      "Bash(sed -i 's/from '\\\\''\\\\.\\\\.\\\\/state\\\\.js'\\\\''/from '\\\\''.\\\\/state.mjs'\\\\''/; s/from '\\\\''\\\\.\\\\.\\\\/config\\\\/i18n\\\\.js'\\\\''/from '\\\\''.\\\\/config\\\\/i18n.mjs'\\\\''/; s/from '\\\\''\\\\.\\\\.\\\\/utils\\\\.js'\\\\''/from '\\\\''.\\\\/utils.mjs'\\\\''/' /c/Users/jlmog/AppData/Local/Temp/claude/Z--Projectes-Antigravity-Izertis-Metrics/95e8813e-e81e-4cf2-8453-9bddd8ccad6d/scratchpad/testrun/overtime.mjs)",
+      "Bash(node test2.mjs)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8080/index.html)",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"CommandLine LIKE '%http-server%'\\\\\" | Select-Object ProcessId,CommandLine\")",
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 17512,15260,9024 -Force -ErrorAction SilentlyContinue\")",
+      "Bash(python3 -c \"print\\('python ok'\\)\")",
+      "Bash(node -e \"console.log\\('node ok'\\)\")",
+      "Bash(pip show *)",
+      "Bash(python -c \"import openpyxl; print\\('openpyxl available'\\)\")",
+      "Bash(node \"C:\\\\Users\\\\jlmog\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\Z--Projectes-Antigravity-Izertis-Metrics\\\\fe0c6e29-651d-4ae9-96af-e3da7ca3bed5\\\\scratchpad\\\\read_headers.js\" \"bd/imputaciones/Abril 2026.xlsx\" \"bd/imputaciones/imputacions fins a 31-03-2026.xlsx\" \"bd/imputaciones/julio 2026.xlsx\" \"bd/imputaciones/Junio 2026.xlsx\" \"bd/imputaciones/Mayo 2026.xlsx\")",
+      "Bash(kill %1)",
+      "Bash(jobs)"
+    ]
+  }
+}
